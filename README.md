@@ -1,5 +1,7 @@
 # DartBlock
 
+[![pub package](https://img.shields.io/pub/v/dartblock_code.svg)](https://pub.dev/packages/dartblock_code)
+
 - [DartBlock](#dartblock)
   - [Introduction](#introduction)
   - [Example](#example)
