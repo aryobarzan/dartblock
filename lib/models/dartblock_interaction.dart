@@ -3,7 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:dartblock_code/models/dartblock_notification.dart';
 part 'dartblock_interaction.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockInteraction {
   final DartBlockInteractionType dartBlockInteractionType;
   final DateTime timestamp;

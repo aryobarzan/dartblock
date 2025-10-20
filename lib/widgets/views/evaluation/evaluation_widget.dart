@@ -65,8 +65,8 @@ class DartBlockEvaluationResultWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final neoTechException = result.evaluations
-        .firstWhereOrNull((evaluation) => evaluation.neoTechException != null)
-        ?.neoTechException;
+        .firstWhereOrNull((evaluation) => evaluation.dartBlockException != null)
+        ?.dartBlockException;
 
     return Container(
       clipBehavior: Clip.antiAlias,

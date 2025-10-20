@@ -133,8 +133,8 @@ class DartBlockProgram {
   );
 
   factory DartBlockProgram.fromJson(Map<String, dynamic> json) =>
-      _$NeoTechCoreFromJson(json);
-  Map<String, dynamic> toJson() => _$NeoTechCoreToJson(this);
+      _$DartBlockProgramFromJson(json);
+  Map<String, dynamic> toJson() => _$DartBlockProgramToJson(this);
 
   /// Add a statement to the main function.
   void addStatementToMain(Statement statement) {

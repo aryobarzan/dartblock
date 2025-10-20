@@ -7,22 +7,24 @@ part of 'dartblock_interaction.dart';
 // **************************************************************************
 
 DartBlockInteraction _$DartBlockInteractionFromJson(
-        Map<String, dynamic> json) =>
-    DartBlockInteraction(
-      $enumDecode(
-          _$DartBlockInteractionTypeEnumMap, json['dartBlockInteractionType']),
-      json['content'] as String,
-      DateTime.parse(json['timestamp'] as String),
-    );
+  Map<String, dynamic> json,
+) => DartBlockInteraction(
+  $enumDecode(
+    _$DartBlockInteractionTypeEnumMap,
+    json['dartBlockInteractionType'],
+  ),
+  json['content'] as String,
+  DateTime.parse(json['timestamp'] as String),
+);
 
 Map<String, dynamic> _$DartBlockInteractionToJson(
-        DartBlockInteraction instance) =>
-    <String, dynamic>{
-      'dartBlockInteractionType':
-          _$DartBlockInteractionTypeEnumMap[instance.dartBlockInteractionType]!,
-      'timestamp': instance.timestamp.toIso8601String(),
-      'content': instance.content,
-    };
+  DartBlockInteraction instance,
+) => <String, dynamic>{
+  'dartBlockInteractionType':
+      _$DartBlockInteractionTypeEnumMap[instance.dartBlockInteractionType]!,
+  'timestamp': instance.timestamp.toIso8601String(),
+  'content': instance.content,
+};
 
 const _$DartBlockInteractionTypeEnumMap = {
   DartBlockInteractionType.tapExceptionIndicatorInToolbox:

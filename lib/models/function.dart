@@ -20,8 +20,8 @@ class DartBlockFunction implements DartBlockProgramTreeNodeAcceptor {
   );
 
   factory DartBlockFunction.fromJson(Map<String, dynamic> json) =>
-      _$CustomFunctionFromJson(json);
-  Map<String, dynamic> toJson() => _$CustomFunctionToJson(this);
+      _$DartBlockFunctionFromJson(json);
+  Map<String, dynamic> toJson() => _$DartBlockFunctionToJson(this);
 
   String toScript({
     DartBlockTypedLanguage language = DartBlockTypedLanguage.java,
@@ -122,7 +122,7 @@ class DartBlockFunction implements DartBlockProgramTreeNodeAcceptor {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class FunctionDefinition {
   final String name;
   final DartBlockDataType? returnType;

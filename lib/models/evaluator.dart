@@ -103,8 +103,8 @@ class DartBlockEvaluator {
   }
 
   factory DartBlockEvaluator.fromJson(Map<String, dynamic> json) =>
-      _$NeoTechEvaluatorFromJson(json);
-  Map<String, dynamic> toJson() => _$NeoTechEvaluatorToJson(this);
+      _$DartBlockEvaluatorFromJson(json);
+  Map<String, dynamic> toJson() => _$DartBlockEvaluatorToJson(this);
 
   DartBlockEvaluator copy() {
     return DartBlockEvaluator(List.from(schemas.map((e) => e.copy())));
@@ -129,8 +129,8 @@ final class DartBlockEvaluationResult {
   }
 
   factory DartBlockEvaluationResult.fromJson(Map<String, dynamic> json) =>
-      _$NeoTechEvaluationResultFromJson(json);
-  Map<String, dynamic> toJson() => _$NeoTechEvaluationResultToJson(this);
+      _$DartBlockEvaluationResultFromJson(json);
+  Map<String, dynamic> toJson() => _$DartBlockEvaluationResultToJson(this);
 
   @override
   String toString() {
@@ -251,7 +251,7 @@ sealed class DartBlockEvaluationSchema {
   DartBlockEvaluationSchema copy();
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockFunctionDefinitionEvaluationSchema
     extends DartBlockEvaluationSchema {
   final List<FunctionDefinition> functionDefinitions;
@@ -262,10 +262,10 @@ class DartBlockFunctionDefinitionEvaluationSchema
 
   factory DartBlockFunctionDefinitionEvaluationSchema.fromJson(
     Map<String, dynamic> json,
-  ) => _$NeoTechFunctionDefinitionEvaluationSchemaFromJson(json);
+  ) => _$DartBlockFunctionDefinitionEvaluationSchemaFromJson(json);
   @override
   Map<String, dynamic> toJson() =>
-      _$NeoTechFunctionDefinitionEvaluationSchemaToJson(this);
+      _$DartBlockFunctionDefinitionEvaluationSchemaToJson(this);
 
   @override
   Future<DartBlockEvaluation> evaluate(
@@ -331,7 +331,7 @@ class DartBlockFunctionDefinitionEvaluationSchema
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockFunctionOutputEvaluationSchema
     extends DartBlockEvaluationSchema {
   final List<FunctionCallStatement> sampleFunctionCalls;
@@ -342,10 +342,10 @@ class DartBlockFunctionOutputEvaluationSchema
 
   factory DartBlockFunctionOutputEvaluationSchema.fromJson(
     Map<String, dynamic> json,
-  ) => _$NeoTechFunctionOutputEvaluationSchemaFromJson(json);
+  ) => _$DartBlockFunctionOutputEvaluationSchemaFromJson(json);
   @override
   Map<String, dynamic> toJson() =>
-      _$NeoTechFunctionOutputEvaluationSchemaToJson(this);
+      _$DartBlockFunctionOutputEvaluationSchemaToJson(this);
 
   @override
   Future<DartBlockEvaluation> evaluate(
@@ -454,16 +454,17 @@ class DartBlockFunctionOutputEvaluationSchema
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockScriptEvaluationSchema extends DartBlockEvaluationSchema {
   final double similarityThreshold;
   DartBlockScriptEvaluationSchema(super.isEnabled, this.similarityThreshold)
     : super(schemaType: DartBlockEvaluationSchemaType.script);
 
   factory DartBlockScriptEvaluationSchema.fromJson(Map<String, dynamic> json) =>
-      _$NeoTechScriptEvaluationSchemaFromJson(json);
+      _$DartBlockScriptEvaluationSchemaFromJson(json);
   @override
-  Map<String, dynamic> toJson() => _$NeoTechScriptEvaluationSchemaToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$DartBlockScriptEvaluationSchemaToJson(this);
 
   @override
   Future<DartBlockEvaluation> evaluate(
@@ -492,7 +493,7 @@ class DartBlockScriptEvaluationSchema extends DartBlockEvaluationSchema {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockVariableCountEvaluationSchema extends DartBlockEvaluationSchema {
   final bool ignoreVariablesStartingWithUnderscore;
   DartBlockVariableCountEvaluationSchema(
@@ -502,10 +503,10 @@ class DartBlockVariableCountEvaluationSchema extends DartBlockEvaluationSchema {
 
   factory DartBlockVariableCountEvaluationSchema.fromJson(
     Map<String, dynamic> json,
-  ) => _$NeoTechVariableCountEvaluationSchemaFromJson(json);
+  ) => _$DartBlockVariableCountEvaluationSchemaFromJson(json);
   @override
   Map<String, dynamic> toJson() =>
-      _$NeoTechVariableCountEvaluationSchemaToJson(this);
+      _$DartBlockVariableCountEvaluationSchemaToJson(this);
 
   @override
   Future<DartBlockEvaluation> evaluate(
@@ -544,7 +545,7 @@ class DartBlockVariableCountEvaluationSchema extends DartBlockEvaluationSchema {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockEnvironmentEvaluationSchema extends DartBlockEvaluationSchema {
   final bool ignoreVariablesStartingWithUnderscore;
   DartBlockEnvironmentEvaluationSchema(
@@ -554,10 +555,10 @@ class DartBlockEnvironmentEvaluationSchema extends DartBlockEvaluationSchema {
 
   factory DartBlockEnvironmentEvaluationSchema.fromJson(
     Map<String, dynamic> json,
-  ) => _$NeoTechEnvironmentEvaluationSchemaFromJson(json);
+  ) => _$DartBlockEnvironmentEvaluationSchemaFromJson(json);
   @override
   Map<String, dynamic> toJson() =>
-      _$NeoTechEnvironmentEvaluationSchemaToJson(this);
+      _$DartBlockEnvironmentEvaluationSchemaToJson(this);
 
   @override
   Future<DartBlockEvaluation> evaluate(
@@ -667,16 +668,16 @@ class DartBlockEnvironmentEvaluationSchema extends DartBlockEvaluationSchema {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockPrintEvaluationSchema extends DartBlockEvaluationSchema {
   final double similarityThreshold;
   DartBlockPrintEvaluationSchema(super.isEnabled, this.similarityThreshold)
     : super(schemaType: DartBlockEvaluationSchemaType.print);
 
   factory DartBlockPrintEvaluationSchema.fromJson(Map<String, dynamic> json) =>
-      _$NeoTechPrintEvaluationSchemaFromJson(json);
+      _$DartBlockPrintEvaluationSchemaFromJson(json);
   @override
-  Map<String, dynamic> toJson() => _$NeoTechPrintEvaluationSchemaToJson(this);
+  Map<String, dynamic> toJson() => _$DartBlockPrintEvaluationSchemaToJson(this);
 
   @override
   Future<DartBlockEvaluation> evaluate(
@@ -763,11 +764,12 @@ class DartBlockPrintEvaluationSchema extends DartBlockEvaluationSchema {
 sealed class DartBlockEvaluation {
   final DartBlockEvaluationSchemaType evaluationType;
   final bool isCorrect;
-  final DartBlockException? neoTechException;
+  @JsonKey(name: 'neoTechException')
+  final DartBlockException? dartBlockException;
   DartBlockEvaluation(
     this.evaluationType,
     this.isCorrect,
-    this.neoTechException,
+    this.dartBlockException,
   );
 
   factory DartBlockEvaluation.fromJson(Map<String, dynamic> json) {
@@ -805,13 +807,13 @@ sealed class DartBlockEvaluation {
 
   @override
   String toString() {
-    return neoTechException != null
-        ? "- An exception was thrown when evaluating your program: ${neoTechException!.message}"
+    return dartBlockException != null
+        ? "- An exception was thrown when evaluating your program: ${dartBlockException!.message}"
         : '';
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockFunctionDefinitionEvaluation extends DartBlockEvaluation {
   /// (Function Call, Actual Value)
   final List<FunctionDefinition> correctFunctionDefinitions;
@@ -834,15 +836,15 @@ class DartBlockFunctionDefinitionEvaluation extends DartBlockEvaluation {
     this.wrongFunctionDefinitions,
     super.evaluationType,
     super.isCorrect,
-    super.neoTechException,
+    super.dartBlockException,
   );
 
   factory DartBlockFunctionDefinitionEvaluation.fromJson(
     Map<String, dynamic> json,
-  ) => _$NeoTechFunctionDefinitionEvaluationFromJson(json);
+  ) => _$DartBlockFunctionDefinitionEvaluationFromJson(json);
   @override
   Map<String, dynamic> toJson() =>
-      _$NeoTechFunctionDefinitionEvaluationToJson(this);
+      _$DartBlockFunctionDefinitionEvaluationToJson(this);
 
   @override
   String toString() {
@@ -864,7 +866,7 @@ class DartBlockFunctionDefinitionEvaluation extends DartBlockEvaluation {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockFunctionOutputEvaluation extends DartBlockEvaluation {
   /// (Function Call, Actual Value)
   final List<(FunctionCallStatement, String?)> correctFunctionCalls;
@@ -885,15 +887,15 @@ class DartBlockFunctionOutputEvaluation extends DartBlockEvaluation {
     this.wrongFunctionCalls,
     super.evaluationType,
     super.isCorrect,
-    super.neoTechException,
+    super.dartBlockException,
   );
 
   factory DartBlockFunctionOutputEvaluation.fromJson(
     Map<String, dynamic> json,
-  ) => _$NeoTechFunctionOutputEvaluationFromJson(json);
+  ) => _$DartBlockFunctionOutputEvaluationFromJson(json);
   @override
   Map<String, dynamic> toJson() =>
-      _$NeoTechFunctionOutputEvaluationToJson(this);
+      _$DartBlockFunctionOutputEvaluationToJson(this);
 
   @override
   String toString() {
@@ -915,7 +917,7 @@ class DartBlockFunctionOutputEvaluation extends DartBlockEvaluation {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockScriptEvaluation extends DartBlockEvaluation {
   final double matchScore;
   final double similarityThreshold;
@@ -939,13 +941,13 @@ class DartBlockScriptEvaluation extends DartBlockEvaluation {
     this.answerScript,
     super.evaluationType,
     super.isCorrect,
-    super.neoTechException,
+    super.dartBlockException,
   );
 
   factory DartBlockScriptEvaluation.fromJson(Map<String, dynamic> json) =>
-      _$NeoTechScriptEvaluationFromJson(json);
+      _$DartBlockScriptEvaluationFromJson(json);
   @override
-  Map<String, dynamic> toJson() => _$NeoTechScriptEvaluationToJson(this);
+  Map<String, dynamic> toJson() => _$DartBlockScriptEvaluationToJson(this);
 
   @override
   String toString() {
@@ -953,7 +955,7 @@ class DartBlockScriptEvaluation extends DartBlockEvaluation {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockVariableCountEvaluation extends DartBlockEvaluation {
   final List<DartBlockVariableDefinition> solutionVariableDefinitions;
   final List<DartBlockVariableDefinition> answerVariableDefinitions;
@@ -970,14 +972,15 @@ class DartBlockVariableCountEvaluation extends DartBlockEvaluation {
     this.answerVariableDefinitions,
     super.evaluationType,
     super.isCorrect,
-    super.neoTechException,
+    super.dartBlockException,
   );
 
   factory DartBlockVariableCountEvaluation.fromJson(
     Map<String, dynamic> json,
-  ) => _$NeoTechVariableCountEvaluationFromJson(json);
+  ) => _$DartBlockVariableCountEvaluationFromJson(json);
   @override
-  Map<String, dynamic> toJson() => _$NeoTechVariableCountEvaluationToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$DartBlockVariableCountEvaluationToJson(this);
 
   @override
   String toString() {
@@ -985,7 +988,7 @@ class DartBlockVariableCountEvaluation extends DartBlockEvaluation {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockEnvironmentEvaluation extends DartBlockEvaluation {
   @JsonKey(defaultValue: [])
   final List<(DartBlockVariableDefinition, String?)> missingVariableDefinitions;
@@ -1019,13 +1022,13 @@ class DartBlockEnvironmentEvaluation extends DartBlockEvaluation {
     this.correctVariableDefinitions,
     super.evaluationType,
     super.isCorrect,
-    super.neoTechException,
+    super.dartBlockException,
   );
 
   factory DartBlockEnvironmentEvaluation.fromJson(Map<String, dynamic> json) =>
-      _$NeoTechEnvironmentEvaluationFromJson(json);
+      _$DartBlockEnvironmentEvaluationFromJson(json);
   @override
-  Map<String, dynamic> toJson() => _$NeoTechEnvironmentEvaluationToJson(this);
+  Map<String, dynamic> toJson() => _$DartBlockEnvironmentEvaluationToJson(this);
 
   @override
   String toString() {
@@ -1073,7 +1076,7 @@ enum DartBlockPrintEvaluationType {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockPrintEvaluation extends DartBlockEvaluation {
   final double similarityThreshold;
 
@@ -1101,13 +1104,13 @@ class DartBlockPrintEvaluation extends DartBlockEvaluation {
     this.printEvaluations,
     super.evaluationType,
     super.isCorrect,
-    super.neoTechException,
+    super.dartBlockException,
   );
 
   factory DartBlockPrintEvaluation.fromJson(Map<String, dynamic> json) =>
-      _$NeoTechPrintEvaluationFromJson(json);
+      _$DartBlockPrintEvaluationFromJson(json);
   @override
-  Map<String, dynamic> toJson() => _$NeoTechPrintEvaluationToJson(this);
+  Map<String, dynamic> toJson() => _$DartBlockPrintEvaluationToJson(this);
 
   @override
   String toString() {

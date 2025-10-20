@@ -6,18 +6,18 @@ part of 'exception.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-DartBlockException _$NeoTechExceptionFromJson(Map<String, dynamic> json) =>
+DartBlockException _$DartBlockExceptionFromJson(Map<String, dynamic> json) =>
     DartBlockException(
-      title: json['title'] as String,
-      message: json['message'] as String,
-      statement: json['statement'] == null
-          ? null
-          : Statement.fromJson(json['statement'] as Map<String, dynamic>),
-    )
+        title: json['title'] as String,
+        message: json['message'] as String,
+        statement: json['statement'] == null
+            ? null
+            : Statement.fromJson(json['statement'] as Map<String, dynamic>),
+      )
       ..internalMessage = json['internalMessage'] as String
       ..isGeneric = json['isGeneric'] as bool;
 
-Map<String, dynamic> _$NeoTechExceptionToJson(DartBlockException instance) =>
+Map<String, dynamic> _$DartBlockExceptionToJson(DartBlockException instance) =>
     <String, dynamic>{
       'statement': instance.statement?.toJson(),
       'title': instance.title,

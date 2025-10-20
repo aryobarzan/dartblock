@@ -406,7 +406,7 @@ sealed class StatementContext<T extends StatementContextPostExecutionResult?>
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class StatementBlock extends StatementContext {
   List<Statement> statements = [];
   StatementBlock.init({List<Statement>? statements, super.isIsolated = false})
@@ -606,7 +606,7 @@ class VariableDeclarationStatement extends Statement {
 }
 
 /// Shouldn't value be nullable?
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class VariableAssignmentStatement extends Statement {
   final String name;
   final DartBlockValue? value;
@@ -664,7 +664,7 @@ class VariableAssignmentStatement extends Statement {
 
 /// Return value
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class ReturnStatement extends Statement {
   DartBlockDataType dataType;
   DartBlockValue value;
@@ -749,7 +749,7 @@ class ReturnStatementException implements Exception {
   ReturnStatementException(this.value);
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class BreakStatement extends Statement {
   BreakStatement.init() : super.init(StatementType.breakStatement);
   BreakStatement(super.statementType, super.statementId);
@@ -799,7 +799,7 @@ class BreakStatementException extends DartBlockException {
       );
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class ContinueStatement extends Statement {
   ContinueStatement.init() : super.init(StatementType.continueStatement);
   ContinueStatement(super.statementType, super.statementId);
@@ -851,7 +851,7 @@ class ContinueStatementException extends DartBlockException {
 }
 
 /// Decision Structures
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class IfElseStatement extends Statement {
   final DartBlockBooleanExpression ifCondition;
   final StatementBlock ifThenStatementBlock;
@@ -1046,7 +1046,7 @@ class IfElseStatement extends Statement {
 //     }
 //   }
 // }
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class ForLoopStatement extends StatementContext {
   Statement? initStatement;
   DartBlockBooleanExpression condition;
@@ -1216,7 +1216,7 @@ class ForLoopStatement extends StatementContext {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class WhileLoopStatement extends StatementContext {
   bool isDoWhile;
   DartBlockBooleanExpression condition;
@@ -1384,7 +1384,7 @@ class FunctionCallPostExecutionResult
   FunctionCallPostExecutionResult(this.customFunction, this.returnValue);
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class FunctionCallStatement
     extends StatementContext<FunctionCallPostExecutionResult> {
   final String customFunctionName;
@@ -1586,7 +1586,7 @@ class FunctionCallStatement
 }
 
 /// Miscellaneous
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class PrintStatement extends Statement {
   final DartBlockConcatenationValue value;
 

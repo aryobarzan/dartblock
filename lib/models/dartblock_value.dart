@@ -52,7 +52,7 @@ enum DartBlockDataType {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockVariableDefinition {
   final String name;
   final DartBlockDataType dataType;
@@ -78,9 +78,9 @@ class DartBlockVariableDefinition {
   }
 
   factory DartBlockVariableDefinition.fromJson(Map<String, dynamic> json) =>
-      _$VariableDefinitionFromJson(json);
+      _$DartBlockVariableDefinitionFromJson(json);
 
-  Map<String, dynamic> toJson() => _$VariableDefinitionToJson(this);
+  Map<String, dynamic> toJson() => _$DartBlockVariableDefinitionToJson(this);
 
   DartBlockVariableDefinition copy() {
     return DartBlockVariableDefinition(name, dataType);
@@ -175,12 +175,12 @@ sealed class DartBlockDynamicValue extends DartBlockValue {
   Map<String, dynamic> toJson();
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockVariable extends DartBlockDynamicValue {
   String name;
   DartBlockVariable.init(this.name)
     : super.init(DartBlockDynamicValueType.variable);
-  DartBlockVariable(this.name, super.dynamicValueType, super.neoValueType);
+  DartBlockVariable(this.name, super.dynamicValueType, super.valueType);
 
   /// Retrieves the value associated with this variably by lookup in the indicated
   /// Environment.
@@ -200,9 +200,9 @@ class DartBlockVariable extends DartBlockDynamicValue {
   }
 
   factory DartBlockVariable.fromJson(Map<String, dynamic> json) =>
-      _$NeoVariableFromJson(json);
+      _$DartBlockVariableFromJson(json);
   @override
-  Map<String, dynamic> toJson() => _$NeoVariableToJson(this);
+  Map<String, dynamic> toJson() => _$DartBlockVariableToJson(this);
 
   @override
   String toScript({
@@ -212,7 +212,7 @@ class DartBlockVariable extends DartBlockDynamicValue {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockFunctionCallValue extends DartBlockDynamicValue {
   final FunctionCallStatement customFunctionCall;
   DartBlockFunctionCallValue.init(this.customFunctionCall)
@@ -220,7 +220,7 @@ class DartBlockFunctionCallValue extends DartBlockDynamicValue {
   DartBlockFunctionCallValue(
     this.customFunctionCall,
     super.dynamicValueType,
-    super.neoValueType,
+    super.valueType,
   );
 
   @override
@@ -246,9 +246,9 @@ class DartBlockFunctionCallValue extends DartBlockDynamicValue {
   }
 
   factory DartBlockFunctionCallValue.fromJson(Map<String, dynamic> json) =>
-      _$FunctionCallValueFromJson(json);
+      _$DartBlockFunctionCallValueFromJson(json);
   @override
-  Map<String, dynamic> toJson() => _$FunctionCallValueToJson(this);
+  Map<String, dynamic> toJson() => _$DartBlockFunctionCallValueToJson(this);
 
   @override
   String toString() {
@@ -267,7 +267,7 @@ class DartBlockFunctionCallValue extends DartBlockDynamicValue {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockStringValue extends DartBlockValue<String> {
   String value;
   DartBlockStringValue.init(this.value) : super(DartBlockValueType.stringValue);
@@ -288,9 +288,9 @@ class DartBlockStringValue extends DartBlockValue<String> {
   }
 
   factory DartBlockStringValue.fromJson(Map<String, dynamic> json) =>
-      _$StringValueFromJson(json);
+      _$DartBlockStringValueFromJson(json);
   @override
-  Map<String, dynamic> toJson() => _$StringValueToJson(this);
+  Map<String, dynamic> toJson() => _$DartBlockStringValueToJson(this);
 
   @override
   String toScript({
@@ -300,7 +300,7 @@ class DartBlockStringValue extends DartBlockValue<String> {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockConcatenationValue extends DartBlockValue<String> {
   List<DartBlockValue> values;
 
@@ -335,9 +335,9 @@ class DartBlockConcatenationValue extends DartBlockValue<String> {
   }
 
   factory DartBlockConcatenationValue.fromJson(Map<String, dynamic> json) =>
-      _$ConcatenationValueFromJson(json);
+      _$DartBlockConcatenationValueFromJson(json);
   @override
-  Map<String, dynamic> toJson() => _$ConcatenationValueToJson(this);
+  Map<String, dynamic> toJson() => _$DartBlockConcatenationValueToJson(this);
 
   @override
   String toScript({
@@ -431,14 +431,14 @@ sealed class DartBlockExpressionValue<T, U extends DartBlockValueTreeNode>
   Map<String, dynamic> toJson();
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockAlgebraicExpression
     extends DartBlockExpressionValue<num, DartBlockValueTreeAlgebraicNode> {
   DartBlockAlgebraicExpression.init(super.compositionNode)
     : super.init(expressionValueType: DartBlockExpressionValueType.algebraic);
   DartBlockAlgebraicExpression(
     super.compositionNode,
-    super.neoValueType,
+    super.valueType,
     super.expressionValueType,
   );
 
@@ -454,19 +454,19 @@ class DartBlockAlgebraicExpression
   }
 
   factory DartBlockAlgebraicExpression.fromJson(Map<String, dynamic> json) =>
-      _$AlgebraicExpressionFromJson(json);
+      _$DartBlockAlgebraicExpressionFromJson(json);
   @override
-  Map<String, dynamic> toJson() => _$AlgebraicExpressionToJson(this);
+  Map<String, dynamic> toJson() => _$DartBlockAlgebraicExpressionToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockBooleanExpression
     extends DartBlockExpressionValue<bool, DartBlockValueTreeBooleanNode> {
   DartBlockBooleanExpression.init(super.compositionNode)
     : super.init(expressionValueType: DartBlockExpressionValueType.boolean);
   DartBlockBooleanExpression(
     super.compositionNode,
-    super.neoValueType,
+    super.valueType,
     super.expressionValueType,
   );
 
@@ -482,9 +482,9 @@ class DartBlockBooleanExpression
   }
 
   factory DartBlockBooleanExpression.fromJson(Map<String, dynamic> json) =>
-      _$BooleanExpressionFromJson(json);
+      _$DartBlockBooleanExpressionFromJson(json);
   @override
-  Map<String, dynamic> toJson() => _$BooleanExpressionToJson(this);
+  Map<String, dynamic> toJson() => _$DartBlockBooleanExpressionToJson(this);
 }
 
 ///
@@ -500,13 +500,12 @@ enum DartBlockValueTreeNodeType {
 }
 
 sealed class DartBlockValueTreeNode<T> {
-  final DartBlockValueTreeNodeType neoValueNodeType;
+  @JsonKey(name: 'neoValueNodeType')
+  final DartBlockValueTreeNodeType nodeType;
   String nodeKey;
-  DartBlockValueTreeNode.init({
-    String? specificNodeKey,
-    required this.neoValueNodeType,
-  }) : nodeKey = specificNodeKey ?? const Uuid().v4();
-  DartBlockValueTreeNode(this.neoValueNodeType, this.nodeKey);
+  DartBlockValueTreeNode.init({String? specificNodeKey, required this.nodeType})
+    : nodeKey = specificNodeKey ?? const Uuid().v4();
+  DartBlockValueTreeNode(this.nodeType, this.nodeKey);
   T getValue(DartBlockArbiter arbiter);
 
   @override
@@ -569,17 +568,18 @@ enum DartBlockValueTreeAlgebraicNodeType {
 
 sealed class DartBlockValueTreeAlgebraicNode
     extends DartBlockValueTreeNode<num> {
-  final DartBlockValueTreeAlgebraicNodeType neoValueNumericNodeType;
+  @JsonKey(name: 'neoValueNumericNodeType')
+  final DartBlockValueTreeAlgebraicNodeType numericNodeType;
   @JsonKey(includeToJson: false, includeFromJson: false)
   DartBlockValueTreeAlgebraicNode? parent;
   DartBlockValueTreeAlgebraicNode.init(
     this.parent, {
     super.specificNodeKey,
-    required this.neoValueNumericNodeType,
-  }) : super.init(neoValueNodeType: DartBlockValueTreeNodeType.algebraic);
+    required this.numericNodeType,
+  }) : super.init(nodeType: DartBlockValueTreeNodeType.algebraic);
   DartBlockValueTreeAlgebraicNode(
-    this.neoValueNumericNodeType,
-    super.neoValueNodeType,
+    this.numericNodeType,
+    super.nodeType,
     super.nodeKey,
   );
 
@@ -671,7 +671,7 @@ sealed class DartBlockValueTreeAlgebraicNode
   DartBlockValueTreeAlgebraicNode copy();
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockValueTreeAlgebraicConstantNode
     extends DartBlockValueTreeAlgebraicNode {
   num value;
@@ -682,21 +682,22 @@ class DartBlockValueTreeAlgebraicConstantNode
     super.parent, {
     super.specificNodeKey,
   }) : super.init(
-         neoValueNumericNodeType: DartBlockValueTreeAlgebraicNodeType.constant,
+         numericNodeType: DartBlockValueTreeAlgebraicNodeType.constant,
        );
   DartBlockValueTreeAlgebraicConstantNode(
     this.value,
     this.hasPendingDot,
-    super.neoValueNumericNodeType,
-    super.neoValueNodeType,
+    super.numericNodeType,
+    super.nodeType,
     super.nodeKey,
   );
 
   factory DartBlockValueTreeAlgebraicConstantNode.fromJson(
     Map<String, dynamic> json,
-  ) => _$NeoValueAlgebraicConstantNodeFromJson(json);
+  ) => _$DartBlockValueTreeAlgebraicConstantNodeFromJson(json);
   @override
-  Map<String, dynamic> toJson() => _$NeoValueAlgebraicConstantNodeToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$DartBlockValueTreeAlgebraicConstantNodeToJson(this);
 
   @override
   num getValue(DartBlockArbiter arbiter) {
@@ -870,7 +871,7 @@ class DartBlockValueTreeAlgebraicConstantNode
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockValueTreeAlgebraicDynamicNode
     extends DartBlockValueTreeAlgebraicNode {
   DartBlockDynamicValue value;
@@ -878,21 +879,20 @@ class DartBlockValueTreeAlgebraicDynamicNode
     this.value,
     super.parent, {
     super.specificNodeKey,
-  }) : super.init(
-         neoValueNumericNodeType: DartBlockValueTreeAlgebraicNodeType.dynamic,
-       );
+  }) : super.init(numericNodeType: DartBlockValueTreeAlgebraicNodeType.dynamic);
   DartBlockValueTreeAlgebraicDynamicNode(
     this.value,
-    super.neoValueNumericNodeType,
-    super.neoValueNodeType,
+    super.numericNodeType,
+    super.nodeType,
     super.nodeKey,
   );
 
   factory DartBlockValueTreeAlgebraicDynamicNode.fromJson(
     Map<String, dynamic> json,
-  ) => _$NeoValueAlgebraicDynamicNodeFromJson(json);
+  ) => _$DartBlockValueTreeAlgebraicDynamicNodeFromJson(json);
   @override
-  Map<String, dynamic> toJson() => _$NeoValueAlgebraicDynamicNodeToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$DartBlockValueTreeAlgebraicDynamicNodeToJson(this);
 
   @override
   num getValue(DartBlockArbiter arbiter) {
@@ -1023,7 +1023,7 @@ class DartBlockValueTreeAlgebraicDynamicNode
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockValueTreeAlgebraicOperatorNode
     extends DartBlockValueTreeAlgebraicNode {
   DartBlockValueTreeAlgebraicNode? leftChild;
@@ -1036,8 +1036,7 @@ class DartBlockValueTreeAlgebraicOperatorNode
     super.parent, {
     super.specificNodeKey,
   }) : super.init(
-         neoValueNumericNodeType:
-             DartBlockValueTreeAlgebraicNodeType.algebraicOperator,
+         numericNodeType: DartBlockValueTreeAlgebraicNodeType.algebraicOperator,
        ) {
     leftChild?.parent = this;
     rightChild?.parent = this;
@@ -1046,8 +1045,8 @@ class DartBlockValueTreeAlgebraicOperatorNode
     this.leftChild,
     this.operator,
     this.rightChild,
-    super.neoValueNumericNodeType,
-    super.neoValueNodeType,
+    super.numericNodeType,
+    super.nodeType,
     super.nodeKey,
   ) {
     leftChild?.parent = this;
@@ -1056,9 +1055,10 @@ class DartBlockValueTreeAlgebraicOperatorNode
 
   factory DartBlockValueTreeAlgebraicOperatorNode.fromJson(
     Map<String, dynamic> json,
-  ) => _$NeoValueAlgebraicOperatorNodeFromJson(json);
+  ) => _$DartBlockValueTreeAlgebraicOperatorNodeFromJson(json);
   @override
-  Map<String, dynamic> toJson() => _$NeoValueAlgebraicOperatorNodeToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$DartBlockValueTreeAlgebraicOperatorNodeToJson(this);
 
   void setLeftChild(DartBlockValueTreeAlgebraicNode? child) {
     leftChild = child;
@@ -1487,17 +1487,18 @@ enum DartBlockValueTreeBooleanNodeType {
 /// Logical expression
 sealed class DartBlockValueTreeBooleanNode
     extends DartBlockValueTreeNode<bool> {
-  final DartBlockValueTreeBooleanNodeType neoValueLogicalNodeType;
+  @JsonKey(name: 'neoValueLogicalNodeType')
+  final DartBlockValueTreeBooleanNodeType logicalNodeType;
   @JsonKey(includeToJson: false, includeFromJson: false)
   DartBlockValueTreeBooleanNode? parent;
   DartBlockValueTreeBooleanNode.init(
     this.parent, {
     super.specificNodeKey,
-    required this.neoValueLogicalNodeType,
-  }) : super.init(neoValueNodeType: DartBlockValueTreeNodeType.boolean);
+    required this.logicalNodeType,
+  }) : super.init(nodeType: DartBlockValueTreeNodeType.boolean);
   DartBlockValueTreeBooleanNode(
-    this.neoValueLogicalNodeType,
-    super.neoValueNodeType,
+    this.logicalNodeType,
+    super.nodeType,
     super.nodeKey,
   );
 
@@ -1637,21 +1638,20 @@ enum DartBlockValueTreeBooleanGenericNodeType {
 
 sealed class DartBlockValueTreeBooleanGenericNode<T extends DartBlockValue>
     extends DartBlockValueTreeBooleanNode {
-  final DartBlockValueTreeBooleanGenericNodeType neoValueLogicalGenericNodeType;
+  @JsonKey(name: 'neoValueLogicalGenericNodeType')
+  final DartBlockValueTreeBooleanGenericNodeType logicalGenericNodeType;
   T value;
   DartBlockValueTreeBooleanGenericNode.init(
     this.value,
     super.parent, {
     super.specificNodeKey,
-    required this.neoValueLogicalGenericNodeType,
-  }) : super.init(
-         neoValueLogicalNodeType: DartBlockValueTreeBooleanNodeType.generic,
-       );
+    required this.logicalGenericNodeType,
+  }) : super.init(logicalNodeType: DartBlockValueTreeBooleanNodeType.generic);
   DartBlockValueTreeBooleanGenericNode(
-    this.neoValueLogicalGenericNodeType,
+    this.logicalGenericNodeType,
     this.value,
-    super.neoValueLogicalNodeType,
-    super.neoValueNodeType,
+    super.logicalNodeType,
+    super.nodeType,
     super.nodeKey,
   );
 
@@ -1796,7 +1796,7 @@ sealed class DartBlockValueTreeBooleanGenericNode<T extends DartBlockValue>
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockValueTreeBooleanGenericNumberNode
     extends DartBlockValueTreeBooleanGenericNode<DartBlockAlgebraicExpression> {
   DartBlockValueTreeBooleanGenericNumberNode.init(
@@ -1804,23 +1804,23 @@ class DartBlockValueTreeBooleanGenericNumberNode
     super.parent, {
     super.specificNodeKey,
   }) : super.init(
-         neoValueLogicalGenericNodeType:
+         logicalGenericNodeType:
              DartBlockValueTreeBooleanGenericNodeType.number,
        );
   DartBlockValueTreeBooleanGenericNumberNode(
-    super.neoValueLogicalGenericNodeType,
+    super.logicalGenericNodeType,
     super.value,
-    super.neoValueLogicalNodeType,
-    super.neoValueNodeType,
+    super.logicalNodeType,
+    super.nodeType,
     super.nodeKey,
   );
 
   factory DartBlockValueTreeBooleanGenericNumberNode.fromJson(
     Map<String, dynamic> json,
-  ) => _$NeoValueBooleanGenericNumberNodeFromJson(json);
+  ) => _$DartBlockValueTreeBooleanGenericNumberNodeFromJson(json);
   @override
   Map<String, dynamic> toJson() =>
-      _$NeoValueBooleanGenericNumberNodeToJson(this);
+      _$DartBlockValueTreeBooleanGenericNumberNodeToJson(this);
 
   @override
   DartBlockValueTreeBooleanNode receiveNumberComposedValue(
@@ -1881,7 +1881,7 @@ class DartBlockValueTreeBooleanGenericNumberNode
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockValueTreeBooleanGenericConcatenationNode
     extends DartBlockValueTreeBooleanGenericNode<DartBlockConcatenationValue> {
   DartBlockValueTreeBooleanGenericConcatenationNode.init(
@@ -1889,23 +1889,23 @@ class DartBlockValueTreeBooleanGenericConcatenationNode
     super.parent, {
     super.specificNodeKey,
   }) : super.init(
-         neoValueLogicalGenericNodeType:
+         logicalGenericNodeType:
              DartBlockValueTreeBooleanGenericNodeType.concatenation,
        );
   DartBlockValueTreeBooleanGenericConcatenationNode(
-    super.neoValueLogicalGenericNodeType,
+    super.logicalGenericNodeType,
     super.value,
-    super.neoValueLogicalNodeType,
-    super.neoValueNodeType,
+    super.logicalNodeType,
+    super.nodeType,
     super.nodeKey,
   );
 
   factory DartBlockValueTreeBooleanGenericConcatenationNode.fromJson(
     Map<String, dynamic> json,
-  ) => _$NeoValueBooleanGenericConcatenationNodeFromJson(json);
+  ) => _$DartBlockValueTreeBooleanGenericConcatenationNodeFromJson(json);
   @override
   Map<String, dynamic> toJson() =>
-      _$NeoValueBooleanGenericConcatenationNodeToJson(this);
+      _$DartBlockValueTreeBooleanGenericConcatenationNodeToJson(this);
 
   @override
   DartBlockValueTreeBooleanGenericConcatenationNode copy() {
@@ -1924,7 +1924,7 @@ class DartBlockValueTreeBooleanGenericConcatenationNode
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockValueTreeBooleanConstantNode
     extends DartBlockValueTreeBooleanNode {
   bool value;
@@ -1932,21 +1932,20 @@ class DartBlockValueTreeBooleanConstantNode
     this.value,
     super.parent, {
     super.specificNodeKey,
-  }) : super.init(
-         neoValueLogicalNodeType: DartBlockValueTreeBooleanNodeType.constant,
-       );
+  }) : super.init(logicalNodeType: DartBlockValueTreeBooleanNodeType.constant);
   DartBlockValueTreeBooleanConstantNode(
     this.value,
-    super.neoValueLogicalNodeType,
-    super.neoValueNodeType,
+    super.logicalNodeType,
+    super.nodeType,
     super.nodeKey,
   );
 
   factory DartBlockValueTreeBooleanConstantNode.fromJson(
     Map<String, dynamic> json,
-  ) => _$NeoValueBooleanConstantNodeFromJson(json);
+  ) => _$DartBlockValueTreeBooleanConstantNodeFromJson(json);
   @override
-  Map<String, dynamic> toJson() => _$NeoValueBooleanConstantNodeToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$DartBlockValueTreeBooleanConstantNodeToJson(this);
 
   @override
   bool getValue(DartBlockArbiter arbiter) {
@@ -2065,7 +2064,7 @@ class DartBlockValueTreeBooleanConstantNode
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockValueTreeBooleanDynamicNode
     extends DartBlockValueTreeBooleanNode {
   DartBlockDynamicValue value;
@@ -2073,21 +2072,20 @@ class DartBlockValueTreeBooleanDynamicNode
     this.value,
     super.parent, {
     super.specificNodeKey,
-  }) : super.init(
-         neoValueLogicalNodeType: DartBlockValueTreeBooleanNodeType.dynamic,
-       );
+  }) : super.init(logicalNodeType: DartBlockValueTreeBooleanNodeType.dynamic);
   DartBlockValueTreeBooleanDynamicNode(
     this.value,
-    super.neoValueLogicalNodeType,
-    super.neoValueNodeType,
+    super.logicalNodeType,
+    super.nodeType,
     super.nodeKey,
   );
 
   factory DartBlockValueTreeBooleanDynamicNode.fromJson(
     Map<String, dynamic> json,
-  ) => _$NeoValueBooleanDynamicNodeFromJson(json);
+  ) => _$DartBlockValueTreeBooleanDynamicNodeFromJson(json);
   @override
-  Map<String, dynamic> toJson() => _$NeoValueBooleanDynamicNodeToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$DartBlockValueTreeBooleanDynamicNodeToJson(this);
 
   @override
   bool getValue(DartBlockArbiter arbiter) {
@@ -2215,7 +2213,7 @@ class DartBlockValueTreeBooleanDynamicNode
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockValueTreeBooleanOperatorNode
     extends DartBlockValueTreeBooleanNode {
   DartBlockValueTreeBooleanNode? leftChild;
@@ -2228,8 +2226,7 @@ class DartBlockValueTreeBooleanOperatorNode
     super.parent, {
     super.specificNodeKey,
   }) : super.init(
-         neoValueLogicalNodeType:
-             DartBlockValueTreeBooleanNodeType.booleanOperator,
+         logicalNodeType: DartBlockValueTreeBooleanNodeType.booleanOperator,
        ) {
     leftChild?.parent = this;
     rightChild?.parent = this;
@@ -2238,8 +2235,8 @@ class DartBlockValueTreeBooleanOperatorNode
     this.leftChild,
     this.operator,
     this.rightChild,
-    super.neoValueLogicalNodeType,
-    super.neoValueNodeType,
+    super.logicalNodeType,
+    super.nodeType,
     super.nodeKey,
   ) {
     leftChild?.parent = this;
@@ -2248,9 +2245,10 @@ class DartBlockValueTreeBooleanOperatorNode
 
   factory DartBlockValueTreeBooleanOperatorNode.fromJson(
     Map<String, dynamic> json,
-  ) => _$NeoValueBooleanOperatorNodeFromJson(json);
+  ) => _$DartBlockValueTreeBooleanOperatorNodeFromJson(json);
   @override
-  Map<String, dynamic> toJson() => _$NeoValueBooleanOperatorNodeToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$DartBlockValueTreeBooleanOperatorNodeToJson(this);
 
   @override
   bool getValue(DartBlockArbiter arbiter) {
@@ -2563,7 +2561,7 @@ class DartBlockValueTreeBooleanOperatorNode
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockValueTreeBooleanEqualityOperatorNode
     extends DartBlockValueTreeBooleanNode {
   DartBlockValueTreeBooleanNode? leftChild;
@@ -2576,8 +2574,7 @@ class DartBlockValueTreeBooleanEqualityOperatorNode
     super.parent, {
     super.specificNodeKey,
   }) : super.init(
-         neoValueLogicalNodeType:
-             DartBlockValueTreeBooleanNodeType.equalityOperator,
+         logicalNodeType: DartBlockValueTreeBooleanNodeType.equalityOperator,
        ) {
     leftChild?.parent = this;
     rightChild?.parent = this;
@@ -2586,8 +2583,8 @@ class DartBlockValueTreeBooleanEqualityOperatorNode
     this.leftChild,
     this.operator,
     this.rightChild,
-    super.neoValueLogicalNodeType,
-    super.neoValueNodeType,
+    super.logicalNodeType,
+    super.nodeType,
     super.nodeKey,
   ) {
     leftChild?.parent = this;
@@ -2596,10 +2593,10 @@ class DartBlockValueTreeBooleanEqualityOperatorNode
 
   factory DartBlockValueTreeBooleanEqualityOperatorNode.fromJson(
     Map<String, dynamic> json,
-  ) => _$NeoValueBooleanEqualityOperatorNodeFromJson(json);
+  ) => _$DartBlockValueTreeBooleanEqualityOperatorNodeFromJson(json);
   @override
   Map<String, dynamic> toJson() =>
-      _$NeoValueBooleanEqualityOperatorNodeToJson(this);
+      _$DartBlockValueTreeBooleanEqualityOperatorNodeToJson(this);
 
   @override
   bool getValue(DartBlockArbiter arbiter) {
@@ -2908,7 +2905,7 @@ class DartBlockValueTreeBooleanEqualityOperatorNode
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockValueTreeBooleanNumberComparisonOperatorNode
     extends DartBlockValueTreeBooleanNode {
   DartBlockValueTreeBooleanGenericNumberNode? leftChild;
@@ -2921,7 +2918,7 @@ class DartBlockValueTreeBooleanNumberComparisonOperatorNode
     super.parent, {
     super.specificNodeKey,
   }) : super.init(
-         neoValueLogicalNodeType:
+         logicalNodeType:
              DartBlockValueTreeBooleanNodeType.numericComparisonOperator,
        ) {
     leftChild?.parent = this;
@@ -2931,8 +2928,8 @@ class DartBlockValueTreeBooleanNumberComparisonOperatorNode
     this.leftChild,
     this.operator,
     this.rightChild,
-    super.neoValueLogicalNodeType,
-    super.neoValueNodeType,
+    super.logicalNodeType,
+    super.nodeType,
     super.nodeKey,
   ) {
     leftChild?.parent = this;
@@ -2941,10 +2938,10 @@ class DartBlockValueTreeBooleanNumberComparisonOperatorNode
 
   factory DartBlockValueTreeBooleanNumberComparisonOperatorNode.fromJson(
     Map<String, dynamic> json,
-  ) => _$NeoValueBooleanNumberComparisonOperatorNodeFromJson(json);
+  ) => _$DartBlockValueTreeBooleanNumberComparisonOperatorNodeFromJson(json);
   @override
   Map<String, dynamic> toJson() =>
-      _$NeoValueBooleanNumberComparisonOperatorNodeToJson(this);
+      _$DartBlockValueTreeBooleanNumberComparisonOperatorNodeToJson(this);
 
   @override
   bool getValue(DartBlockArbiter arbiter) {

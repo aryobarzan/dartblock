@@ -4,28 +4,31 @@ import 'dartblock_value.dart';
 import 'statement.dart';
 part 'exception.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class DartBlockException implements Exception {
   Statement? statement;
   String title;
   String message;
   String internalMessage;
   bool isGeneric;
-  DartBlockException(
-      {required this.title, required this.message, this.statement})
-      : isGeneric = false,
-        internalMessage = '';
-  DartBlockException.fromException(
-      {required Exception exception, this.statement})
-      : isGeneric = true,
-        title = "Exception",
-        internalMessage = exception.toString(),
-        message =
-            "An unknown error occurred. This may be due to your program containing an infinite loop or due to a stack overflow in case of a faulty recursive function.";
+  DartBlockException({
+    required this.title,
+    required this.message,
+    this.statement,
+  }) : isGeneric = false,
+       internalMessage = '';
+  DartBlockException.fromException({
+    required Exception exception,
+    this.statement,
+  }) : isGeneric = true,
+       title = "Exception",
+       internalMessage = exception.toString(),
+       message =
+           "An unknown error occurred. This may be due to your program containing an infinite loop or due to a stack overflow in case of a faulty recursive function.";
 
   factory DartBlockException.fromJson(Map<String, dynamic> json) =>
-      _$NeoTechExceptionFromJson(json);
-  Map<String, dynamic> toJson() => _$NeoTechExceptionToJson(this);
+      _$DartBlockExceptionFromJson(json);
+  Map<String, dynamic> toJson() => _$DartBlockExceptionToJson(this);
 
   @override
   String toString() {
@@ -41,26 +44,29 @@ class DartBlockException implements Exception {
 class VariableNotDeclaredException extends DartBlockException {
   String variableName;
   VariableNotDeclaredException(this.variableName)
-      : super(
-            title: "Variable Not Declared",
-            message: "Variable '$variableName' is not declared.");
+    : super(
+        title: "Variable Not Declared",
+        message: "Variable '$variableName' is not declared.",
+      );
 }
 
 class VariableAlreadyDeclaredException extends DartBlockException {
   String variableName;
   VariableAlreadyDeclaredException(this.variableName)
-      : super(
-            title: "Variable Already Declared",
-            message: "Variable '$variableName' is already declared.");
+    : super(
+        title: "Variable Already Declared",
+        message: "Variable '$variableName' is already declared.",
+      );
 }
 
 class InvalidVariableNameException extends DartBlockException {
   String variableName;
   String reason;
   InvalidVariableNameException(this.variableName, this.reason)
-      : super(
-            title: "Invalid Variable Name",
-            message: "Variable name '$variableName' is invalid: $reason");
+    : super(
+        title: "Invalid Variable Name",
+        message: "Variable name '$variableName' is invalid: $reason",
+      );
 }
 
 class VariableValueTypeMismatchException extends DartBlockException {
@@ -68,12 +74,14 @@ class VariableValueTypeMismatchException extends DartBlockException {
   DartBlockDataType expectedType;
   Type gotType;
   VariableValueTypeMismatchException(
-      this.variableName, this.expectedType, this.gotType)
-      : super(
-          title: "Value Type Mismatch",
-          message:
-              "Value type mismatch for variable '$variableName': expected type '$expectedType', got '$gotType'.",
-        );
+    this.variableName,
+    this.expectedType,
+    this.gotType,
+  ) : super(
+        title: "Value Type Mismatch",
+        message:
+            "Value type mismatch for variable '$variableName': expected type '$expectedType', got '$gotType'.",
+      );
 }
 
 class DynamicValueTypeMismatchException extends DartBlockException {
@@ -82,12 +90,15 @@ class DynamicValueTypeMismatchException extends DartBlockException {
   Type expectedType;
   Type gotType;
   DynamicValueTypeMismatchException(
-      this.dynamicValue, this.concreteValue, this.expectedType, this.gotType)
-      : super(
-          title: "Value Type Mismatch",
-          message:
-              "Value type mismatch for '${dynamicValue.toString()}': expected type '$expectedType', got '$gotType'${concreteValue != null ? '($concreteValue)' : ''}.${concreteValue == null && dynamicValue is DartBlockVariable ? '\nEnsure you have assigned an initial value to the variable!' : ''}",
-        );
+    this.dynamicValue,
+    this.concreteValue,
+    this.expectedType,
+    this.gotType,
+  ) : super(
+        title: "Value Type Mismatch",
+        message:
+            "Value type mismatch for '${dynamicValue.toString()}': expected type '$expectedType', got '$gotType'${concreteValue != null ? '($concreteValue)' : ''}.${concreteValue == null && dynamicValue is DartBlockVariable ? '\nEnsure you have assigned an initial value to the variable!' : ''}",
+      );
 }
 
 class ExpressionValueTypeMismatchException extends DartBlockException {
@@ -96,12 +107,15 @@ class ExpressionValueTypeMismatchException extends DartBlockException {
   Type expectedType;
   Type gotType;
   ExpressionValueTypeMismatchException(
-      this.dynamicValue, this.concreteValue, this.expectedType, this.gotType)
-      : super(
-          title: "Value Type Mismatch",
-          message:
-              "Value type mismatch for '${dynamicValue.toString()}': expected type '$expectedType', got '$gotType' ($concreteValue).",
-        );
+    this.dynamicValue,
+    this.concreteValue,
+    this.expectedType,
+    this.gotType,
+  ) : super(
+        title: "Value Type Mismatch",
+        message:
+            "Value type mismatch for '${dynamicValue.toString()}': expected type '$expectedType', got '$gotType' ($concreteValue).",
+      );
 }
 
 class MalformedAlgebraicExpressionException extends DartBlockException {
@@ -110,10 +124,14 @@ class MalformedAlgebraicExpressionException extends DartBlockException {
   DartBlockAlgebraicOperator? operator;
   String reason;
   MalformedAlgebraicExpressionException(
-      this.leftOperand, this.rightOperand, this.operator, this.reason)
-      : super(
-            title: "Malformed Algebraic Expression",
-            message: "Malformed algebraic expression: $reason");
+    this.leftOperand,
+    this.rightOperand,
+    this.operator,
+    this.reason,
+  ) : super(
+        title: "Malformed Algebraic Expression",
+        message: "Malformed algebraic expression: $reason",
+      );
 }
 
 class MalformedBooleanLogicalExpressionException extends DartBlockException {
@@ -122,10 +140,14 @@ class MalformedBooleanLogicalExpressionException extends DartBlockException {
   DartBlockBooleanOperator? operator;
   String reason;
   MalformedBooleanLogicalExpressionException(
-      this.leftOperand, this.rightOperand, this.operator, this.reason)
-      : super(
-            title: "Malformed Boolean Expression",
-            message: "Malformed boolean expression: $reason");
+    this.leftOperand,
+    this.rightOperand,
+    this.operator,
+    this.reason,
+  ) : super(
+        title: "Malformed Boolean Expression",
+        message: "Malformed boolean expression: $reason",
+      );
 }
 
 class MalformedBooleanEqualityExpressionException extends DartBlockException {
@@ -134,10 +156,14 @@ class MalformedBooleanEqualityExpressionException extends DartBlockException {
   DartBlockEqualityOperator? operator;
   String reason;
   MalformedBooleanEqualityExpressionException(
-      this.leftOperand, this.rightOperand, this.operator, this.reason)
-      : super(
-            title: "Malformed Boolean Expression",
-            message: "Malformed boolean expression: $reason");
+    this.leftOperand,
+    this.rightOperand,
+    this.operator,
+    this.reason,
+  ) : super(
+        title: "Malformed Boolean Expression",
+        message: "Malformed boolean expression: $reason",
+      );
 }
 
 class MalformedBooleanNumberComparisonExpressionException
@@ -147,10 +173,14 @@ class MalformedBooleanNumberComparisonExpressionException
   DartBlockNumberComparisonOperator? operator;
   String reason;
   MalformedBooleanNumberComparisonExpressionException(
-      this.leftOperand, this.rightOperand, this.operator, this.reason)
-      : super(
-            title: "Malformed Boolean Expression",
-            message: "Malformed boolean expression: $reason");
+    this.leftOperand,
+    this.rightOperand,
+    this.operator,
+    this.reason,
+  ) : super(
+        title: "Malformed Boolean Expression",
+        message: "Malformed boolean expression: $reason",
+      );
 }
 
 // class ValueTypeMismatchException extends NeoTechException {
@@ -164,9 +194,10 @@ class MalformedBooleanNumberComparisonExpressionException
 class UndefinedCustomFunctionException extends DartBlockException {
   String functionName;
   UndefinedCustomFunctionException(this.functionName)
-      : super(
-            title: "Undefined Function",
-            message: "Function '$functionName' is not defined.");
+    : super(
+        title: "Undefined Function",
+        message: "Function '$functionName' is not defined.",
+      );
 }
 
 class CustomFunctionArgumentsCountException extends DartBlockException {
@@ -178,9 +209,10 @@ class CustomFunctionArgumentsCountException extends DartBlockException {
     this.expectedCount,
     this.gotCount,
   ) : super(
-            title: "Function Arguments Missing",
-            message:
-                "Function '$functionName' expects $expectedCount argument${expectedCount == 1 ? '' : 's'}, got $gotCount instead.");
+        title: "Function Arguments Missing",
+        message:
+            "Function '$functionName' expects $expectedCount argument${expectedCount == 1 ? '' : 's'}, got $gotCount instead.",
+      );
 }
 
 class CustomFunctionMissingArgumentException extends DartBlockException {
@@ -194,19 +226,21 @@ class CustomFunctionMissingArgumentException extends DartBlockException {
     this.parameterIndex,
     this.gotType,
   ) : super(
-            title: "Function Wrong Argument Type",
-            message:
-                "Function '$functionName' expects an argument '${variableDefinition.name}' of type ${variableDefinition.dataType} at index $parameterIndex, but got $gotType.");
+        title: "Function Wrong Argument Type",
+        message:
+            "Function '$functionName' expects an argument '${variableDefinition.name}' of type ${variableDefinition.dataType} at index $parameterIndex, but got $gotType.",
+      );
 }
 
 class CustomFunctionMissingReturnValueException extends DartBlockException {
   final String functionName;
   final DartBlockDataType returnType;
   CustomFunctionMissingReturnValueException(this.functionName, this.returnType)
-      : super(
-            title: "Function Missing Return Value",
-            message:
-                "Function '$functionName' must return a value of type $returnType.");
+    : super(
+        title: "Function Missing Return Value",
+        message:
+            "Function '$functionName' must return a value of type $returnType.",
+      );
 }
 
 class CustomFunctionInvalidReturnValueTypeException extends DartBlockException {
@@ -218,18 +252,20 @@ class CustomFunctionInvalidReturnValueTypeException extends DartBlockException {
     this.returnType,
     this.gotType,
   ) : super(
-            title: "Function Wrong Return Value Type",
-            message:
-                "Function '$functionName' must return a value of type $returnType, but it returned type $gotType.");
+        title: "Function Wrong Return Value Type",
+        message:
+            "Function '$functionName' must return a value of type $returnType, but it returned type $gotType.",
+      );
 }
 
 class CustomFunctionNoReturnValueExpectedException extends DartBlockException {
   final String functionName;
   CustomFunctionNoReturnValueExpectedException(this.functionName)
-      : super(
-            title: "Function Void Return",
-            message:
-                "Function '$functionName' has return type 'void', meaning it must not return a value.");
+    : super(
+        title: "Function Void Return",
+        message:
+            "Function '$functionName' has return type 'void', meaning it must not return a value.",
+      );
 }
 
 /// Not thrown by program execution, but for serialization/deserialization of Statement objects
