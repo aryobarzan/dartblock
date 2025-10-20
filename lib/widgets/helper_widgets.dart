@@ -93,17 +93,15 @@ class PopupWidgetButton extends StatelessWidget {
       constraints: isFullWidth
           ? BoxConstraints.tightFor(width: MediaQuery.of(context).size.width)
           : width != null
-              ? BoxConstraints.tightFor(
-                  width: max(0, min(MediaQuery.of(context).size.width, width!)))
-              : null,
+          ? BoxConstraints.tightFor(
+              width: max(0, min(MediaQuery.of(context).size.width, width!)),
+            )
+          : null,
       tooltip: tooltip,
       position: PopupMenuPosition.under,
       icon: child == null
           ? icon ??
-              Icon(
-                Icons.menu,
-                color: Theme.of(context).colorScheme.primary,
-              )
+                Icon(Icons.menu, color: Theme.of(context).colorScheme.primary)
           : null,
       itemBuilder: (context) {
         return [
@@ -176,10 +174,7 @@ class WarningIconButton extends StatelessWidget {
           ),
         );
       },
-      icon: const Icon(
-        Icons.warning,
-        color: Colors.orange,
-      ),
+      icon: const Icon(Icons.warning, color: Colors.orange),
     );
   }
 }
@@ -222,23 +217,26 @@ class ArrowHeadWidget extends StatelessWidget {
   final double strokeWidth;
   final AxisDirection direction;
   final Size size;
-  const ArrowHeadWidget(
-      {super.key,
-      this.strokeColor = Colors.black,
-      this.strokeWidth = 3,
-      this.paintingStyle = PaintingStyle.fill,
-      required this.direction,
-      required this.size});
+  const ArrowHeadWidget({
+    super.key,
+    this.strokeColor = Colors.black,
+    this.strokeWidth = 3,
+    this.paintingStyle = PaintingStyle.fill,
+    required this.direction,
+    required this.size,
+  });
 
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-        painter: ArrowHeadPainter(
-            strokeWidth: strokeWidth,
-            strokeColor: strokeColor,
-            paintingStyle: paintingStyle,
-            direction: direction),
-        child: SizedBox.fromSize(size: size));
+      painter: ArrowHeadPainter(
+        strokeWidth: strokeWidth,
+        strokeColor: strokeColor,
+        paintingStyle: paintingStyle,
+        direction: direction,
+      ),
+      child: SizedBox.fromSize(size: size),
+    );
   }
 }
 
@@ -248,11 +246,12 @@ class ArrowHeadPainter extends CustomPainter {
   final double strokeWidth;
   final AxisDirection direction;
 
-  ArrowHeadPainter(
-      {this.strokeColor = Colors.black,
-      this.strokeWidth = 3,
-      this.paintingStyle = PaintingStyle.stroke,
-      required this.direction});
+  ArrowHeadPainter({
+    this.strokeColor = Colors.black,
+    this.strokeWidth = 3,
+    this.paintingStyle = PaintingStyle.stroke,
+    required this.direction,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -328,40 +327,40 @@ class ColoredTitleChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: color ?? Theme.of(context).colorScheme.primaryContainer,
         borderRadius: borderRadius ?? BorderRadius.circular(12),
-        border: border ??
-            (borderColor != null
-                ? Border.all(
-                    color: borderColor!,
-                  )
-                : null),
+        border:
+            border ??
+            (borderColor != null ? Border.all(color: borderColor!) : null),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         child: Text(
           title,
-          style: textStyle ??
+          style:
+              textStyle ??
               Theme.of(context).textTheme.bodySmall?.apply(
-                    color: textColor ??
-                        Theme.of(context).colorScheme.onPrimaryContainer,
-                  ),
+                color:
+                    textColor ??
+                    Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
         ),
       ),
     );
   }
 }
 
-SnackBar createDartBlockInfoSnackBar(BuildContext context,
-    {required IconData iconData,
-    required String message,
-    Color? backgroundColor,
-    Color? color}) {
+SnackBar createDartBlockInfoSnackBar(
+  BuildContext context, {
+  required IconData iconData,
+  required String message,
+  Color? backgroundColor,
+  Color? color,
+}) {
   return SnackBar(
     behavior: SnackBarBehavior.floating,
     shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.inversePrimary,
-        )),
+      borderRadius: BorderRadius.circular(24),
+      side: BorderSide(color: Theme.of(context).colorScheme.inversePrimary),
+    ),
     elevation: 8,
     backgroundColor: backgroundColor ?? Theme.of(context).colorScheme.primary,
     width: MediaQuery.of(context).size.width - 80,
@@ -370,10 +369,7 @@ SnackBar createDartBlockInfoSnackBar(BuildContext context,
     content: Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Icon(
-          iconData,
-          color: color ?? Theme.of(context).colorScheme.onPrimary,
-        ),
+        Icon(iconData, color: color ?? Theme.of(context).colorScheme.onPrimary),
         const SizedBox(width: 4),
         Flexible(
           child: Text(
@@ -381,10 +377,10 @@ SnackBar createDartBlockInfoSnackBar(BuildContext context,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.bodyMedium?.apply(
-                  color: color ?? Theme.of(context).colorScheme.onPrimary,
-                ),
+              color: color ?? Theme.of(context).colorScheme.onPrimary,
+            ),
           ),
-        )
+        ),
       ],
     ),
   );

@@ -116,7 +116,7 @@ class DartBlockFunction implements DartBlockProgramTreeNodeAcceptor {
     return DartBlockFunction(name, returnType, parameters, trimmedStatements);
   }
 
-  /// Whether it is the main function (entry point when executing [DartBlockProgrma]).
+  /// Whether it is the main function (entry point when executing [DartBlockProgram]).
   bool isMainFunction() {
     return name == "main";
   }

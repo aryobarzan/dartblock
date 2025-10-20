@@ -14,9 +14,9 @@ class AlgebraicDotButton extends StatelessWidget {
         ".",
         textAlign: TextAlign.center,
         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-            ),
+          color: Theme.of(context).colorScheme.primary,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }

@@ -158,7 +158,7 @@ class DartBlockProgram {
   /// Build a tree-based representation of the DartBlock program.
   ///
   /// The tree representation is used internally to enable:
-  /// - the [NeoTechVariableCountEvaluationSchema] schema,
+  /// - the [DartBlockVariableCountEvaluationSchema] schema,
   /// - to determine the defined variables available in a given scope.
   DartBlockProgramTreeNode buildTree() {
     final DartBlockProgramTreeNode root = DartBlockProgramTreeRootNode();
@@ -271,7 +271,7 @@ Types: ${variableDefinitions.map((e) => e.dataType.toString()).toSet().join(', '
 
   /// Shorten the DartBlock program based on the given percentage value, by starting from the end of the program!
   ///
-  /// `trimPercentage`: value in range [0.0, 1.0]
+  /// `trimPercentage`: value in range (0.0, 1.0)
   ///
   /// This is a deep trim, i.e., the maximum depth of each function is calculated
   /// based on its tree representation. Then, the trimmed length is calculated

@@ -6,7 +6,7 @@ class AlgebraicDigitButton extends StatelessWidget {
   final int digit;
   final Function(int digit) onTap;
   AlgebraicDigitButton({super.key, required int digit, required this.onTap})
-      : digit = max(0, min(9, digit));
+    : digit = max(0, min(9, digit));
 
   @override
   Widget build(BuildContext context) {
@@ -20,9 +20,9 @@ class AlgebraicDigitButton extends StatelessWidget {
       child: Text(
         digit.toString(),
         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-            ),
+          color: Theme.of(context).colorScheme.primary,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }

@@ -1080,7 +1080,7 @@ enum DartBlockPrintEvaluationType {
 class DartBlockPrintEvaluation extends DartBlockEvaluation {
   final double similarityThreshold;
 
-  /// (Expected, Actual, EvaluationType, Similarity [0.0-1.0])
+  /// (Expected, Actual, EvaluationType, Similarity in range (0.0-1.0))
   final List<(String, String?, DartBlockPrintEvaluationType, double?)>
   printEvaluations;
 
