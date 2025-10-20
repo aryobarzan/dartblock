@@ -2,12 +2,12 @@ import 'dart:isolate';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
-import 'package:dartblock/core/dartblock_program.dart';
-import 'package:dartblock/models/function.dart';
-import 'package:dartblock/models/environment.dart';
-import 'package:dartblock/models/exception.dart';
-import 'package:dartblock/models/dartblock_value.dart';
-import 'package:dartblock/models/statement.dart';
+import 'package:dartblock_code/core/dartblock_program.dart';
+import 'package:dartblock_code/models/function.dart';
+import 'package:dartblock_code/models/environment.dart';
+import 'package:dartblock_code/models/exception.dart';
+import 'package:dartblock_code/models/dartblock_value.dart';
+import 'package:dartblock_code/models/statement.dart';
 
 /// The executor for DartBlock programs.Serves for executing and keeping track of the execution of a NeoTechCore.
 ///

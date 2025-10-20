@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:dartblock/models/dartblock_interaction.dart';
-import 'package:dartblock/models/dartblock_notification.dart';
-import 'package:dartblock/models/statement.dart';
-import 'package:dartblock/widgets/editors/statement.dart';
-import 'package:dartblock/widgets/dartblock_editor.dart';
+import 'package:dartblock_code/models/dartblock_interaction.dart';
+import 'package:dartblock_code/models/dartblock_notification.dart';
+import 'package:dartblock_code/models/statement.dart';
+import 'package:dartblock_code/widgets/editors/statement.dart';
+import 'package:dartblock_code/widgets/dartblock_editor.dart';
 
 class ToolboxDragTarget extends StatelessWidget {
   final int neoTechCoreNodeKey;

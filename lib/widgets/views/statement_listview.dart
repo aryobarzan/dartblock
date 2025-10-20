@@ -1,12 +1,12 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:dartblock/models/function.dart';
-import 'package:dartblock/models/dartblock_interaction.dart';
-import 'package:dartblock/models/statement.dart';
-import 'package:dartblock/widgets/helper_widgets.dart';
-import 'package:dartblock/widgets/dartblock_editor.dart';
-import 'package:dartblock/widgets/views/statement.dart';
-import 'package:dartblock/widgets/views/toolbox_related.dart';
+import 'package:dartblock_code/models/function.dart';
+import 'package:dartblock_code/models/dartblock_interaction.dart';
+import 'package:dartblock_code/models/statement.dart';
+import 'package:dartblock_code/widgets/helper_widgets.dart';
+import 'package:dartblock_code/widgets/dartblock_editor.dart';
+import 'package:dartblock_code/widgets/views/statement.dart';
+import 'package:dartblock_code/widgets/views/toolbox_related.dart';
 
 class StatementListView extends StatelessWidget {
   final int neoTechCoreNodeKey;

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:dartblock/models/function.dart';
-import 'package:dartblock/models/dartblock_interaction.dart';
-import 'package:dartblock/models/dartblock_value.dart';
-import 'package:dartblock/widgets/editors/composers/number_value.dart';
-import 'package:dartblock/widgets/editors/composers/string_value.dart';
-import 'package:dartblock/widgets/editors/misc.dart';
-import 'package:dartblock/widgets/dartblock_value_widgets.dart';
-import 'package:dartblock/widgets/views/other/dartblock_colors.dart';
+import 'package:dartblock_code/models/function.dart';
+import 'package:dartblock_code/models/dartblock_interaction.dart';
+import 'package:dartblock_code/models/dartblock_value.dart';
+import 'package:dartblock_code/widgets/editors/composers/number_value.dart';
+import 'package:dartblock_code/widgets/editors/composers/string_value.dart';
+import 'package:dartblock_code/widgets/editors/misc.dart';
+import 'package:dartblock_code/widgets/dartblock_value_widgets.dart';
+import 'package:dartblock_code/widgets/views/other/dartblock_colors.dart';
 
 class BooleanValueComposer extends StatefulWidget {
   final DartBlockValueTreeBooleanNode? value;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:dartblock/models/dartblock_value.dart';
-import 'package:dartblock/widgets/views/symbols.dart';
+import 'package:dartblock_code/models/dartblock_value.dart';
+import 'package:dartblock_code/widgets/views/symbols.dart';
 
 class DartBlockDataTypePicker extends StatelessWidget {
   final DartBlockDataType? dataType;

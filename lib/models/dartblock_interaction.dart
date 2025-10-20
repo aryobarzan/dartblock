@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:dartblock/models/dartblock_notification.dart';
+import 'package:dartblock_code/models/dartblock_notification.dart';
 part 'dartblock_interaction.g.dart';
 
 @JsonSerializable()

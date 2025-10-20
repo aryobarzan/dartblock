@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:dartblock/models/dartblock_interaction.dart';
-import 'package:dartblock/models/help.dart';
+import 'package:dartblock_code/models/dartblock_interaction.dart';
+import 'package:dartblock_code/models/help.dart';
 
 class NeoTechHelpCenter extends StatefulWidget {
   const NeoTechHelpCenter({super.key});

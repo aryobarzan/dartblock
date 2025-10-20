@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:dartblock/core/dartblock_program.dart';
-import 'package:dartblock/models/dartblock_interaction.dart';
-import 'package:dartblock/models/dartblock_value.dart';
-import 'package:dartblock/models/dartblock_validator.dart';
-import 'package:dartblock/widgets/views/symbols.dart';
+import 'package:dartblock_code/core/dartblock_program.dart';
+import 'package:dartblock_code/models/dartblock_interaction.dart';
+import 'package:dartblock_code/models/dartblock_value.dart';
+import 'package:dartblock_code/models/dartblock_validator.dart';
+import 'package:dartblock_code/widgets/views/symbols.dart';
 
 class CustomFunctionBasicEditor extends StatefulWidget {
   final String? customFunctionName;

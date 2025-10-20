@@ -1,8 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:dartblock/models/function.dart';
-import 'package:dartblock/widgets/views/symbols.dart';
-import 'package:dartblock/widgets/views/variable_definition.dart';
+import 'package:dartblock_code/models/function.dart';
+import 'package:dartblock_code/widgets/views/symbols.dart';
+import 'package:dartblock_code/widgets/views/variable_definition.dart';
 
 class FunctionDefinitionWidget extends StatelessWidget {
   final FunctionDefinition functionDefinition;

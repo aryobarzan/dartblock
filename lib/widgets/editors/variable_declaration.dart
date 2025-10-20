@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:dartblock/core/dartblock_program.dart';
-import 'package:dartblock/models/function.dart';
-import 'package:dartblock/models/dartblock_value.dart';
-import 'package:dartblock/models/dartblock_validator.dart';
-import 'package:dartblock/models/statement.dart';
-import 'package:dartblock/widgets/editors/composers/boolean_value.dart';
-import 'package:dartblock/widgets/editors/composers/number_value.dart';
-import 'package:dartblock/widgets/editors/composers/value_concatenation.dart';
-import 'package:dartblock/widgets/editors/dartblock_data_type_picker.dart';
+import 'package:dartblock_code/core/dartblock_program.dart';
+import 'package:dartblock_code/models/function.dart';
+import 'package:dartblock_code/models/dartblock_value.dart';
+import 'package:dartblock_code/models/dartblock_validator.dart';
+import 'package:dartblock_code/models/statement.dart';
+import 'package:dartblock_code/widgets/editors/composers/boolean_value.dart';
+import 'package:dartblock_code/widgets/editors/composers/number_value.dart';
+import 'package:dartblock_code/widgets/editors/composers/value_concatenation.dart';
+import 'package:dartblock_code/widgets/editors/dartblock_data_type_picker.dart';
 
 class VariableDeclarationEditor extends StatefulWidget {
   final VariableDeclarationStatement? statement;

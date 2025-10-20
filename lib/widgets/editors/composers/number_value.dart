@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:dartblock/models/function.dart';
-import 'package:dartblock/models/dartblock_interaction.dart';
-import 'package:dartblock/models/dartblock_value.dart';
-import 'package:dartblock/models/statement.dart';
-import 'package:dartblock/widgets/editors/composers/components/algebraic_digit_button.dart';
-import 'package:dartblock/widgets/editors/composers/components/algebraic_dot_button.dart';
-import 'package:dartblock/widgets/editors/composers/components/algebraic_operator_button.dart';
-import 'package:dartblock/widgets/editors/misc.dart';
-import 'package:dartblock/widgets/dartblock_value_widgets.dart';
+import 'package:dartblock_code/models/function.dart';
+import 'package:dartblock_code/models/dartblock_interaction.dart';
+import 'package:dartblock_code/models/dartblock_value.dart';
+import 'package:dartblock_code/models/statement.dart';
+import 'package:dartblock_code/widgets/editors/composers/components/algebraic_digit_button.dart';
+import 'package:dartblock_code/widgets/editors/composers/components/algebraic_dot_button.dart';
+import 'package:dartblock_code/widgets/editors/composers/components/algebraic_operator_button.dart';
+import 'package:dartblock_code/widgets/editors/misc.dart';
+import 'package:dartblock_code/widgets/dartblock_value_widgets.dart';
 
 class NumberValueComposer extends StatefulWidget {
   final DartBlockValueTreeAlgebraicNode? value;

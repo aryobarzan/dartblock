@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:dartblock/core/dartblock_executor.dart';
-import 'package:dartblock/models/function.dart';
-import 'package:dartblock/models/exception.dart';
-import 'package:dartblock/models/dartblock_value.dart';
-import 'package:dartblock/models/dartblock_validator.dart';
+import 'package:dartblock_code/core/dartblock_executor.dart';
+import 'package:dartblock_code/models/function.dart';
+import 'package:dartblock_code/models/exception.dart';
+import 'package:dartblock_code/models/dartblock_value.dart';
+import 'package:dartblock_code/models/dartblock_validator.dart';
 import 'package:uuid/uuid.dart';
 part 'statement.g.dart';
 

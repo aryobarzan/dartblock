@@ -1,14 +1,14 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:dartblock/models/evaluator.dart';
-import 'package:dartblock/models/dartblock_value.dart';
-import 'package:dartblock/models/statement.dart';
-import 'package:dartblock/widgets/helper_widgets.dart';
-import 'package:dartblock/widgets/dartblock_value_widgets.dart';
-import 'package:dartblock/widgets/views/function_definition.dart';
-import 'package:dartblock/widgets/views/other/dartblock_colors.dart';
-import 'package:dartblock/widgets/views/other/dartblock_exception.dart';
-import 'package:dartblock/widgets/views/variable_definition.dart';
+import 'package:dartblock_code/models/evaluator.dart';
+import 'package:dartblock_code/models/dartblock_value.dart';
+import 'package:dartblock_code/models/statement.dart';
+import 'package:dartblock_code/widgets/helper_widgets.dart';
+import 'package:dartblock_code/widgets/dartblock_value_widgets.dart';
+import 'package:dartblock_code/widgets/views/function_definition.dart';
+import 'package:dartblock_code/widgets/views/other/dartblock_colors.dart';
+import 'package:dartblock_code/widgets/views/other/dartblock_exception.dart';
+import 'package:dartblock_code/widgets/views/variable_definition.dart';
 
 class _CustomExpansionTile extends StatefulWidget {
   final String title;

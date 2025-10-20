@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:dartblock/core/dartblock_program.dart';
-import 'package:dartblock/models/exception.dart';
-import 'package:dartblock/widgets/views/statement.dart';
+import 'package:dartblock_code/core/dartblock_program.dart';
+import 'package:dartblock_code/models/exception.dart';
+import 'package:dartblock_code/widgets/views/statement.dart';
 
 class DartBlockExceptionWidget extends StatelessWidget {
   final DartBlockException dartblockException;

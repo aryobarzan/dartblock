@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:dartblock/models/dartblock_value.dart';
-import 'package:dartblock/models/statement.dart';
-import 'package:dartblock/widgets/dartblock_value_widgets.dart';
-import 'package:dartblock/widgets/widgets.dart';
+import 'package:dartblock_code/models/dartblock_value.dart';
+import 'package:dartblock_code/models/statement.dart';
+import 'package:dartblock_code/widgets/dartblock_value_widgets.dart';
+import 'package:dartblock_code/widgets/widgets.dart';
 
 class VariableAssignmentStatementWidget extends StatelessWidget {
   final VariableAssignmentStatement statement;

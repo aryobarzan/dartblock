@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:dartblock/core/dartblock_program.dart';
-import 'package:dartblock/models/function.dart';
-import 'package:dartblock/models/dartblock_value.dart';
-import 'package:dartblock/models/dartblock_validator.dart';
-import 'package:dartblock/widgets/views/symbols.dart';
+import 'package:dartblock_code/core/dartblock_program.dart';
+import 'package:dartblock_code/models/function.dart';
+import 'package:dartblock_code/models/dartblock_value.dart';
+import 'package:dartblock_code/models/dartblock_validator.dart';
+import 'package:dartblock_code/widgets/views/symbols.dart';
 
 class VariableDefinitionEditor extends StatefulWidget {
   /// If the VariableDefinitionEditor is being used in the context of a custom function's

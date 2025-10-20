@@ -1,6 +1,6 @@
-import 'package:dartblock/core/dartblock_executor.dart';
-import 'package:dartblock/models/exception.dart';
-import 'package:dartblock/models/dartblock_value.dart';
+import 'package:dartblock_code/core/dartblock_executor.dart';
+import 'package:dartblock_code/models/exception.dart';
+import 'package:dartblock_code/models/dartblock_value.dart';
 
 class VariableDeclarationInfo {
   DartBlockDataType dataType;

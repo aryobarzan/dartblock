@@ -1,16 +1,16 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:dartblock/models/function.dart';
-import 'package:dartblock/models/dartblock_interaction.dart';
-import 'package:dartblock/models/dartblock_notification.dart';
-import 'package:dartblock/models/statement.dart';
-import 'package:dartblock/widgets/editors/custom_function_basic.dart';
-import 'package:dartblock/widgets/editors/variable_definition.dart';
-import 'package:dartblock/widgets/helper_widgets.dart';
-import 'package:dartblock/widgets/dartblock_editor.dart';
-import 'package:dartblock/widgets/views/statement_listview.dart';
-import 'package:dartblock/widgets/views/symbols.dart';
-import 'package:dartblock/widgets/views/variable_definition.dart';
+import 'package:dartblock_code/models/function.dart';
+import 'package:dartblock_code/models/dartblock_interaction.dart';
+import 'package:dartblock_code/models/dartblock_notification.dart';
+import 'package:dartblock_code/models/statement.dart';
+import 'package:dartblock_code/widgets/editors/custom_function_basic.dart';
+import 'package:dartblock_code/widgets/editors/variable_definition.dart';
+import 'package:dartblock_code/widgets/helper_widgets.dart';
+import 'package:dartblock_code/widgets/dartblock_editor.dart';
+import 'package:dartblock_code/widgets/views/statement_listview.dart';
+import 'package:dartblock_code/widgets/views/symbols.dart';
+import 'package:dartblock_code/widgets/views/variable_definition.dart';
 
 class CustomFunctionWidget extends StatelessWidget {
   final DartBlockFunction customFunction;

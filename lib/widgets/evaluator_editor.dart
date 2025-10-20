@@ -1,12 +1,12 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:dartblock/core/dartblock_program.dart';
-import 'package:dartblock/models/function.dart';
-import 'package:dartblock/models/evaluator.dart';
-import 'package:dartblock/widgets/editors/function_call.dart';
-import 'package:dartblock/widgets/helper_widgets.dart';
-import 'package:dartblock/widgets/views/function_call.dart';
-import 'package:dartblock/widgets/views/function_definition.dart';
+import 'package:dartblock_code/core/dartblock_program.dart';
+import 'package:dartblock_code/models/function.dart';
+import 'package:dartblock_code/models/evaluator.dart';
+import 'package:dartblock_code/widgets/editors/function_call.dart';
+import 'package:dartblock_code/widgets/helper_widgets.dart';
+import 'package:dartblock_code/widgets/views/function_call.dart';
+import 'package:dartblock_code/widgets/views/function_definition.dart';
 
 class DartBlockEvaluatorEditor extends StatefulWidget {
   final DartBlockEvaluator? evaluator;

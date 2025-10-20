@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:dartblock/models/function.dart';
-import 'package:dartblock/models/dartblock_notification.dart';
-import 'package:dartblock/models/dartblock_value.dart';
-import 'package:dartblock/models/statement.dart';
-import 'package:dartblock/widgets/editors/for_loop.dart';
-import 'package:dartblock/widgets/editors/function_call.dart';
-import 'package:dartblock/widgets/editors/if_else_then.dart';
-import 'package:dartblock/widgets/editors/print.dart';
-import 'package:dartblock/widgets/editors/return.dart';
-import 'package:dartblock/widgets/editors/variable_assignment.dart';
-import 'package:dartblock/widgets/editors/variable_declaration.dart';
-import 'package:dartblock/widgets/editors/while_loop.dart';
+import 'package:dartblock_code/models/function.dart';
+import 'package:dartblock_code/models/dartblock_notification.dart';
+import 'package:dartblock_code/models/dartblock_value.dart';
+import 'package:dartblock_code/models/statement.dart';
+import 'package:dartblock_code/widgets/editors/for_loop.dart';
+import 'package:dartblock_code/widgets/editors/function_call.dart';
+import 'package:dartblock_code/widgets/editors/if_else_then.dart';
+import 'package:dartblock_code/widgets/editors/print.dart';
+import 'package:dartblock_code/widgets/editors/return.dart';
+import 'package:dartblock_code/widgets/editors/variable_assignment.dart';
+import 'package:dartblock_code/widgets/editors/variable_declaration.dart';
+import 'package:dartblock_code/widgets/editors/while_loop.dart';
 
 class StatementEditor extends StatelessWidget {
   final StatementType statementType;

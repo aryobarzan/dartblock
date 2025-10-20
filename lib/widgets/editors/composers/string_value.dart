@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:dartblock/models/dartblock_value.dart';
+import 'package:dartblock_code/models/dartblock_value.dart';
 
 class StringValueComposer extends StatefulWidget {
   final DartBlockStringValue? value;

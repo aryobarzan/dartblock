@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:dartblock/models/function.dart';
-import 'package:dartblock/models/dartblock_value.dart';
-import 'package:dartblock/widgets/editors/composers/boolean_value.dart';
-import 'package:dartblock/widgets/editors/composers/number_value.dart';
-import 'package:dartblock/widgets/editors/composers/value_concatenation.dart';
+import 'package:dartblock_code/models/function.dart';
+import 'package:dartblock_code/models/dartblock_value.dart';
+import 'package:dartblock_code/widgets/editors/composers/boolean_value.dart';
+import 'package:dartblock_code/widgets/editors/composers/number_value.dart';
+import 'package:dartblock_code/widgets/editors/composers/value_concatenation.dart';
 
 class DartBlockValueEditor extends StatelessWidget {
   final DartBlockDataType dataType;

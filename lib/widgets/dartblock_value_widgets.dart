@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:dartblock/models/dartblock_value.dart';
-import 'package:dartblock/widgets/helper_widgets.dart';
-import 'package:dartblock/widgets/views/other/dartblock_colors.dart';
+import 'package:dartblock_code/models/dartblock_value.dart';
+import 'package:dartblock_code/widgets/helper_widgets.dart';
+import 'package:dartblock_code/widgets/views/other/dartblock_colors.dart';
 
 class DartBlockValueWidget extends StatelessWidget {
   final DartBlockValue? value;

@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:dartblock/models/dartblock_interaction.dart';
+import 'package:dartblock_code/models/dartblock_interaction.dart';
 
 /// A [Notification] which can bubble up the widget tree of [DartBlockEditor].
 ///

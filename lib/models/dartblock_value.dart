@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:dartblock/core/dartblock_executor.dart';
-import 'package:dartblock/models/statement.dart';
+import 'package:dartblock_code/core/dartblock_executor.dart';
+import 'package:dartblock_code/models/statement.dart';
 import 'package:uuid/uuid.dart';
 
 import 'exception.dart';

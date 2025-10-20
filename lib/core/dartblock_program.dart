@@ -3,10 +3,10 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:dartblock/core/dartblock_executor.dart';
-import 'package:dartblock/models/function.dart';
-import 'package:dartblock/models/dartblock_value.dart';
-import 'package:dartblock/models/statement.dart';
+import 'package:dartblock_code/core/dartblock_executor.dart';
+import 'package:dartblock_code/models/function.dart';
+import 'package:dartblock_code/models/dartblock_value.dart';
+import 'package:dartblock_code/models/statement.dart';
 part 'dartblock_program.g.dart';
 
 /// Fixed values used across NeoTech to determine certain parameters and limits.
