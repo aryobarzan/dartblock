@@ -29,3 +29,32 @@ dev_dependencies:
 flutter:
   assets:
     - assets/icons/
+
+# Supported platforms:
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  web:
+  windows:
+
+screenshots:
+  - description: "The main DartBlock widget for viewing and editing a program."
+    path: screenshots/editor.jpg
+  - description: "The console output after executing a DartBlock program."
+    path: screenshots/console.jpg
+  - description: "The Java version of a DartBlock program."
+    path: screenshots/java.jpg
+  - description: "Setting up evaluation schemas for a DartBlock program."
+    path: screenshots/evaluator.jpg
+  - description: "The automatic evaluation result for an input program based on a sample solution program and a set of evaluation schemas."
+    path: screenshots/evaluation.jpg
+  - description: "An exception thrown during execution, with its details displayed in the console."
+    path: screenshots/exception_in_console.jpg
+
+topics:
+  - block-based
+  - code
+  - programming
+  - editor
