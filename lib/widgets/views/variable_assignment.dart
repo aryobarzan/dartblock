@@ -1,0 +1,38 @@
+import 'package:flutter/material.dart';
+import 'package:dartblock/models/dartblock_value.dart';
+import 'package:dartblock/models/statement.dart';
+import 'package:dartblock/widgets/dartblock_value_widgets.dart';
+import 'package:dartblock/widgets/widgets.dart';
+
+class VariableAssignmentStatementWidget extends StatelessWidget {
+  final VariableAssignmentStatement statement;
+  const VariableAssignmentStatementWidget({super.key, required this.statement});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        VariableTextWidget(
+          variable: DartBlockVariable.init(statement.name),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(12),
+            bottomLeft: Radius.circular(12),
+          ),
+        ),
+        Container(
+          width: 12,
+          height: 2,
+          color: Theme.of(context).colorScheme.outline,
+        ),
+        DartBlockValueWidget(
+          value: statement.value,
+          borderRadius: const BorderRadius.only(
+            topRight: Radius.circular(12),
+            bottomRight: Radius.circular(12),
+          ),
+        ),
+      ],
+    );
+  }
+}
