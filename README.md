@@ -42,6 +42,7 @@ In addition to a drag-and-drop based approach to composing programs, DartBlock a
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/dartblock_code.dart';
 
+final program = DartBlockProgram.example();
 void main() => runApp(
   const MaterialApp(
     home: Material(
@@ -49,7 +50,7 @@ void main() => runApp(
         child: CustomScrollView(slivers: [
             SliverFillRemaining(
               child: DartBlockEditor(
-                key: ValueKey(NeoTechCore.example()),
+                key: ValueKey(program),
                 program: program,
                 canChange: true,
                 canDelete: true,
