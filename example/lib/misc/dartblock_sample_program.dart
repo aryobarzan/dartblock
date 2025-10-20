@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:dartblock_code/dartblock.dart';
+import 'package:dartblock_code/dartblock_code.dart';
 part 'dartblock_sample_program.g.dart';
 
 @JsonSerializable()
