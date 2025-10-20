@@ -1,0 +1,78 @@
+{
+  "schemas": [
+    {
+      "schemaType": "functionOutput",
+      "isEnabled": true,
+      "sampleFunctionCalls": [
+        {
+          "statementType": "customFunctionCallStatement",
+          "statementId": "e1589825-86b9-4b78-8243-757399deb3f1",
+          "isIsolated": true,
+          "customFunctionName": "triple",
+          "arguments": [
+            {
+              "neoValueType": "expressionValue",
+              "expressionValueType": "algebraic",
+              "compositionNode": {
+                "neoValueNodeType": "algebraic",
+                "nodeKey": "925dbcf8-c6b2-47f9-b33b-e0abe076a852",
+                "neoValueNumericNodeType": "constant",
+                "value": 4,
+                "hasPendingDot": false
+              }
+            }
+          ]
+        },
+        {
+          "statementType": "customFunctionCallStatement",
+          "statementId": "6c744f52-5fd5-408a-b5f7-d0900dd528b1",
+          "isIsolated": true,
+          "customFunctionName": "triple",
+          "arguments": [
+            {
+              "neoValueType": "expressionValue",
+              "expressionValueType": "algebraic",
+              "compositionNode": {
+                "neoValueNodeType": "algebraic",
+                "nodeKey": "1bd5d48a-6f2c-4b3e-8391-6a8963f2357d",
+                "neoValueNumericNodeType": "constant",
+                "value": 1,
+                "hasPendingDot": false
+              }
+            }
+          ]
+        },
+        {
+          "statementType": "customFunctionCallStatement",
+          "statementId": "f3c7c894-b660-4fdf-83f1-feb63cfcbc77",
+          "isIsolated": true,
+          "customFunctionName": "triple",
+          "arguments": [
+            {
+              "neoValueType": "expressionValue",
+              "expressionValueType": "algebraic",
+              "compositionNode": {
+                "neoValueNodeType": "algebraic",
+                "nodeKey": "30ed464b-5a7d-4a34-8a80-4838a78ccde4",
+                "neoValueNumericNodeType": "constant",
+                "value": 50,
+                "hasPendingDot": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "schemaType": "functionDefinition",
+      "isEnabled": true,
+      "functionDefinitions": [
+        {
+          "name": "triple",
+          "returnType": "doubleType",
+          "parameters": [{ "name": "number", "dataType": "doubleType" }]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+    "title": "Hello World",
+    "description": "Printing text to the console.",
+    "index": 0,
+    "program": {"mainLanguage":"java","mainFunction":{"name":"main","returnType":null,"parameters":[],"statements":[{"statementType":"printStatement","statementId":"cbe5cea4-6d53-4c38-bf50-0fd503f9c3f3","value":{"neoValueType":"concatenationValue","values":[{"neoValueType":"stringValue","value":"Hello World!"}]}}]},"customFunctions":[],"version":1}
+}

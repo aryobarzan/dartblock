@@ -923,7 +923,7 @@ class _ConcatenationValueTypeButton extends StatelessWidget {
       ),
       _ConcatenationValueType.functionCall => Image.asset(
         'assets/icons/neotech_function.png',
-        package: 'project_neotech',
+        package: 'dartblock_code',
         width: 20,
         height: 20,
         color: isEnabled
@@ -934,7 +934,7 @@ class _ConcatenationValueTypeButton extends StatelessWidget {
       ),
       _ConcatenationValueType.variable => Image.asset(
         'assets/icons/neotech_variable.png',
-        package: 'project_neotech',
+        package: 'dartblock_code',
         width: 20,
         height: 20,
         color: isEnabled

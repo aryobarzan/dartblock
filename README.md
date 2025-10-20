@@ -40,7 +40,7 @@ In addition to a drag-and-drop based approach to composing programs, DartBlock a
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:dartblock_code/project_neotech.dart';
+import 'package:dartblock_code/dartblock_code.dart';
 
 void main() => runApp(
   const MaterialApp(

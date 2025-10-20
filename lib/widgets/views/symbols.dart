@@ -82,7 +82,7 @@ class NeoTechDataTypeIcon extends StatelessWidget {
         DartBlockDataType.stringType =>
           'assets/icons/neotech_datatype_string.png',
       },
-      package: 'project_neotech',
+      package: 'dartblock_code',
       width: width,
       height: height,
       color: color ?? Theme.of(context).colorScheme.onPrimaryContainer,
@@ -210,7 +210,7 @@ class NeoTechFunctionSymbol extends StatelessWidget {
   Widget _buildAsset() {
     return Image.asset(
       'assets/icons/neotech_function.png',
-      package: 'project_neotech',
+      package: 'dartblock_code',
       width: width,
       height: height,
       color: color ?? Colors.white,
@@ -254,7 +254,7 @@ class FunctionNameSymbol extends StatelessWidget {
   Widget _buildAsset() {
     return Image.asset(
       'assets/icons/neotech_function.png',
-      package: 'project_neotech',
+      package: 'dartblock_code',
       width: width,
       height: height,
       color: color ?? Colors.white,
@@ -300,7 +300,7 @@ class NeoTechReturnSymbol extends StatelessWidget {
   Widget _buildAsset(BuildContext context) {
     return Image.asset(
       'assets/icons/neotech_output.png',
-      package: 'project_neotech',
+      package: 'dartblock_code',
       width: width,
       height: height,
       color: color ?? Theme.of(context).colorScheme.onSurface,

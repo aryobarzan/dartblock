@@ -70,7 +70,7 @@ class FunctionVariableSplitButton extends StatelessWidget {
             ),
             child: Image.asset(
               'assets/icons/neotech_function.png',
-              package: 'project_neotech',
+              package: 'dartblock_code',
               width: 20,
               height: 20,
               color: filteredCustomFunctions.isNotEmpty
@@ -106,7 +106,7 @@ class FunctionVariableSplitButton extends StatelessWidget {
             ),
             child: Image.asset(
               'assets/icons/neotech_variable.png',
-              package: 'project_neotech',
+              package: 'dartblock_code',
               width: 24,
               height: 24,
               color: variableDefinitions.isNotEmpty
