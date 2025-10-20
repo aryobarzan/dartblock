@@ -1,7 +1,7 @@
 name: dartblock
 description: "Block-based programming framework"
 version: 1.0.0
-homepage:
+repository: https://github.com/aryobarzan/dartblock
 
 environment:
   sdk: ^3.9.2
