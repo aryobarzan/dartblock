@@ -1,6 +1,7 @@
 # DartBlock
 
 [![pub package](https://img.shields.io/pub/v/dartblock_code.svg)](https://pub.dev/packages/dartblock_code)
+[![CodeFactor](https://www.codefactor.io/repository/github/aryobarzan/dartblock/badge/main)](https://www.codefactor.io/repository/github/aryobarzan/dartblock/overview/main)
 
 - [DartBlock](#dartblock)
   - [Introduction](#introduction)
