@@ -24,6 +24,8 @@ dependencies:
 dev_dependencies:
   analyzer: ^8.4.0
   flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
   json_serializable: ^6.10.0
 
 flutter:
