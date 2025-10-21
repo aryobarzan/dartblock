@@ -1,3 +1,7 @@
+## 1.0.4
+
+- Updated docs
+
 ## 1.0.3
 
 - Updated formatting
