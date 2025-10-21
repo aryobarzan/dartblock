@@ -185,6 +185,9 @@ class DartBlockProgram {
         version == other.version;
   }
 
+  /// Retrieve a deep copy of this [DartBlockProgram].
+  ///
+  /// A deep copy means that modifications to the contents of this copied [DartBlockProgram], e.g., its contained [DartBlockFunction]s, will not be reflected by the original [DartBlockProgram].
   DartBlockProgram copy() {
     return DartBlockProgram(
       mainLanguage,
@@ -283,32 +286,30 @@ Types: ${variableDefinitions.map((e) => e.dataType.toString()).toSet().join(', '
   }) {
     trimPercentage = 1.0 - max(0.0, min(1.0, trimPercentage));
 
-    DartBlockFunction trimCustomFunction(DartBlockFunction customFunction) {
+    DartBlockFunction trimFunction(DartBlockFunction function) {
       /// Get the max depth of the function based on its tree-based representation.
-      final int? customFunctionDepth = buildTree()
-          .findNodeByKey(customFunction.hashCode)
+      final int? functionDepth = buildTree()
+          .findNodeByKey(function.hashCode)
           ?.getMaxDepth();
-      if (customFunctionDepth != null && customFunctionDepth >= 0) {
-        int trimToLength = (customFunctionDepth * trimPercentage).floor();
+      if (functionDepth != null && functionDepth >= 0) {
+        int trimToLength = (functionDepth * trimPercentage).floor();
 
-        return customFunction.trim(trimToLength);
+        return function.trim(trimToLength);
       } else {
-        return customFunction;
+        return function;
       }
     }
 
     /// Trim the main function.
     DartBlockFunction trimmedMainFunction = trimMainFunction
-        ? trimCustomFunction(mainFunction)
+        ? trimFunction(mainFunction)
         : mainFunction;
 
     /// Trim each custom function
     List<DartBlockFunction> trimmedCustomFunctions = [];
     if (trimCustomFunctions) {
       for (final customFunction in customFunctions) {
-        DartBlockFunction trimmedCustomFunction = trimCustomFunction(
-          customFunction,
-        );
+        DartBlockFunction trimmedCustomFunction = trimFunction(customFunction);
         trimmedCustomFunctions.add(trimmedCustomFunction);
       }
     } else {
