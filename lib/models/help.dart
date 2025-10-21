@@ -6,11 +6,23 @@ import 'package:dartblock_code/widgets/views/symbols.dart';
 import 'package:dartblock_code/widgets/views/toolbox_related.dart';
 import 'package:dartblock_code/widgets/views/variable_definition.dart';
 
+/// An explainer for a DartBlock feature.
 class DartBlockHelpItem {
+  /// A unique ID.
   final String id;
+
+  /// A short title for the explainer.
   final String title;
+
+  /// A short description of the explainer, used as a preview.
   final String shortDescription;
+
+  /// The full body of the explainer.
   final String body;
+
+  /// The widget to render the help item.
+  ///
+  /// If null, a simple Text([body]) is used.
   final Widget Function(BuildContext context)? builder;
 
   DartBlockHelpItem({
@@ -21,6 +33,7 @@ class DartBlockHelpItem {
     required this.builder,
   });
 
+  /// How the explainer should be rendered.
   Widget build(BuildContext context) {
     if (builder != null) {
       return builder!(context);
@@ -29,9 +42,7 @@ class DartBlockHelpItem {
     }
   }
 
-  // for loop
-  // while loop
-  // number composer
+  /// The default list of help items for the main concepts of DartBlock.
   static List<DartBlockHelpItem> getHelpItems() {
     return [
       DartBlockHelpItem(

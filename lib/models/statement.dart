@@ -21,6 +21,9 @@ enum DartBlockTypedLanguage {
   }
 }
 
+/// The category to which a [Statement] belongs.
+///
+/// This [StatementCategory] is not used as a property of [Statement], but simply used for the categorization of the different [Statement]s in the toolbox widget of DartBlock.
 enum StatementCategory {
   variable,
   loop,
@@ -37,6 +40,7 @@ enum StatementCategory {
     };
   }
 
+  /// Retrieve a visualization of the statement category.
   Widget getIconData(double width) {
     return switch (this) {
       StatementCategory.variable => Icon(
@@ -64,6 +68,7 @@ enum StatementCategory {
   }
 }
 
+/// The type of a [Statement].
 @JsonEnum()
 enum StatementType {
   @JsonValue('statementBlockStatement')
@@ -120,6 +125,7 @@ enum StatementType {
     }
   }
 
+  /// A short, imperative sentence to describe what will happen when the user is about to drop a dragged [StatementType] onto a location in their program.
   String describeAdd() {
     switch (this) {
       case StatementType.variableDeclarationStatement:
@@ -147,9 +153,13 @@ enum StatementType {
     }
   }
 
-  /// If true, the statement has no extra properties and thus does not require
-  /// editing. Examples include "break" and "continue" statements, which should
-  /// be instantly added to the canvas without opening an extra editor.
+  /// Whether the [Statement] has no additional properties.
+  ///
+  /// If true, it means the [StatementType] does not require an editor widget, as there would be nothing to edit.
+  ///
+  /// Simple statements can directly be added to the program.
+  ///
+  /// [BreakStatement] and [ContinueStatement] are considered simple statements.
   bool isSimple() {
     switch (this) {
       case StatementType.breakStatement:
@@ -160,8 +170,15 @@ enum StatementType {
     }
   }
 
+  /// The order priority when visualizing the [StatementType] in the [StatementTypePicker].
+  ///
+  /// Statement types are shown in ascending order based on this priority. See
   int getOrderValue() {
     switch (this) {
+      /// [StatementBlock] is not a [Statement] which is directly created by the user.
+      /// Rather, it simply represents a list of statements in the same scope, e.g., the body of a for-loop.
+      ///
+      /// For that reason, it is assigned an arbitrarily high value which can be ignored.
       case StatementType.statementBlockStatement:
         return 999;
       case StatementType.printStatement:
@@ -187,6 +204,7 @@ enum StatementType {
     }
   }
 
+  /// Retrieve the category to which the [StatementType] belongs.
   StatementCategory getCategory() {
     return switch (this) {
       StatementType.statementBlockStatement => StatementCategory.other,
@@ -204,16 +222,29 @@ enum StatementType {
   }
 }
 
+/// The core class which represents an instruction in DartBlock, e.g., a variable declaration or a for-loop.
 sealed class Statement implements DartBlockProgramTreeNodeAcceptor {
+  /// The type of the [Statement].
+  ///
+  /// Primarily used for the JSON encoding/decoding process.
   @JsonKey(name: "statementType")
   final StatementType statementType;
+
+  /// A unique identifier.
   @JsonKey(name: "statementId")
   final String statementId;
 
+  /// The main constructor to use to manually create a new [Statement] object.
   Statement.init(this.statementType) : statementId = const Uuid().v4();
+
+  /// Helper constructor for json_serializable package.
   Statement(this.statementType, this.statementId);
+
+  /// Decode a [Statement] object from a given JSON object (Map).
   factory Statement.fromJson(Map<String, dynamic> json) {
     StatementType? kind;
+
+    /// Use the 'statementType' key in the JSON Map to determine which concrete implementation of Statement to use for the decoding.
     if (json.containsKey('statementType')) {
       for (var statementType in StatementType.values) {
         if (json["statementType"] == statementType.jsonValue) {
@@ -228,6 +259,8 @@ sealed class Statement implements DartBlockProgramTreeNodeAcceptor {
         json.containsKey("statementType") ? json["statementType"] : "UNKNOWN",
       );
     }
+
+    /// Based on the determined [StatementType], call the corresponding concrete [Statement] class' `fromJson` function.
     switch (kind) {
       case StatementType.statementBlockStatement:
         return StatementBlock.fromJson(json);
@@ -253,23 +286,27 @@ sealed class Statement implements DartBlockProgramTreeNodeAcceptor {
         return ContinueStatement.fromJson(json);
     }
   }
+
+  /// Encode the [Statement] object to JSON.
   Map<String, dynamic> toJson();
 
+  /// Execute the [Statement], using the given [DartBlockArbiter].
   void run(DartBlockArbiter arbiter) {
     try {
       _execute(arbiter);
     } on DartBlockException catch (neoTechException) {
+      /// Designate this [Statement] as the cause of the thrown [DartBlockException].
       neoTechException.statement ??= this;
       rethrow;
     } on ReturnStatementException {
-      /// Do not do anything here!! ReturnStatementException is a very special
-      /// type used to propagate a return value in a function's body.
+      /// CRITICAL: [ReturnStatementException] is a special class used to propagate the return value in the body of a [DartBlockFunction].
+      /// Simply rethrow it to move it up the stack.
       rethrow;
     } on Exception catch (ex) {
-      // A common Dart Exception not known by NeoTech.
+      // A common Dart Exception not known by DartBlock: we wrap it in our own [DartBlockException].
       throw DartBlockException.fromException(exception: ex, statement: this);
     } on StackOverflowError catch (_) {
-      // Thrown by Dart in case of faulty recursive function call
+      // Thrown by Dart, e.g., in the case of a faulty recursive function call (missing ending condition).
       throw DartBlockException(
         title: "Stack Overflow",
         message:
@@ -277,7 +314,7 @@ sealed class Statement implements DartBlockProgramTreeNodeAcceptor {
         statement: this,
       );
     } on Error catch (err) {
-      // Very general error thrown by Dart
+      // Very generic error thrown by Dart: we wrap it in our own [DartBlockException].
       if (kDebugMode) {
         print(err);
       }
@@ -295,14 +332,26 @@ sealed class Statement implements DartBlockProgramTreeNodeAcceptor {
   @override
   String toString();
 
+  /// Export the [Statement] to its equivalent textual representation in a typed language.
   String toScript({
     DartBlockTypedLanguage language = DartBlockTypedLanguage.java,
   });
 
+  /// Create a deep copy of the [Statement].
   Statement copy();
 
+  /// Shuffle the contents of the [Statement].
+  ///
+  /// This is only relevant for compound [Statement]s, such as [ForLoopStatement].
+  ///
+  /// Non-compound statements, e.g., [VariableDeclarationStatement], simply return themselves.
   Statement shuffle() => this;
 
+  /// Trim the contents of the [Statement].
+  ///
+  /// This is only relevant for compound [Statement]s, such as [ForLoopStatement].
+  ///
+  /// Non-compound statements, e.g., [VariableDeclarationStatement], simply return themselves.
   (Statement?, int) trim(int remaining) {
     if (remaining <= 0) {
       return (null, 0);

@@ -229,9 +229,10 @@ The supported set of "blocks" or statement types.
 - Return Value
 - Break
 - Continue
-- <div align="center">
+
+<div align="center">
     <img src="./screenshots/statement_types.jpg" alt="DartBlock statement type picker" width="400">
-  </div>
+</div>
 
 ### Custom Functions
 
