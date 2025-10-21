@@ -459,16 +459,16 @@ class StatementBlock extends StatementContext {
   }
 
   @override
-  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode neoTechCoreNode) {
+  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode programTreeNode) {
     final DartBlockProgramTreeNode node = DartBlockProgramTreeStatementNode(
       this,
-      neoTechCoreNode,
+      programTreeNode,
     );
     var currentNode = node;
     for (var statement in statements) {
       currentNode = statement.buildTree(currentNode);
     }
-    neoTechCoreNode.children.add(node);
+    programTreeNode.children.add(node);
 
     return node;
   }
@@ -574,12 +574,12 @@ class VariableDeclarationStatement extends Statement {
   }
 
   @override
-  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode neoTechCoreNode) {
+  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode programTreeNode) {
     final DartBlockProgramTreeNode node = DartBlockProgramTreeStatementNode(
       this,
-      neoTechCoreNode,
+      programTreeNode,
     );
-    neoTechCoreNode.children.add(node);
+    programTreeNode.children.add(node);
 
     return node;
   }
@@ -631,12 +631,12 @@ class VariableAssignmentStatement extends Statement {
   }
 
   @override
-  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode neoTechCoreNode) {
+  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode programTreeNode) {
     final DartBlockProgramTreeNode node = DartBlockProgramTreeStatementNode(
       this,
-      neoTechCoreNode,
+      programTreeNode,
     );
-    neoTechCoreNode.children.add(node);
+    programTreeNode.children.add(node);
 
     return node;
   }
@@ -718,12 +718,12 @@ class ReturnStatement extends Statement {
   }
 
   @override
-  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode neoTechCoreNode) {
+  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode programTreeNode) {
     final DartBlockProgramTreeNode node = DartBlockProgramTreeStatementNode(
       this,
-      neoTechCoreNode,
+      programTreeNode,
     );
-    neoTechCoreNode.children.add(node);
+    programTreeNode.children.add(node);
 
     return node;
   }
@@ -764,12 +764,12 @@ class BreakStatement extends Statement {
   }
 
   @override
-  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode neoTechCoreNode) {
+  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode programTreeNode) {
     final DartBlockProgramTreeNode node = DartBlockProgramTreeStatementNode(
       this,
-      neoTechCoreNode,
+      programTreeNode,
     );
-    neoTechCoreNode.children.add(node);
+    programTreeNode.children.add(node);
 
     return node;
   }
@@ -815,12 +815,12 @@ class ContinueStatement extends Statement {
   }
 
   @override
-  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode neoTechCoreNode) {
+  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode programTreeNode) {
     final DartBlockProgramTreeNode node = DartBlockProgramTreeStatementNode(
       this,
-      neoTechCoreNode,
+      programTreeNode,
     );
-    neoTechCoreNode.children.add(node);
+    programTreeNode.children.add(node);
 
     return node;
   }
@@ -898,17 +898,17 @@ class IfElseStatement extends Statement {
   }
 
   @override
-  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode neoTechCoreNode) {
+  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode programTreeNode) {
     final DartBlockProgramTreeNode node = DartBlockProgramTreeStatementNode(
       this,
-      neoTechCoreNode,
+      programTreeNode,
     );
     ifThenStatementBlock.buildTree(node);
     for (var elseIfStatementBlock in elseIfStatementBlocks) {
       elseIfStatementBlock.$2.buildTree(node);
     }
     elseStatementBlock.buildTree(node);
-    neoTechCoreNode.children.add(node);
+    programTreeNode.children.add(node);
 
     return node;
   }
@@ -1115,10 +1115,10 @@ class ForLoopStatement extends StatementContext {
   }
 
   @override
-  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode neoTechCoreNode) {
+  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode programTreeNode) {
     final DartBlockProgramTreeNode node = DartBlockProgramTreeStatementNode(
       this,
-      neoTechCoreNode,
+      programTreeNode,
     );
     final initNode = initStatement?.buildTree(node);
     var currentNode = initNode ?? node;
@@ -1127,7 +1127,7 @@ class ForLoopStatement extends StatementContext {
     }
     postStatement?.buildTree(currentNode);
 
-    neoTechCoreNode.children.add(node);
+    programTreeNode.children.add(node);
 
     return node;
   }
@@ -1287,17 +1287,17 @@ class WhileLoopStatement extends StatementContext {
   }
 
   @override
-  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode neoTechCoreNode) {
+  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode programTreeNode) {
     final DartBlockProgramTreeNode node = DartBlockProgramTreeStatementNode(
       this,
-      neoTechCoreNode,
+      programTreeNode,
     );
     var currentNode = node;
     for (var statement in bodyStatements) {
       currentNode = statement.buildTree(currentNode);
     }
 
-    neoTechCoreNode.children.add(node);
+    programTreeNode.children.add(node);
 
     return node;
   }
@@ -1551,12 +1551,12 @@ class FunctionCallStatement
   }
 
   @override
-  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode neoTechCoreNode) {
+  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode programTreeNode) {
     final DartBlockProgramTreeNode node = DartBlockProgramTreeStatementNode(
       this,
-      neoTechCoreNode,
+      programTreeNode,
     );
-    neoTechCoreNode.children.add(node);
+    programTreeNode.children.add(node);
 
     return node;
   }
@@ -1602,12 +1602,12 @@ class PrintStatement extends Statement {
   }
 
   @override
-  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode neoTechCoreNode) {
+  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode programTreeNode) {
     final DartBlockProgramTreeNode node = DartBlockProgramTreeStatementNode(
       this,
-      neoTechCoreNode,
+      programTreeNode,
     );
-    neoTechCoreNode.children.add(node);
+    programTreeNode.children.add(node);
 
     return node;
   }

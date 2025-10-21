@@ -9,7 +9,7 @@ import 'package:dartblock_code/models/exception.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/models/statement.dart';
 
-/// The executor for DartBlock programs.Serves for executing and keeping track of the execution of a NeoTechCore.
+/// The executor for DartBlock programs. Serves for executing and keeping track of the output of a [DartBlockProgram].
 ///
 /// The DartBlockArbiter runs a given DartBlock program, keeps track of its [DartBlockEnvironment] and any potentially thrown [DartBlockException].
 ///
@@ -205,6 +205,7 @@ abstract class DartBlockArbiter {
 ///
 /// This class keeps track of the console output of the executed [DartBlockProgram], as well as the actual execution behavior.
 class DartBlockExecutor extends DartBlockArbiter {
+  /// The output to the console, line-by-line.
   final List<String> _consoleOutput = [];
   DartBlockExecutor(super.program);
 
@@ -218,6 +219,9 @@ class DartBlockExecutor extends DartBlockArbiter {
     }
   }
 
+  /// Reset the state of the [DartBlockExecutor].
+  ///
+  /// This clears out the [DartBlockEnvironment], console output and thrown [DartBlockException].
   void _reset() {
     environment.clearChildren();
     environment.clearMemory();
@@ -419,19 +423,59 @@ class DartBlockExecutor extends DartBlockArbiter {
   }
 }
 
+/// Visitor pattern for the tree representation of DartBlock components.
 abstract class DartBlockProgramTreeNodeAcceptor {
-  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode neoTechCoreNode);
+  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode programTreeNode);
 }
 
+/// The tree-based representation of a DartBlock component (Statement, Function) as a node.
+///
+/// A node can have an optional parent node, as well as a list of child nodes.
+///
+/// The purpose of this tree representation is to primarily keep track of the variable scopes.
+/// As such, by traversing upward from a given node, we can determine the variables which have already been declared
+/// and which are usable in the current scope.
+///
+/// A second usage of this tree representation is to enable the evaluation schema [DartBlockVariableCountEvaluationSchema].
+///
+/// ----
+/// Technical details:
+/// - The root node, defined by the concrete [DartBlockProgramTreeRootNode], has no parent. The root node is created by [DartBlockProgram.buildTree].
+/// - The child nodes of [DartBlockProgramTreeRootNode] are the main [DartBlockFunction] and any additional custom [DartBlockFunction]. The concrete implementation is given by [DartBlockProgramTreeCustomFunctionNode].
+/// - Each [DartBlockProgramTreeCustomFunctionNode] has as a singular child the first [Statement] in its body. The concrete implementation is given by [DartBlockProgramTreeStatementNode].
+/// - Compound [Statement]s, such as [WhileLoopStatement], again have the first [Statement] in their body as a singular child.
+/// - Special cases include [IfElseStatement] and [ForLoopStatement]:
+///   - [IfElseStatement]: it has a child for its if-body, another for its else-body and one for each additional else-if clause's body.
+///   - [ForLoopStatement]: if its [ForLoopStatement.initStatement] is not null, it is its singular chilld. Otherwise, the starting child is the first statement of its body.
 sealed class DartBlockProgramTreeNode {
+  /// The parent node.
+  ///
+  /// It can be null, signifying it is the root node.
   final DartBlockProgramTreeNode? parent;
+
+  /// The list of child nodes.
+  ///
+  /// A node is not limited to a fixed number of children, though most DartBlock components have a singular child.
   final List<DartBlockProgramTreeNode> children = [];
 
+  /// A unique key which the node is associated with.
+  ///
+  /// Used for looking up nodes in tree traversal.
   final int key;
   DartBlockProgramTreeNode(this.parent, {required this.key});
 
+  /// The list of variable definitions inherent to a singular node. In other words, the variables defined in that node.
+  ///
+  /// As an example, [DartBlockProgramTreeCustomFunctionNode] defines a list of declared variables corresponding to the parameters of the [DartBlockFunction].
+  /// Aside from functions, a [VariableDeclarationStatement] also inherently defines a variable in its scope. Otherwise, no other statement type defines any inherent variables.
+  ///
+  /// ----
+  /// Explainer: The tree representation of a DartBlockProgram is used to track the variable scope for a given location (Statement) in the program, which is done via upward traversal.
+  /// Primarily, the variable definitions are retrieved from [VariableDeclarationStatement]s, but a [DartBlockFunction] is a special case which can define multiple variables in a singular [DartBlockProgramTreeCustomFunctionNode].
   List<DartBlockVariableDefinition> _getInherentVariableDefinitions();
 
+  /// Return this node if its [key] matches.
+  /// Otherwise, perform downward traversal to find matches in the child nodes.
   DartBlockProgramTreeNode? findNodeByKey(int key) {
     if (this.key == key) {
       return this;
@@ -447,6 +491,10 @@ sealed class DartBlockProgramTreeNode {
     return null;
   }
 
+  /// Get the depth of this node.
+  ///
+  /// If it has no children, its depth is simply 1.
+  /// Otherwise, find the highest depth based on its child nodes.
   int getMaxDepth() {
     if (children.isEmpty) {
       return 1;
@@ -459,6 +507,62 @@ sealed class DartBlockProgramTreeNode {
     }
   }
 
+  /// Retrieve the list of variables defined in the scope given by the starting node, based on its [key].
+  /// Based on the starting node, upward traversal is used to find all preceding variable definitions.
+  ///
+  /// If [includeNode] is true, the starting node's own variable definitions are also included.
+  /// Otherwise, the search starts from the parent node of the starting node.
+  List<DartBlockVariableDefinition> findVariableDefinitions(
+    int key, {
+    bool includeNode = false,
+  }) {
+    var containingNode = findNodeByKey(key);
+
+    if (!includeNode) {
+      containingNode = containingNode?.parent;
+    }
+    if (containingNode != null) {
+      /// We pass _getInherentVariableDefinitions() as an argument, as we want to include the inherent variable definitions
+      /// of the current (this) node as well.
+      return containingNode
+          ._findVariableDefinitions(_getInherentVariableDefinitions())
+          .toSet()
+          .toList();
+    } else {
+      /// If the node based on the given [key] does not exist, simply return the inherent variable definitions
+      /// of the current (this) node, if [includeNode] is true.
+      if (includeNode) {
+        return _getInherentVariableDefinitions();
+      } else {
+        return [];
+      }
+    }
+  }
+
+  /// Retrieve the variable definitions of this node's scope.
+  ///
+  /// If its parent node is null, simply return the concatenation of [existingDefinitions] and this node's inherent variable definitions.
+  /// Otherwise, return the former concatenation as well as any variable definitions defined higher up, until we reach a node with no parent node.
+  List<DartBlockVariableDefinition> _findVariableDefinitions(
+    List<DartBlockVariableDefinition> existingDefinitions,
+  ) {
+    List<DartBlockVariableDefinition> definitions = [];
+    definitions.addAll(existingDefinitions);
+    definitions.addAll(_getInherentVariableDefinitions());
+
+    if (parent == null) {
+      return definitions;
+    } else {
+      return parent!._findVariableDefinitions(definitions);
+    }
+  }
+
+  /// Retrieve all variable definitions in the current node and its child nodes.
+  ///
+  /// This function performs the opposite of [findVariableDefinitions], as it performs a downward traversal until it reaches nodes with no more child nodes.
+  ///
+  /// This function is not used for the actual execution logic of a [DartBlockProgram].
+  /// Instead, it is used to enable secondary functionalities, such as the generation of hints using [DartBlockProgram.getHints], as well as [DartBlockVariableCountEvaluationSchema].
   List<DartBlockVariableDefinition> findAllVariableDefinitions() {
     List<DartBlockVariableDefinition> foundVariableDefinitions =
         _getInherentVariableDefinitions();
@@ -468,16 +572,17 @@ sealed class DartBlockProgramTreeNode {
     return foundVariableDefinitions.toSet().toList();
   }
 
+  /// Count the number of usage of each [StatementType] by way of downward traversal.
   Map<StatementType, int> getStatementTypeUsageCount() {
     Map<StatementType, int> statementTypeCounts = {};
     final statementType = _getStatementType();
     if (statementType != null) {
-      final currentCount = statementTypeCounts.containsKey(statementType)
+      statementTypeCounts[statementType] =
+          statementTypeCounts.containsKey(statementType)
           ? statementTypeCounts[statementType]! + 1
           : 1;
-      statementTypeCounts[statementType] = currentCount;
     }
-    for (var child in children) {
+    for (final child in children) {
       final childStatementTypeCounts = child.getStatementTypeUsageCount();
       for (final entry in childStatementTypeCounts.entries) {
         if (statementTypeCounts.containsKey(entry.key)) {
@@ -491,47 +596,19 @@ sealed class DartBlockProgramTreeNode {
     return statementTypeCounts;
   }
 
+  /// Get the [StatementType] associated with the [Statement] represented by this node.
+  ///
+  /// Only [DartBlockProgramTreeStatementNode] returns a non-null value.
   StatementType? _getStatementType() {
     return null;
   }
-
-  List<DartBlockVariableDefinition> findVariableDefinitions(
-    int key, {
-    bool includeNode = false,
-  }) {
-    var containingNode = findNodeByKey(key);
-
-    if (!includeNode) {
-      containingNode = containingNode?.parent;
-    }
-    if (containingNode != null) {
-      return containingNode
-          ._findVariableDefinitions(_getInherentVariableDefinitions())
-          .toSet()
-          .toList();
-    } else {
-      if (includeNode) {
-        return _getInherentVariableDefinitions();
-      } else {
-        return [];
-      }
-    }
-  }
-
-  List<DartBlockVariableDefinition> _findVariableDefinitions(
-    List<DartBlockVariableDefinition> result,
-  ) {
-    List<DartBlockVariableDefinition> definitions = [];
-    definitions.addAll(_getInherentVariableDefinitions());
-
-    if (parent == null) {
-      return definitions + result;
-    } else {
-      return parent!._findVariableDefinitions(result + definitions);
-    }
-  }
 }
 
+/// The root node of the tree representation of a [DartBlockProgram].
+///
+/// The node key is always -1.
+///
+/// The root node has no parent.
 class DartBlockProgramTreeRootNode extends DartBlockProgramTreeNode {
   DartBlockProgramTreeRootNode() : super(null, key: -1);
 
@@ -541,16 +618,22 @@ class DartBlockProgramTreeRootNode extends DartBlockProgramTreeNode {
   }
 }
 
+/// The node for a [DartBlockFunction] in the tree representation.
 class DartBlockProgramTreeCustomFunctionNode extends DartBlockProgramTreeNode {
   final DartBlockFunction customFunction;
   DartBlockProgramTreeCustomFunctionNode(this.customFunction, super.parent)
     : super(key: customFunction.hashCode);
 
+  /// The parameters of this [DartBlockFunction] are its inherent variable definitions.
   @override
   List<DartBlockVariableDefinition> _getInherentVariableDefinitions() {
     return List.from(customFunction.parameters.map((e) => e.copy()));
   }
 
+  /// Retrieve the maximum depth of this [DartBlockFunction].
+  ///
+  /// If it has no child nodes, its depth is 0.
+  /// Otherwise, retrieve the maximum depth from its child nodes (statements of its body).
   @override
   int getMaxDepth() {
     if (children.isEmpty) {
@@ -565,6 +648,7 @@ class DartBlockProgramTreeCustomFunctionNode extends DartBlockProgramTreeNode {
   }
 }
 
+/// The node for a [Statement] in the tree representation.
 class DartBlockProgramTreeStatementNode extends DartBlockProgramTreeNode {
   final Statement statement;
   DartBlockProgramTreeStatementNode(this.statement, super.parent)
@@ -575,6 +659,9 @@ class DartBlockProgramTreeStatementNode extends DartBlockProgramTreeNode {
     return statement.statementType;
   }
 
+  /// The inherent variable definitions of this statement's node.
+  ///
+  /// Currently, only a [VariableDeclarationStatement] can have an inherent variable definition.
   @override
   List<DartBlockVariableDefinition> _getInherentVariableDefinitions() {
     if (statement is VariableDeclarationStatement) {

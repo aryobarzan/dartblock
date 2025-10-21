@@ -37,9 +37,9 @@ class DartBlockFunction implements DartBlockProgramTreeNodeAcceptor {
   }
 
   @override
-  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode neoTechCoreNode) {
+  DartBlockProgramTreeNode buildTree(DartBlockProgramTreeNode programTreeNode) {
     // print("${name}: $hashCode");
-    final node = DartBlockProgramTreeCustomFunctionNode(this, neoTechCoreNode);
+    final node = DartBlockProgramTreeCustomFunctionNode(this, programTreeNode);
     DartBlockProgramTreeNode currentNode = node;
     // for (var variableDefinition in variableDefinitions) {
     //   final declarationStatement = VariableDeclarationStatement(
@@ -52,7 +52,7 @@ class DartBlockFunction implements DartBlockProgramTreeNodeAcceptor {
     for (var statement in statements) {
       currentNode = statement.buildTree(currentNode);
     }
-    neoTechCoreNode.children.add(node);
+    programTreeNode.children.add(node);
 
     return node;
   }
