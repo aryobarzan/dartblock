@@ -223,27 +223,40 @@ class ForLoopStatementWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Condition expression
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints.tightFor(),
-                      child: DartBlockValueWidget(
-                        value: statement.condition,
-                        // border: Border.all(color: DartBlockColors.boolean),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(12),
-                          topRight: Radius.circular(12),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      return SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minWidth: constraints.maxWidth,
+                          ),
+                          child: DartBlockValueWidget(
+                            value: statement.condition,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
-                  // DartBlockValueWidget(
-                  //   value: statement.condition,
-                  //   border: Border.all(
-                  //     color: Theme.of(context).colorScheme.outline,
-                  //     width: 1,
+                  // Alternative approach: (slightly more performant, but requires manual calculation of padding)
+                  //       SizedBox(
+                  //   width: double.infinity,
+                  //   child: SingleChildScrollView(
+                  //     scrollDirection: Axis.horizontal,
+                  //     child: Container(
+                  //       constraints: BoxConstraints(
+                  //         minWidth:
+                  //             MediaQuery.of(context).size.width -
+                  //             72 -
+                  //             32, // Account for paddings
+                  //       ),
+                  //       child: DartBlockValueWidget(
+                  //         value: statement.condition,
+                  //         borderRadius: BorderRadius.circular(12),
+                  //       ),
+                  //     ),
                   //   ),
-                  //   borderRadius: BorderRadius.circular(8),
                   // ),
                   const SizedBox(height: 8),
                   // Decision arrows
