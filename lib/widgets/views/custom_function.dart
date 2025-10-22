@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:dartblock_code/widgets/helpers/adaptive_display.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/function.dart';
 import 'package:dartblock_code/models/dartblock_interaction.dart';
@@ -173,68 +174,104 @@ class CustomFunctionWidget extends StatelessWidget {
     BuildContext context,
     DartBlockEditorInheritedWidget neoTechCoreInheritedWidget,
   ) {
-    showModalBottomSheet(
-      isScrollControlled: true,
-      clipBehavior: Clip.hardEdge,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
+    showAdaptiveBottomSheetOrDialog(
+      context,
+      sheetPadding: EdgeInsets.all(8),
+      dialogPadding: EdgeInsets.all(16),
+      child: CustomFunctionBasicEditor(
+        customFunctionName: customFunction.name,
+        returnType: customFunction.returnType,
+        existingCustomFunctionNames: neoTechCoreInheritedWidget
+            .program
+            .customFunctions
+            .map((e) => e.name)
+            .whereNot((element) => element == customFunction.name)
+            .toList(),
+        canDelete: neoTechCoreInheritedWidget.canDelete,
+        canChange: neoTechCoreInheritedWidget.canChange,
+        onDelete: () {
+          if (onDelete != null) {
+            Navigator.of(context).pop();
+            onDelete!();
+          }
+        },
+        onSaved: (newName, newReturnType) {
+          Navigator.of(context).pop();
+          customFunction.name = newName;
+          customFunction.returnType = newReturnType;
+          ScaffoldMessenger.of(context).showSnackBar(
+            createDartBlockInfoSnackBar(
+              context,
+              iconData: Icons.check,
+              message: "Saved custom function: $newName",
+            ),
+          );
+          onChanged(customFunction);
+        },
       ),
-      context: context,
-      builder: (sheetContext) {
-        /// Due to the modal sheet having a separate context and thus no relation
-        /// to the main context of the NeoTechWidget, we capture DartBlockNotifications
-        /// from the sheet's context and manually re-dispatch them using the parent context.
-        /// The parent context may not necessarily be the NeoTechWidget's context,
-        /// as certain sheets open additional nested sheets with their own contexts,
-        /// hence this process needs to be repeated for every sheet until the NeoTechWidget's
-        /// context is reached.
-        return NotificationListener<DartBlockNotification>(
-          onNotification: (notification) {
-            notification.dispatch(context);
-            return true;
-          },
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: 8,
-              right: 8,
-              top: 8,
-              bottom: 16 + MediaQuery.of(sheetContext).viewInsets.bottom,
-            ),
-            child: CustomFunctionBasicEditor(
-              customFunctionName: customFunction.name,
-              returnType: customFunction.returnType,
-              existingCustomFunctionNames: neoTechCoreInheritedWidget
-                  .program
-                  .customFunctions
-                  .map((e) => e.name)
-                  .whereNot((element) => element == customFunction.name)
-                  .toList(),
-              canDelete: neoTechCoreInheritedWidget.canDelete,
-              canChange: neoTechCoreInheritedWidget.canChange,
-              onDelete: () {
-                if (onDelete != null) {
-                  Navigator.of(sheetContext).pop();
-                  onDelete!();
-                }
-              },
-              onSaved: (newName, newReturnType) {
-                Navigator.of(sheetContext).pop();
-                customFunction.name = newName;
-                customFunction.returnType = newReturnType;
-                ScaffoldMessenger.of(sheetContext).showSnackBar(
-                  createDartBlockInfoSnackBar(
-                    sheetContext,
-                    iconData: Icons.check,
-                    message: "Saved custom function: $newName",
-                  ),
-                );
-                onChanged(customFunction);
-              },
-            ),
-          ),
-        );
-      },
     );
+    // showModalBottomSheet(
+    //   isScrollControlled: true,
+    //   clipBehavior: Clip.hardEdge,
+    //   shape: const RoundedRectangleBorder(
+    //     borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
+    //   ),
+    //   context: context,
+    //   builder: (sheetContext) {
+    //     /// Due to the modal sheet having a separate context and thus no relation
+    //     /// to the main context of the NeoTechWidget, we capture DartBlockNotifications
+    //     /// from the sheet's context and manually re-dispatch them using the parent context.
+    //     /// The parent context may not necessarily be the NeoTechWidget's context,
+    //     /// as certain sheets open additional nested sheets with their own contexts,
+    //     /// hence this process needs to be repeated for every sheet until the NeoTechWidget's
+    //     /// context is reached.
+    //     return NotificationListener<DartBlockNotification>(
+    //       onNotification: (notification) {
+    //         notification.dispatch(context);
+    //         return true;
+    //       },
+    //       child: Padding(
+    //         padding: EdgeInsets.only(
+    //           left: 8,
+    //           right: 8,
+    //           top: 8,
+    //           bottom: 16 + MediaQuery.of(sheetContext).viewInsets.bottom,
+    //         ),
+    //         child: CustomFunctionBasicEditor(
+    //           customFunctionName: customFunction.name,
+    //           returnType: customFunction.returnType,
+    //           existingCustomFunctionNames: neoTechCoreInheritedWidget
+    //               .program
+    //               .customFunctions
+    //               .map((e) => e.name)
+    //               .whereNot((element) => element == customFunction.name)
+    //               .toList(),
+    //           canDelete: neoTechCoreInheritedWidget.canDelete,
+    //           canChange: neoTechCoreInheritedWidget.canChange,
+    //           onDelete: () {
+    //             if (onDelete != null) {
+    //               Navigator.of(sheetContext).pop();
+    //               onDelete!();
+    //             }
+    //           },
+    //           onSaved: (newName, newReturnType) {
+    //             Navigator.of(sheetContext).pop();
+    //             customFunction.name = newName;
+    //             customFunction.returnType = newReturnType;
+    //             ScaffoldMessenger.of(sheetContext).showSnackBar(
+    //               createDartBlockInfoSnackBar(
+    //                 sheetContext,
+    //                 iconData: Icons.check,
+    //                 message: "Saved custom function: $newName",
+    //               ),
+    //             );
+    //             onChanged(customFunction);
+    //           },
+    //         ),
+    //       ),
+    //     );
+    //   },
+    // );
   }
 
   bool isParameterIndexValid(int? index) {

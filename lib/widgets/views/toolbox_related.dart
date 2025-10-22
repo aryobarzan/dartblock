@@ -1,7 +1,7 @@
+import 'package:dartblock_code/widgets/helpers/adaptive_display.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dartblock_code/models/dartblock_interaction.dart';
-import 'package:dartblock_code/models/dartblock_notification.dart';
 import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/editors/statement.dart';
 import 'package:dartblock_code/widgets/dartblock_editor.dart';
@@ -55,53 +55,32 @@ class ToolboxDragTarget extends StatelessWidget {
                   dartBlockInteractionType:
                       DartBlockInteractionType.tapToolboxDragTarget,
                 ).dispatch(context);
-                showModalBottomSheet(
-                  isScrollControlled: true,
-                  clipBehavior: Clip.hardEdge,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(16),
-                    ),
+                showAdaptiveBottomSheetOrDialog(
+                  context,
+                  sheetPadding: EdgeInsets.all(8),
+                  dialogPadding: EdgeInsets.all(16),
+                  dialogTitle: Text(
+                    "Add Statement",
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  context: dragTargetContext,
-                  builder: (modalSheetContext) {
-                    /// Due to the modal sheet having a separate context and thus no relation
-                    /// to the main context of the NeoTechWidget, we capture DartBlockNotifications
-                    /// from the sheet's context and manually re-dispatch them using the parent context.
-                    /// The parent context may not necessarily be the NeoTechWidget's context,
-                    /// as certain sheets open additional nested sheets with their own contexts,
-                    /// hence this process needs to be repeated for every sheet until the NeoTechWidget's
-                    /// context is reached.
-                    return NotificationListener<DartBlockNotification>(
-                      onNotification: (notification) {
-                        notification.dispatch(context);
-                        return true;
-                      },
-                      child: SingleChildScrollView(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: StatementTypePicker(
-                            onSelect: (statementType) {
-                              Navigator.of(modalSheetContext).pop();
-                              HapticFeedback.lightImpact();
-                              _onSelectStatementTypeToCreate(
-                                context,
-                                statementType,
-                              );
-                            },
-                            onPasteStatement: onPasteStatement != null
-                                ? () {
-                                    Navigator.of(modalSheetContext).pop();
-                                    HapticFeedback.mediumImpact();
-                                    onPasteStatement!();
-                                  }
-                                : null,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+                  child: StatementTypePicker(
+                    onSelect: (statementType) {
+                      Navigator.of(context).pop();
+                      HapticFeedback.lightImpact();
+                      _onSelectStatementTypeToCreate(context, statementType);
+                    },
+                    onPasteStatement: onPasteStatement,
+                  ),
                 );
+                // StatementTypePicker(
+                //   onSelect: (statementType) {
+                //     Navigator.of(context).pop();
+                //     HapticFeedback.lightImpact();
+                //     _onSelectStatementTypeToCreate(context, statementType);
+                //   },
+                //   onPasteStatement: onPasteStatement,
+                // ).show(context);
+
                 // ScaffoldMessenger.of(context).showSnackBar(
                 //     createDartBlockInfoSnackBar(context,
                 //         iconData: Icons.edit,
