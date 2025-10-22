@@ -34,19 +34,21 @@ Future<void> showAdaptiveBottomSheetOrDialog(
         child: Dialog(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600, maxHeight: 400),
-            child: Padding(
-              padding: dialogPadding ?? EdgeInsets.zero,
-              child: dialogTitle != null
-                  ? Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        dialogTitle,
-                        const SizedBox(height: 8),
-                        Flexible(child: child),
-                      ],
-                    )
-                  : child,
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: dialogPadding ?? EdgeInsets.zero,
+                child: dialogTitle != null
+                    ? Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          dialogTitle,
+                          const SizedBox(height: 8),
+                          Flexible(child: child),
+                        ],
+                      )
+                    : child,
+              ),
             ),
           ),
         ),
