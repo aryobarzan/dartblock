@@ -400,7 +400,7 @@ class StatementWidget extends StatelessWidget {
               )
             : ToolboxDragTarget(
                 isEnabled: onAppendNewStatement != null,
-                neoTechCoreNodeKey: statement.hashCode,
+                nodeKey: statement.hashCode,
                 isToolboxItemBeingDragged:
                     neoTechCoreInheritedWidget?.isDraggingToolboxItem,
                 onSaved: (newStatement) {

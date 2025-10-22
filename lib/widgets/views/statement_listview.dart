@@ -138,7 +138,7 @@ class StatementListView extends StatelessWidget {
         if (canChange) //  && statements.isEmpty
           ToolboxDragTarget(
             isEnabled: canChange,
-            neoTechCoreNodeKey: neoTechCoreNodeKey,
+            nodeKey: neoTechCoreNodeKey,
             isToolboxItemBeingDragged: DartBlockEditorInheritedWidget.maybeOf(
               context,
             )?.isDraggingToolboxItem,

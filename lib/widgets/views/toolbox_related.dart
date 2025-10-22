@@ -7,7 +7,7 @@ import 'package:dartblock_code/widgets/editors/statement.dart';
 import 'package:dartblock_code/widgets/dartblock_editor.dart';
 
 class ToolboxDragTarget extends StatelessWidget {
-  final int neoTechCoreNodeKey;
+  final int nodeKey;
   final Function(Statement) onSaved;
   final bool isEnabled;
   final ValueNotifier<bool>? isToolboxItemBeingDragged;
@@ -16,7 +16,7 @@ class ToolboxDragTarget extends StatelessWidget {
   final Function()? onPasteStatement;
   const ToolboxDragTarget({
     super.key,
-    required this.neoTechCoreNodeKey,
+    required this.nodeKey,
     required this.onSaved,
     required this.isEnabled,
     required this.isToolboxItemBeingDragged,
@@ -102,40 +102,33 @@ class ToolboxDragTarget extends StatelessWidget {
     BuildContext context,
     StatementType statementType,
   ) {
-    final neoTechCoreInheritedWidget = DartBlockEditorInheritedWidget.of(
+    final dartBlockEditorInheritedWidget = DartBlockEditorInheritedWidget.of(
       context,
     );
-    final neoTechCoreTree = neoTechCoreInheritedWidget.program.buildTree();
-    final existingVariableDefinitions = neoTechCoreTree.findVariableDefinitions(
-      neoTechCoreNodeKey,
-      includeNode: true,
-    );
+    final dartBlockProgramTree = dartBlockEditorInheritedWidget.program
+        .buildTree();
+    final existingVariableDefinitions = dartBlockProgramTree
+        .findVariableDefinitions(nodeKey, includeNode: true);
     switch (statementType) {
       case StatementType.breakStatement:
-        final breakStatement = BreakStatement.init();
-        DartBlockInteraction.create(
-          dartBlockInteractionType: DartBlockInteractionType.createdStatement,
-          content:
-              'StatementType-${breakStatement.statementType.name}-StatementId-${breakStatement.statementId}',
-        ).dispatch(context);
-        // No editing needed, just directly add BreakStatement.
-        onSaved(breakStatement);
-        break;
       case StatementType.continueStatement:
-        final continueStatement = ContinueStatement.init();
+        final createdStatement = statementType == StatementType.breakStatement
+            ? BreakStatement.init()
+            : ContinueStatement.init();
         DartBlockInteraction.create(
           dartBlockInteractionType: DartBlockInteractionType.createdStatement,
           content:
-              'StatementType-${continueStatement.statementType.name}-StatementId-${continueStatement.statementId}',
+              'StatementType-${createdStatement.statementType.name}-StatementId-${createdStatement.statementId}',
         ).dispatch(context);
         // No editing needed, just directly add ContinueStatement.
-        onSaved(continueStatement);
+        onSaved(createdStatement);
         break;
       default:
         StatementEditor.create(
           statementType: statementType,
           existingVariableDefinitions: existingVariableDefinitions,
-          customFunctions: neoTechCoreInheritedWidget.program.customFunctions,
+          customFunctions:
+              dartBlockEditorInheritedWidget.program.customFunctions,
 
           /// DO NOT call Navigator.of(context).pop(); here, e.g., onSaved: (newStatement){Navigator.of(context).pop();onSaved(newStatement);}
           /// This can cause a context disposal error in certain cases.
