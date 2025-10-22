@@ -6,7 +6,6 @@ import 'package:dartblock_code/widgets/editors/statement.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:dartblock_code/widgets/dartblock_value_widgets.dart';
 import 'package:dartblock_code/widgets/dartblock_editor.dart';
-import 'package:dartblock_code/widgets/views/other/dartblock_colors.dart';
 import 'package:dartblock_code/widgets/views/statement.dart';
 import 'package:dartblock_code/widgets/views/statement_listview.dart';
 
@@ -20,6 +19,7 @@ class ForLoopStatementWidget extends StatelessWidget {
   final Function() onPastedStatement;
   final List<DartBlockFunction> customFunctions;
   final bool displayToolboxItemDragTarget;
+
   const ForLoopStatementWidget({
     super.key,
     required this.statement,
@@ -35,457 +35,507 @@ class ForLoopStatementWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    /// ERROR: do not call the inherited widget here.
-    /// Reason: when re-ordering statements, the inherited widget does not appear
-    /// to be retrievable during the drag, causing a null error to be thrown.
-    /// Solution: only access the inherited widget in parent widgets which cannot be re-ordered,e.g.,
-    /// the CustomFunctionWidget.
-    // final neoTechCoreInheritedWidget = NeoTechCoreInheritedWidget.of(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        statement.initStatement != null
-            ? StatementWidget(
-                statement: statement.initStatement!,
-                includeBottomPadding: false,
-                showLabel: false,
-                canChange: canChange,
-                canDelete: canDelete,
-                canReorder: canReorder,
-                canDuplicate: false,
-                onChanged: (value) {
-                  statement.initStatement = value;
-                  onChanged(statement);
-                },
-                onDelete: (statementToDelete) {
-                  statement.initStatement = null;
-                  onChanged(statement);
-                },
-                onCopyStatement: (statementToCopy, cut) {
-                  onCopiedStatement(statementToCopy, cut);
-                  if (cut) {
-                    statement.initStatement = null;
-                    onChanged(statement);
-                  }
-                },
-                onCopiedStatement: onCopiedStatement,
-                onPastedStatement: onPastedStatement,
-                onPasteStatement: (statementToPaste) {
-                  if (statementToPaste.statementType ==
-                      StatementType.variableDeclarationStatement) {
-                    statement.initStatement = statementToPaste.copy();
-                    onPastedStatement();
-                    onChanged(statement);
-                  } else {
-                    // Special case: the for-loop's init ('pre-step') can only be a 'Declare Variable' type statement.
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      createDartBlockInfoSnackBar(
-                        context,
-                        iconData: Icons.error,
-                        message:
-                            "Can only use 'Declare Variable' statement for a For-Loop's pre-step.",
-                        backgroundColor: Theme.of(
-                          context,
-                        ).colorScheme.errorContainer,
-                        color: Theme.of(context).colorScheme.onErrorContainer,
-                      ),
-                    );
-                  }
-                },
-                onDuplicate: (statementToDuplicate) {
-                  /// Cannot duplicate this statement.
-                },
-                onAppendNewStatement: null,
-                customFunctions: customFunctions,
-              )
-            : TextButton.icon(
-                onPressed: canChange
-                    ? () {
-                        final neoTechCoreInheritedWidget =
-                            DartBlockEditorInheritedWidget.of(context);
-                        final neoTechCoreTree = neoTechCoreInheritedWidget
-                            .program
-                            .buildTree();
-                        final existingVariableDefinitions = neoTechCoreTree
-                            .findVariableDefinitions(
-                              statement.hashCode,
-                              includeNode: false,
-                            );
-                        StatementEditor.create(
-                          statementType:
-                              StatementType.variableDeclarationStatement,
-                          existingVariableDefinitions:
-                              existingVariableDefinitions,
-                          customFunctions: neoTechCoreInheritedWidget
-                              .program
-                              .customFunctions,
-                          onSaved: (value) {
-                            Navigator.of(context).pop();
-                            statement.initStatement = value;
-                            onChanged(statement);
-                          },
-                        ).showAsModalBottomSheet(context);
-                      }
-                    : null,
-                icon: const Icon(Icons.add),
-                label: const Text("Add initialization step (optional)"),
-              ),
-        Container(
-          margin: const EdgeInsets.only(left: 16),
-          height: 18,
-          width: 1,
-          color: Theme.of(context).colorScheme.outline,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 12),
-          child: ArrowHeadWidget(
-            direction: AxisDirection.down,
-            size: const Size(8, 4),
-            strokeColor: Theme.of(context).colorScheme.outline,
-          ),
-        ),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 32),
-            child: DartBlockValueWidget(
-              value: statement.condition,
-              border: Border.all(color: DartBlockColors.boolean),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
-              ),
-            ),
-          ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+    /// CRITICAL: do not try to retrieve DartBlockEditorInheritedWidget here.
+    /// Reason: when re-ordering statements, the inherited widget does not appear to be retrievable during the drag, causing a null error to be thrown.
+    /// Explanation: when a drag gesture is stared, the widget starts "floating", essentially leaving its original parent widget. As such, it loses the context of its parent who holds the DartBlockEditorInheritedWidget.
+    /// Solution: only access the inherited widget in parent widgets which cannot be re-ordered,e.g., the CustomFunctionWidget.
+    // final dartBlockEditorInheritedWidget = DartBlockEditorInheritedWidget.of(context);
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.only(left: 4, right: 4, bottom: 8),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 0.5),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Column(
-                    children: [
-                      ArrowHeadWidget(
-                        direction: AxisDirection.up,
-                        size: const Size(8, 4),
-                        strokeColor: Theme.of(context).colorScheme.outline,
-                      ),
-                      Container(
-                        height: 36,
-                        width: 1,
-                        color: Theme.of(context).colorScheme.outline,
-                      ),
-                    ],
+            // Title and execution order number
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(width: 18),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.only(left: 4),
-                            height: 36,
-                            width: 1,
-                            color: Theme.of(context).colorScheme.outline,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Badge(
-                                  alignment: Alignment.topCenter,
-                                  offset: const Offset(-10, -14),
-                                  backgroundColor: Colors.transparent,
-                                  label: Text(
-                                    'false',
-                                    style: Theme.of(context).textTheme.bodySmall
-                                        ?.apply(
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.error,
-                                          fontStyle: FontStyle.italic,
-                                        ),
-                                  ),
-                                  child: Container(
-                                    height: 1,
-                                    width: 48,
-                                    color: Theme.of(context).colorScheme.error,
-                                  ),
-                                ),
-                                ArrowHeadWidget(
-                                  direction: AxisDirection.right,
-                                  size: const Size(4, 8),
-                                  strokeColor: Theme.of(
-                                    context,
-                                  ).colorScheme.error,
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 2,
-                                    horizontal: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.error,
-                                    ),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    "Exit loop",
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodySmall,
-                                  ),
-                                ),
-                              ],
+                  child: Text(
+                    "1",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "Initialize Loop Variable",
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ],
+            ),
+            // Initialization statement
+            Padding(
+              padding: const EdgeInsets.only(left: 32),
+              child: statement.initStatement != null
+                  ? StatementWidget(
+                      statement: statement.initStatement!,
+                      includeBottomPadding: false,
+                      showLabel: false,
+                      canChange: canChange,
+                      canDelete: canDelete,
+                      canReorder: false,
+                      canDuplicate: false,
+                      onChanged: (value) {
+                        statement.initStatement = value;
+                        onChanged(statement);
+                      },
+                      onDelete: (_) {
+                        statement.initStatement = null;
+                        onChanged(statement);
+                      },
+                      onCopyStatement: (statementToCopy, cut) {
+                        onCopiedStatement(statementToCopy, cut);
+                        if (cut) {
+                          statement.initStatement = null;
+                          onChanged(statement);
+                        }
+                      },
+                      onCopiedStatement: onCopiedStatement,
+                      onPastedStatement: onPastedStatement,
+                      onPasteStatement: (statementToPaste) {
+                        if (statementToPaste.statementType ==
+                            StatementType.variableDeclarationStatement) {
+                          statement.initStatement = statementToPaste.copy();
+                          onPastedStatement();
+                          onChanged(statement);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            createDartBlockInfoSnackBar(
+                              context,
+                              iconData: Icons.error,
+                              message:
+                                  "Can only use 'Declare Variable' statement for initialization.",
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.errorContainer,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onErrorContainer,
                             ),
+                          );
+                        }
+                      },
+                      onDuplicate: (_) {
+                        // The initialization statement cannot be duplicated.
+                      },
+                      onAppendNewStatement: null,
+                      customFunctions: customFunctions,
+                    )
+                  : TextButton.icon(
+                      onPressed: canChange
+                          ? () {
+                              final dartBlockInheritedWidget =
+                                  DartBlockEditorInheritedWidget.of(context);
+                              final programTree = dartBlockInheritedWidget
+                                  .program
+                                  .buildTree();
+                              final existingVariableDefinitions = programTree
+                                  .findVariableDefinitions(
+                                    statement.hashCode,
+                                    includeNode: false,
+                                  );
+                              StatementEditor.create(
+                                statementType:
+                                    StatementType.variableDeclarationStatement,
+                                existingVariableDefinitions:
+                                    existingVariableDefinitions,
+                                customFunctions: dartBlockInheritedWidget
+                                    .program
+                                    .customFunctions,
+                                onSaved: (value) {
+                                  Navigator.of(context).pop();
+                                  statement.initStatement = value;
+                                  onChanged(statement);
+                                },
+                              ).showAsModalBottomSheet(context);
+                            }
+                          : null,
+                      icon: const Icon(Icons.add),
+                      label: const Text("Add 'Declare Variable' statement"),
+                    ),
+            ),
+            const SizedBox(height: 16),
+
+            // Condition with step number 2
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    "2",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "Check Condition",
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(width: 8),
+                Tooltip(
+                  message:
+                      "If the condition is false, exit the loop.\nIf the condition is true, continue to step 3.",
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text("Step 2: Check Condition"),
+                          content: Text(
+                            "If the condition is false, exit the loop.\nIf the condition is true, continue to step 3.",
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('Okay'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    child: Icon(Icons.info_outline),
+                  ),
+                ),
+              ],
+            ),
+            // Decision visualization
+            Padding(
+              padding: const EdgeInsets.only(left: 32.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Condition expression
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints.tightFor(),
+                      child: DartBlockValueWidget(
+                        value: statement.condition,
+                        // border: Border.all(color: DartBlockColors.boolean),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(12),
+                          topRight: Radius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // DartBlockValueWidget(
+                  //   value: statement.condition,
+                  //   border: Border.all(
+                  //     color: Theme.of(context).colorScheme.outline,
+                  //     width: 1,
+                  //   ),
+                  //   borderRadius: BorderRadius.circular(8),
+                  // ),
+                  const SizedBox(height: 8),
+                  // Decision arrows
+                  Row(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.check,
+                                size: 16,
+                                color: Colors.green,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                "If true:",
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                "continue to step 3",
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.close,
+                                size: 16,
+                                color: Colors.red,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                "Else:",
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                "exit the loop",
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(Icons.exit_to_app, size: 16),
+                            ],
                           ),
                         ],
-                      ),
-                      ArrowHeadWidget(
-                        direction: AxisDirection.down,
-                        size: const Size(8, 4),
-                        strokeColor: Theme.of(context).colorScheme.outline,
                       ),
                     ],
                   ),
                 ],
               ),
             ),
+
+            const SizedBox(height: 16),
+
+            // Loop body with step number 3
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    "3",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "Execute Loop Body",
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ],
+            ),
+            // Loop body statements
+            Padding(
+              padding: const EdgeInsets.only(left: 32.0),
+              child: StatementListView(
+                neoTechCoreNodeKey: statement.bodyStatements.isNotEmpty
+                    ? statement.bodyStatements.last.hashCode
+                    : (statement.initStatement?.hashCode ?? statement.hashCode),
+                statements: statement.bodyStatements,
+                canDelete: canDelete,
+                canChange: canChange,
+                canReorder: canReorder,
+                onCopiedStatement: onCopiedStatement,
+                onChanged: (statements) {
+                  statement.bodyStatements = statements;
+                  onChanged(statement);
+                },
+                onDuplicate: (index) {
+                  final duplicatedStatement = statement.bodyStatements[index]
+                      .copy();
+                  if (index < statement.bodyStatements.length - 1) {
+                    statement.bodyStatements.insert(
+                      index + 1,
+                      duplicatedStatement,
+                    );
+                  } else {
+                    statement.bodyStatements.add(duplicatedStatement);
+                  }
+                  onChanged(statement);
+                },
+                onPastedStatement: onPastedStatement,
+                customFunctions: customFunctions,
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Update step with number 4
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    "4",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "Update Loop Variable",
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(width: 8),
+                Tooltip(
+                  message:
+                      "After executing the loop body, this step updates the loop variable before checking the condition again.",
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text("Step 4: Update Loop Variable"),
+                          content: Text(
+                            "After executing the loop body, this step updates the loop variable before checking the condition again.",
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('Okay'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    child: Icon(Icons.info_outline),
+                  ),
+                ),
+              ],
+            ),
+            // Update statement
+            Padding(
+              padding: const EdgeInsets.only(left: 32),
+              child: statement.postStatement != null
+                  ? StatementWidget(
+                      statement: statement.postStatement!,
+                      includeBottomPadding: false,
+                      showLabel: false,
+                      canChange: canChange,
+                      canDelete: canDelete,
+                      canReorder: canReorder,
+                      canDuplicate: false,
+                      onChanged: (value) {
+                        statement.postStatement = value;
+                        onChanged(statement);
+                      },
+                      onDelete: (_) {
+                        statement.postStatement = null;
+                        onChanged(statement);
+                      },
+                      onCopyStatement: (statementToCopy, cut) {
+                        onCopiedStatement(statementToCopy, cut);
+                        if (cut) {
+                          statement.postStatement = null;
+                          onChanged(statement);
+                        }
+                      },
+                      onCopiedStatement: onCopiedStatement,
+                      onDuplicate: (statementToDuplicate) {
+                        /// Cannot duplicate this statement.
+                      },
+                      onPastedStatement: onPastedStatement,
+                      onPasteStatement: (statementToPaste) {
+                        if (statementToPaste.statementType ==
+                            StatementType.variableAssignmentStatement) {
+                          statement.postStatement = statementToPaste.copy();
+                          onPastedStatement();
+                          onChanged(statement);
+                        } else {
+                          // Special case: the for-loop's init ('post-step') can only be a 'Update Variable' type statement.
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            createDartBlockInfoSnackBar(
+                              context,
+                              iconData: Icons.error,
+                              message:
+                                  "Can only use 'Update Variable' statement for a For-Loop's post-step.",
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.errorContainer,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onErrorContainer,
+                            ),
+                          );
+                        }
+                      },
+                      onAppendNewStatement: null,
+                      customFunctions: customFunctions,
+                    )
+                  : TextButton.icon(
+                      onPressed: canChange
+                          ? () {
+                              final dartBlockEditorInheritedWidget =
+                                  DartBlockEditorInheritedWidget.of(context);
+                              final programTree = dartBlockEditorInheritedWidget
+                                  .program
+                                  .buildTree();
+                              final existingVariableDefinitions = programTree
+                                  .findVariableDefinitions(
+                                    statement.initStatement?.hashCode ??
+                                        statement.hashCode,
+                                    includeNode: true,
+                                  );
+                              StatementEditor.create(
+                                statementType:
+                                    StatementType.variableAssignmentStatement,
+                                existingVariableDefinitions:
+                                    existingVariableDefinitions,
+                                customFunctions: dartBlockEditorInheritedWidget
+                                    .program
+                                    .customFunctions,
+                                onSaved: (value) {
+                                  Navigator.of(context).pop();
+                                  statement.postStatement = value;
+                                  onChanged(statement);
+                                },
+                              ).showAsModalBottomSheet(context);
+                            }
+                          : null,
+                      icon: const Icon(Icons.add),
+                      label: const Text("Add 'Update Variable' statement"),
+                    ),
+            ),
+
+            // Visual flow indicator showing that it goes back to step 2
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0, top: 8.0),
+              child: Row(
+                children: [
+                  const Icon(Icons.replay, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    "Return to step 2",
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
-        Padding(
-          padding: const EdgeInsets.only(left: 4),
-          child: Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 8, right: 0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          width: 1,
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
-                      ),
-                      child: StatementListView(
-                        neoTechCoreNodeKey: statement.bodyStatements.isNotEmpty
-                            ? statement.bodyStatements.last.hashCode
-                            : (statement.initStatement?.hashCode ??
-                                  statement.hashCode),
-                        statements: statement.bodyStatements,
-                        canDelete: canDelete,
-                        canChange: canChange,
-                        canReorder: canReorder,
-                        onCopiedStatement: onCopiedStatement,
-                        onChanged: (newStatements) {
-                          statement.bodyStatements = newStatements;
-                          onChanged(statement);
-                        },
-                        onDuplicate: (index) {
-                          final duplicatedStatement = statement
-                              .bodyStatements[index]
-                              .copy();
-                          if (index < statement.bodyStatements.length - 1) {
-                            statement.bodyStatements.insert(
-                              index + 1,
-                              duplicatedStatement,
-                            );
-                          } else {
-                            statement.bodyStatements.add(duplicatedStatement);
-                          }
-                          onChanged(statement);
-                        },
-                        onPastedStatement: onPastedStatement,
-                        customFunctions: customFunctions,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 12),
-                      child: Row(
-                        children: [
-                          Stack(
-                            children: [
-                              const SizedBox(width: 24, height: 18),
-                              Positioned(
-                                top: 0,
-                                left: 6,
-                                width: 1,
-                                height: 18,
-                                child: Container(
-                                  height: 18,
-                                  width: 1,
-                                  color: Theme.of(context).colorScheme.outline,
-                                ),
-                              ),
-                              Positioned(
-                                bottom: 0,
-                                left: 2,
-                                child: ArrowHeadWidget(
-                                  direction: AxisDirection.down,
-                                  size: const Size(8, 4),
-                                  strokeColor: Theme.of(
-                                    context,
-                                  ).colorScheme.outline,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: statement.postStatement != null
-                              ? StatementWidget(
-                                  statement: statement.postStatement!,
-                                  includeBottomPadding: false,
-                                  showLabel: false,
-                                  canChange: canChange,
-                                  canDelete: canDelete,
-                                  canReorder: canReorder,
-                                  canDuplicate: false,
-                                  onChanged: (value) {
-                                    statement.postStatement = value;
-                                    onChanged(statement);
-                                  },
-                                  onDelete: (statementToDelete) {
-                                    statement.postStatement = null;
-                                    onChanged(statement);
-                                  },
-                                  onCopyStatement: (statementToCopy, cut) {
-                                    onCopiedStatement(statementToCopy, cut);
-                                    if (cut) {
-                                      statement.postStatement = null;
-                                      onChanged(statement);
-                                    }
-                                  },
-                                  onCopiedStatement: onCopiedStatement,
-                                  onDuplicate: (statementToDuplicate) {
-                                    /// Cannot duplicate this statement.
-                                  },
-                                  onPastedStatement: onPastedStatement,
-                                  onPasteStatement: (statementToPaste) {
-                                    if (statementToPaste.statementType ==
-                                        StatementType
-                                            .variableAssignmentStatement) {
-                                      statement.postStatement = statementToPaste
-                                          .copy();
-                                      onPastedStatement();
-                                      onChanged(statement);
-                                    } else {
-                                      // Special case: the for-loop's init ('post-step') can only be a 'Update Variable' type statement.
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        createDartBlockInfoSnackBar(
-                                          context,
-                                          iconData: Icons.error,
-                                          message:
-                                              "Can only use 'Update Variable' statement for a For-Loop's post-step.",
-                                          backgroundColor: Theme.of(
-                                            context,
-                                          ).colorScheme.errorContainer,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onErrorContainer,
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  onAppendNewStatement: null,
-                                  customFunctions: customFunctions,
-                                )
-                              : TextButton.icon(
-                                  onPressed: canChange
-                                      ? () {
-                                          final neoTechCoreInheritedWidget =
-                                              DartBlockEditorInheritedWidget.of(
-                                                context,
-                                              );
-                                          final neoTechCoreTree =
-                                              neoTechCoreInheritedWidget.program
-                                                  .buildTree();
-                                          final existingVariableDefinitions =
-                                              neoTechCoreTree
-                                                  .findVariableDefinitions(
-                                                    statement
-                                                            .initStatement
-                                                            ?.hashCode ??
-                                                        statement.hashCode,
-                                                    includeNode: true,
-                                                  );
-                                          StatementEditor.create(
-                                            statementType: StatementType
-                                                .variableAssignmentStatement,
-                                            existingVariableDefinitions:
-                                                existingVariableDefinitions,
-                                            customFunctions:
-                                                neoTechCoreInheritedWidget
-                                                    .program
-                                                    .customFunctions,
-                                            onSaved: (value) {
-                                              Navigator.of(context).pop();
-                                              statement.postStatement = value;
-                                              onChanged(statement);
-                                            },
-                                          ).showAsModalBottomSheet(context);
-                                        }
-                                      : null,
-                                  icon: const Icon(Icons.add),
-                                  label: const Text("Add post-step (optional)"),
-                                ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              Positioned(
-                top: 0,
-                bottom: 0,
-                left: 0,
-                width: 1,
-                child: Container(
-                  margin: const EdgeInsets.only(top: 0, bottom: 12),
-                  width: 1,
-                  height: double.maxFinite,
-                  color: Theme.of(context).colorScheme.outline,
-                ),
-              ),
-              Positioned(
-                bottom: 12,
-                left: 0,
-                width: 8,
-                child: Container(
-                  height: 1,
-                  color: Theme.of(context).colorScheme.outline,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
