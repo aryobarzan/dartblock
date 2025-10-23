@@ -96,6 +96,8 @@ class ToolboxStatementTypePicker extends StatelessWidget {
             (type) => DartBlockToolboxStatementTypeWidget(
               statementType: type,
               categoryColor: color,
+              onDragStart: onDragStart,
+              onDragEnd: onDragEnd,
             ),
           ),
         ],
