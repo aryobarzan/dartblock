@@ -69,203 +69,202 @@ class _MobileToolboxState extends State<MobileToolbox> {
       child: Material(
         elevation: 8,
         borderRadius: BorderRadius.circular(ToolboxConfig.borderRadius),
-        child: widget.isShowingCode
-            ? Container(
-                height: ToolboxConfig.toolboxMinimalHeight,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(
-                    ToolboxConfig.borderRadius,
-                  ),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outline
-                      ..withValues(alpha: 0.5),
-                  ),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      children: [
-                        IconButton.filled(
-                          tooltip: "Back to DartBlock editor.",
-                          onPressed: () {
-                            DartBlockInteraction.create(
-                              dartBlockInteractionType: DartBlockInteractionType
-                                  .returnToEditorFromScriptView,
-                            ).dispatch(context);
-                            widget.onAction(ToolboxExtraAction.code);
-                          },
-                          icon: Icon(Icons.arrow_back),
-                        ),
-                        const SizedBox(width: 12),
-                        RichText(
-                          text: TextSpan(
-                            style: Theme.of(context).textTheme.titleSmall,
-                            children: [
-                              TextSpan(text: "DartBlock "),
-                              TextSpan(
-                                text: ">>",
-                                style: Theme.of(context).textTheme.titleSmall
-                                    ?.copyWith(fontWeight: FontWeight.bold),
-                              ),
-                              TextSpan(
-                                text: " Java",
-                                style: Theme.of(context).textTheme.titleSmall
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.secondary,
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Spacer(),
-                        const SizedBox(width: 12),
-                        IconButton(
-                          tooltip: CodeViewAction.copy.getTooltip(),
-                          onPressed: () =>
-                              widget.onCodeViewAction(CodeViewAction.copy),
-                          icon: Icon(CodeViewAction.copy.getIconData()),
-                        ),
-
-                        IconButton(
-                          tooltip: CodeViewAction.save.getTooltip(),
-                          onPressed: () =>
-                              widget.onCodeViewAction(CodeViewAction.save),
-                          icon: Icon(CodeViewAction.save.getIconData()),
-                        ),
-                      ],
+        child: AnimatedSize(
+          duration: Duration(milliseconds: 500),
+          curve: Curves.fastOutSlowIn,
+          child: widget.isShowingCode
+              ? Container(
+                  height: ToolboxConfig.toolboxMinimalHeight,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(
+                      ToolboxConfig.borderRadius,
                     ),
-                  ],
-                ),
-              )
-            : Container(
-                height: widget.showActions
-                    ? ToolboxConfig.toolboxHeight
-                    : ToolboxConfig.toolboxMinimalHeight,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(
-                    ToolboxConfig.borderRadius,
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outline
+                        ..withValues(alpha: 0.5),
+                    ),
                   ),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outline
-                      ..withValues(alpha: 0.5),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  alignment: Alignment.center,
+                  child: Row(
+                    children: [
+                      IconButton.filled(
+                        tooltip: "Back to DartBlock editor.",
+                        onPressed: () {
+                          DartBlockInteraction.create(
+                            dartBlockInteractionType: DartBlockInteractionType
+                                .returnToEditorFromScriptView,
+                          ).dispatch(context);
+                          widget.onAction(ToolboxExtraAction.code);
+                        },
+                        icon: Icon(Icons.arrow_back),
+                      ),
+                      const SizedBox(width: 12),
+                      RichText(
+                        text: TextSpan(
+                          style: Theme.of(context).textTheme.titleSmall,
+                          children: [
+                            TextSpan(text: "DartBlock "),
+                            TextSpan(
+                              text: ">>",
+                              style: Theme.of(context).textTheme.titleSmall
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            TextSpan(
+                              text: " Java",
+                              style: Theme.of(context).textTheme.titleSmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.secondary,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Spacer(),
+                      const SizedBox(width: 12),
+                      IconButton(
+                        tooltip: CodeViewAction.copy.getTooltip(),
+                        onPressed: () =>
+                            widget.onCodeViewAction(CodeViewAction.copy),
+                        icon: Icon(CodeViewAction.copy.getIconData()),
+                      ),
+
+                      IconButton(
+                        tooltip: CodeViewAction.save.getTooltip(),
+                        onPressed: () =>
+                            widget.onCodeViewAction(CodeViewAction.save),
+                        icon: Icon(CodeViewAction.save.getIconData()),
+                      ),
+                    ],
                   ),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ToolboxActionBar(
-                            isExecuting: widget.isExecuting,
-                            isToolboxDocked: widget.isDocked,
-                            exceptionIndicator:
-                                dartBlockEditorInheritedWidget
-                                        .executor
-                                        .thrownException !=
-                                    null
-                                ? PopupWidgetButton(
-                                    isFullWidth: true,
-                                    blurBackground: true,
-                                    tooltip: "Exception...",
-                                    onOpened: () {
+                )
+              : Container(
+                  height: widget.showActions
+                      ? ToolboxConfig.toolboxHeight
+                      : ToolboxConfig.toolboxMinimalHeight,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(
+                      ToolboxConfig.borderRadius,
+                    ),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outline
+                        ..withValues(alpha: 0.5),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ToolboxActionBar(
+                              isExecuting: widget.isExecuting,
+                              isToolboxDocked: widget.isDocked,
+                              exceptionIndicator:
+                                  dartBlockEditorInheritedWidget
+                                          .executor
+                                          .thrownException !=
+                                      null
+                                  ? PopupWidgetButton(
+                                      isFullWidth: true,
+                                      blurBackground: true,
+                                      tooltip: "Exception...",
+                                      onOpened: () {
+                                        DartBlockInteraction.create(
+                                          dartBlockInteractionType:
+                                              DartBlockInteractionType
+                                                  .tapExceptionIndicatorInToolbox,
+                                          content:
+                                              "ExceptionTitle-${dartBlockEditorInheritedWidget.executor.thrownException?.title}",
+                                        ).dispatch(context);
+                                      },
+                                      widget: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        children: [
+                                          const Text(
+                                            "An exception was thrown during the last execution:",
+                                          ),
+                                          DartBlockExceptionWidget(
+                                            dartblockException:
+                                                dartBlockEditorInheritedWidget
+                                                    .executor
+                                                    .thrownException!,
+                                            program:
+                                                dartBlockEditorInheritedWidget
+                                                    .program,
+                                          ),
+                                          Text(
+                                            "Think it's fixed now? Try running your program again.",
+                                            textAlign: TextAlign.center,
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.bodySmall,
+                                          ),
+                                        ],
+                                      ),
+                                      icon: Icon(
+                                        Icons.error,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.error,
+                                      ),
+                                    )
+                                  : null,
+                              onRun: widget.onRun,
+                              onAddFunction: widget.canAddFunction
+                                  ? () {
                                       DartBlockInteraction.create(
                                         dartBlockInteractionType:
                                             DartBlockInteractionType
-                                                .tapExceptionIndicatorInToolbox,
-                                        content:
-                                            "ExceptionTitle-${dartBlockEditorInheritedWidget.executor.thrownException?.title}",
+                                                .openNewFunctionEditorFromToolbox,
                                       ).dispatch(context);
-                                    },
-                                    widget: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                      children: [
-                                        const Text(
-                                          "An exception was thrown during the last execution:",
-                                        ),
-                                        DartBlockExceptionWidget(
-                                          dartblockException:
-                                              dartBlockEditorInheritedWidget
-                                                  .executor
-                                                  .thrownException!,
-                                          program:
-                                              dartBlockEditorInheritedWidget
-                                                  .program,
-                                        ),
-                                        Text(
-                                          "Think it's fixed now? Try running your program again.",
-                                          textAlign: TextAlign.center,
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.bodySmall,
-                                        ),
-                                      ],
-                                    ),
-                                    icon: Icon(
-                                      Icons.error,
-                                      color: Theme.of(
+                                      showNewFunctionSheet(
                                         context,
-                                      ).colorScheme.error,
-                                    ),
-                                  )
-                                : null,
-                            onRun: widget.onRun,
-                            onAddFunction: widget.canAddFunction
-                                ? () {
-                                    DartBlockInteraction.create(
-                                      dartBlockInteractionType:
-                                          DartBlockInteractionType
-                                              .openNewFunctionEditorFromToolbox,
-                                    ).dispatch(context);
-                                    showNewFunctionSheet(
-                                      context,
-                                      existingCustomFunctionNames:
-                                          widget.existingFunctionNames,
-                                      onReceiveDartBlockNotification: null,
-                                      onSaved: (newName, newReturnType) {
-                                        widget.onCreateFunction(
-                                          DartBlockFunction(
-                                            newName,
-                                            newReturnType,
-                                            [],
-                                            [],
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  }
-                                : null,
-                            onTapExtraAction: (action) {
-                              widget.onAction(action);
+                                        existingCustomFunctionNames:
+                                            widget.existingFunctionNames,
+                                        onReceiveDartBlockNotification: null,
+                                        onSaved: (newName, newReturnType) {
+                                          widget.onCreateFunction(
+                                            DartBlockFunction(
+                                              newName,
+                                              newReturnType,
+                                              [],
+                                              [],
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    }
+                                  : null,
+                              onTapExtraAction: (action) {
+                                widget.onAction(action);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (widget.showActions) ...[
+                        const Divider(height: 1),
+                        Expanded(
+                          child: ToolboxStatementTypePicker(
+                            scrollController: _scrollController,
+                            onDragStart: () {
+                              widget.onToolboxItemDragStart?.call();
                             },
+                            onDragEnd: widget.onToolboxItemDragEnd,
                           ),
                         ),
                       ],
-                    ),
-                    if (widget.showActions) ...[
-                      const Divider(height: 1),
-                      Expanded(
-                        child: ToolboxStatementTypePicker(
-                          scrollController: _scrollController,
-                          onDragStart: () {
-                            widget.onToolboxItemDragStart?.call();
-                          },
-                          onDragEnd: widget.onToolboxItemDragEnd,
-                        ),
-                      ),
                     ],
-                  ],
+                  ),
                 ),
-              ),
+        ),
       ),
     );
   }
