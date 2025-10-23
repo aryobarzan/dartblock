@@ -1,4 +1,7 @@
 import 'package:dartblock_code/widgets/dartblock_editor.dart';
+import 'package:dartblock_code/widgets/views/toolbox/components/toolbox_statement_category.dart';
+import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_action.dart';
+import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_configuration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dartblock_code/models/function.dart';
@@ -7,31 +10,6 @@ import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:dartblock_code/widgets/views/other/dartblock_exception.dart';
 import 'package:dartblock_code/widgets/views/symbols.dart';
-
-const double _toolboxHeight = 120;
-const double _toolboxShowingCodeHeight = 100;
-const double _toolboxNoActionsHeight = 50;
-
-enum ToolboxExtraAction {
-  console,
-  code,
-  dock,
-  help;
-
-  @override
-  String toString() {
-    switch (this) {
-      case ToolboxExtraAction.console:
-        return 'Console';
-      case ToolboxExtraAction.code:
-        return 'Code';
-      case ToolboxExtraAction.help:
-        return 'Help';
-      case ToolboxExtraAction.dock:
-        return 'Dock';
-    }
-  }
-}
 
 class DartBlockToolbox extends StatelessWidget {
   final TabController toolboxTabController;
@@ -42,7 +20,7 @@ class DartBlockToolbox extends StatelessWidget {
   final bool showActions;
   final bool isExecuting;
   final DartBlockTypedLanguage language;
-  final ToolboxCategory toolboxCategory;
+  final ToolboxStatementCategory toolboxCategory;
   final Function()? onToolboxItemDragStart;
   final Function()? onToolboxItemDragEnd;
   final Function() onCopyScript;
@@ -63,7 +41,7 @@ class DartBlockToolbox extends StatelessWidget {
     this.showActions = true,
     this.isExecuting = false,
     this.language = DartBlockTypedLanguage.java,
-    this.toolboxCategory = ToolboxCategory.variables,
+    this.toolboxCategory = ToolboxStatementCategory.variables,
     this.onToolboxItemDragStart,
     this.onToolboxItemDragEnd,
     required this.existingFunctionNames,
@@ -90,10 +68,10 @@ class DartBlockToolbox extends StatelessWidget {
           padding: const EdgeInsets.only(top: 0, left: 2, right: 2, bottom: 0),
           width: double.maxFinite,
           height: isShowingCode
-              ? _toolboxShowingCodeHeight
+              ? kToolboxShowingCodeHeight
               : showActions
-              ? _toolboxHeight
-              : _toolboxNoActionsHeight,
+              ? kToolboxHeight
+              : kToolboxNoActionsHeight,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Theme.of(context).colorScheme.outline),
@@ -245,7 +223,7 @@ class DartBlockToolbox extends StatelessWidget {
                           ).dispatch(context);
                           HapticFeedback.lightImpact();
                         },
-                        tabs: ToolboxCategory.values
+                        tabs: ToolboxStatementCategory.values
                             .map(
                               (e) => Tab(height: 28, icon: e.getSymbol(24, 24)),
                             )
@@ -255,15 +233,16 @@ class DartBlockToolbox extends StatelessWidget {
                       Expanded(
                         child: TabBarView(
                           controller: toolboxTabController,
-                          children: ToolboxCategory.values
+                          children: ToolboxStatementCategory.values
                               .map(
                                 (e) => SingleChildScrollView(
                                   scrollDirection: Axis.horizontal,
-                                  child: _DartBlockToolboxCategoryWidget(
-                                    category: e,
-                                    onItemDragStart: onToolboxItemDragStart,
-                                    onItemDragEnd: onToolboxItemDragEnd,
-                                  ),
+                                  child:
+                                      DartBlockToolboxStatementCategoryWidget(
+                                        category: e,
+                                        onItemDragStart: onToolboxItemDragStart,
+                                        onItemDragEnd: onToolboxItemDragEnd,
+                                      ),
                                 ),
                               )
                               .toList(),
@@ -492,168 +471,6 @@ class DartBlockToolbox extends StatelessWidget {
         ),
         const SizedBox(height: 2),
       ],
-    );
-  }
-}
-
-enum ToolboxCategory {
-  variables('Variables'),
-  loops('Loops'),
-  decisionStructures('Decision Structures'),
-  other('Other');
-
-  final String name;
-  const ToolboxCategory(this.name);
-
-  IconData getIcon() {
-    switch (this) {
-      case ToolboxCategory.variables:
-        return Icons.code;
-      case ToolboxCategory.loops:
-        return Icons.loop;
-      case ToolboxCategory.decisionStructures:
-        return Icons.confirmation_number;
-      case ToolboxCategory.other:
-        return Icons.devices_other;
-    }
-  }
-
-  Widget getSymbol(double width, double height, {Color? color}) {
-    switch (this) {
-      case ToolboxCategory.variables:
-        return Icon(Icons.data_object, size: width);
-      case ToolboxCategory.loops:
-        return Icon(Icons.loop, size: width);
-      case ToolboxCategory.decisionStructures:
-        return Icon(Icons.alt_route, size: width);
-      case ToolboxCategory.other:
-        return Icon(Icons.dashboard_outlined, size: width);
-    }
-  }
-}
-
-class _DartBlockToolboxCategoryWidget extends StatelessWidget {
-  final ToolboxCategory category;
-  final Function()? onItemDragStart;
-  final Function()? onItemDragEnd;
-  const _DartBlockToolboxCategoryWidget({
-    required this.category,
-    this.onItemDragStart,
-    this.onItemDragEnd,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    List<StatementType> statementTypes;
-    switch (category) {
-      case ToolboxCategory.variables:
-        statementTypes = [
-          StatementType.variableDeclarationStatement,
-          StatementType.variableAssignmentStatement,
-          StatementType.returnStatement,
-          StatementType.customFunctionCallStatement,
-        ];
-        break;
-      case ToolboxCategory.loops:
-        statementTypes = [
-          StatementType.forLoopStatement,
-          StatementType.whileLoopStatement,
-          StatementType.breakStatement,
-          StatementType.continueStatement,
-        ];
-        break;
-      case ToolboxCategory.decisionStructures:
-        statementTypes = [StatementType.ifElseStatement];
-        break;
-      case ToolboxCategory.other:
-        statementTypes = [StatementType.printStatement];
-    }
-
-    List<Widget> items = [];
-    for (var statementType in statementTypes) {
-      if (statementType == StatementType.statementBlockStatement) {
-        continue;
-      }
-      items.add(
-        _DartBlockToolboxItemWidget(
-          statementType: statementType,
-          onDragStart: onItemDragStart,
-          onDragEnd: onItemDragEnd,
-        ),
-      );
-    }
-
-    return Wrap(spacing: 4, runSpacing: 0, children: items);
-  }
-}
-
-class _DartBlockToolboxItemWidget extends StatelessWidget {
-  final StatementType statementType;
-  final Function()? onDragStart;
-  final Function()? onDragEnd;
-  const _DartBlockToolboxItemWidget({
-    required this.statementType,
-    this.onDragStart,
-    this.onDragEnd,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return LongPressDraggable(
-      data: statementType,
-      delay: const Duration(milliseconds: 150),
-      feedback: _build(context, true),
-      onDragStarted: onDragStart,
-      onDragEnd: (details) {
-        if (onDragEnd != null) {
-          onDragEnd!();
-        }
-      },
-      onDraggableCanceled: (velocity, offset) {
-        if (onDragEnd != null) {
-          onDragEnd!();
-        }
-      },
-      onDragCompleted: () {
-        if (onDragEnd != null) {
-          onDragEnd!();
-        }
-      },
-      child: _build(context, false),
-    );
-  }
-
-  Widget _build(BuildContext context, bool isDragging) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-      decoration: BoxDecoration(
-        color: !isDragging
-            ? Theme.of(context).colorScheme.primaryContainer
-            : Theme.of(context).colorScheme.primary,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          if (isDragging)
-            Icon(
-              Icons.add,
-              size: 18,
-              color: !isDragging
-                  ? Theme.of(context).colorScheme.onPrimaryContainer
-                  : Theme.of(context).colorScheme.onPrimary,
-            ),
-          Text(
-            statementType.toString(),
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: !isDragging
-                  ? Theme.of(context).colorScheme.onPrimaryContainer
-                  : Theme.of(context).colorScheme.onPrimary,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

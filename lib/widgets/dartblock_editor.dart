@@ -5,6 +5,9 @@ import 'dart:math';
 import 'package:code_text_field/code_text_field.dart';
 import 'package:collection/collection.dart';
 import 'package:dartblock_code/widgets/views/toolbox.dart';
+import 'package:dartblock_code/widgets/views/toolbox/components/toolbox_statement_category.dart';
+import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_action.dart';
+import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_configuration.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,9 +27,6 @@ import 'package:dartblock_code/widgets/views/custom_function.dart';
 import 'package:dartblock_code/widgets/views/other/dartblock_console.dart';
 import 'package:dartblock_code/widgets/views/other/help_center.dart';
 import 'package:dartblock_code/widgets/views/symbols.dart';
-
-const double _toolboxHeight = 120;
-const double _toolboxNoActionsHeight = 50;
 
 /// Inherited widget to keep track of dynamic data.
 class DartBlockEditorInheritedWidget extends InheritedWidget {
@@ -178,7 +178,8 @@ class _DartBlockEditorState extends State<DartBlockEditor>
       animationDuration: Duration.zero,
     );
     _toolboxTabController.addListener(() {
-      _toolboxCategory = ToolboxCategory.values[_toolboxTabController.index];
+      _toolboxCategory =
+          ToolboxStatementCategory.values[_toolboxTabController.index];
     });
   }
 
@@ -213,7 +214,8 @@ class _DartBlockEditorState extends State<DartBlockEditor>
   bool _isToolboxHidden = false;
 
   /// The currently active tab of the [_DartBlockToolbox].
-  ToolboxCategory _toolboxCategory = ToolboxCategory.variables;
+  ToolboxStatementCategory _toolboxCategory =
+      ToolboxStatementCategory.variables;
   late TabController _toolboxTabController;
 
   /// Whether the [DartBlockProgram] is currently being executed.
@@ -249,8 +251,8 @@ class _DartBlockEditorState extends State<DartBlockEditor>
                 0,
                 constraints.maxHeight -
                     (widget.canChange
-                        ? _toolboxHeight
-                        : _toolboxNoActionsHeight),
+                        ? kToolboxHeight
+                        : kToolboxNoActionsHeight),
               );
             }
             // Render it as a non-scrollable widget.
@@ -632,7 +634,7 @@ class _DartBlockEditorState extends State<DartBlockEditor>
       min(
         _toolboxY,
         maxHeight -
-            (widget.canChange ? _toolboxHeight : _toolboxNoActionsHeight),
+            (widget.canChange ? kToolboxHeight : kToolboxNoActionsHeight),
       ),
     );
   }
