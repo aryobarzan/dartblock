@@ -1,4 +1,4 @@
-import 'package:dartblock_code/widgets/views/toolbox2/misc/toolbox_drag_target.dart';
+import 'package:dartblock_code/widgets/views/toolbox/misc/toolbox_drag_target.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/models/statement.dart';

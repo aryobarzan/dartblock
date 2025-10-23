@@ -1,4 +1,4 @@
-import 'package:dartblock_code/widgets/views/toolbox2/models/toolbox_configuration.dart';
+import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_configuration.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/statement.dart';
 

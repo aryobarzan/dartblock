@@ -2,8 +2,8 @@ import 'package:dartblock_code/models/dartblock_interaction.dart';
 import 'package:dartblock_code/widgets/dartblock_editor.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:dartblock_code/widgets/views/other/dartblock_exception.dart';
-import 'package:dartblock_code/widgets/views/toolbox2/models/toolbox_action.dart';
-import 'package:dartblock_code/widgets/views/toolbox2/models/code_view_action.dart';
+import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_action.dart';
+import 'package:dartblock_code/widgets/views/toolbox/models/code_view_action.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/function.dart';
 import 'components/statement_strip.dart';
@@ -12,7 +12,7 @@ import 'models/toolbox_configuration.dart';
 
 /// A mobile-optimized toolbox widget that displays all statement types in a horizontal scrollable strip,
 /// with visual category grouping and a compact action bar.
-class MobileToolbox extends StatefulWidget {
+class DartBlockToolbox extends StatefulWidget {
   final bool isTransparent;
   final bool isDocked;
   final bool canUndock;
@@ -28,7 +28,7 @@ class MobileToolbox extends StatefulWidget {
   final Function(ToolboxExtraAction action) onAction;
   final Function(CodeViewAction action) onCodeViewAction;
 
-  const MobileToolbox({
+  const DartBlockToolbox({
     super.key,
     this.isTransparent = false,
     this.isDocked = true,
@@ -47,10 +47,10 @@ class MobileToolbox extends StatefulWidget {
   });
 
   @override
-  State<MobileToolbox> createState() => _MobileToolboxState();
+  State<DartBlockToolbox> createState() => _DartBlockToolboxState();
 }
 
-class _MobileToolboxState extends State<MobileToolbox> {
+class _DartBlockToolboxState extends State<DartBlockToolbox> {
   final ScrollController _scrollController = ScrollController();
 
   @override

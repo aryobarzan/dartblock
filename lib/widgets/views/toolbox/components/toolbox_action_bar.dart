@@ -1,5 +1,5 @@
 import 'package:dartblock_code/widgets/views/symbols.dart';
-import 'package:dartblock_code/widgets/views/toolbox2/models/toolbox_action.dart';
+import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_action.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/toolbox_configuration.dart';

@@ -5,10 +5,10 @@ import 'dart:math';
 import 'package:file_picker/file_picker.dart';
 import 'package:code_text_field/code_text_field.dart';
 import 'package:collection/collection.dart';
-import 'package:dartblock_code/widgets/views/toolbox2/models/code_view_action.dart';
-import 'package:dartblock_code/widgets/views/toolbox2/models/toolbox_action.dart';
-import 'package:dartblock_code/widgets/views/toolbox2/models/toolbox_configuration.dart';
-import 'package:dartblock_code/widgets/views/toolbox2/mobile_toolbox.dart';
+import 'package:dartblock_code/widgets/views/toolbox/models/code_view_action.dart';
+import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_action.dart';
+import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_configuration.dart';
+import 'package:dartblock_code/widgets/views/toolbox/toolbox.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_highlight/theme_map.dart';
@@ -440,7 +440,7 @@ class _DartBlockEditorState extends State<DartBlockEditor>
   /// Whether a statement type (block) is currently being dragged from the [_DartBlockToolbox].
   bool _isDraggingToolboxItem = false;
   Widget _buildToolbox() {
-    return MobileToolbox(
+    return DartBlockToolbox(
       isTransparent: _isDraggingToolbox,
       isDocked: _isToolboxDocked,
       canUndock: widget.isDense ? false : true,
