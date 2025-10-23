@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:dartblock_code/widgets/views/toolbox/misc/toolbox_drag_target.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/function.dart';
 import 'package:dartblock_code/models/dartblock_interaction.dart';
@@ -6,7 +7,6 @@ import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:dartblock_code/widgets/dartblock_editor.dart';
 import 'package:dartblock_code/widgets/views/statement.dart';
-import 'package:dartblock_code/widgets/views/toolbox_related.dart';
 
 class StatementListView extends StatelessWidget {
   final int neoTechCoreNodeKey;

@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:dartblock_code/widgets/views/toolbox/misc/toolbox_drag_target.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/function.dart';
@@ -13,7 +14,6 @@ import 'package:dartblock_code/widgets/views/for_loop.dart';
 import 'package:dartblock_code/widgets/views/function_call.dart';
 import 'package:dartblock_code/widgets/views/if_else_then.dart';
 import 'package:dartblock_code/widgets/views/other/dartblock_exception.dart';
-import 'package:dartblock_code/widgets/views/toolbox_related.dart';
 import 'package:dartblock_code/widgets/views/variable_assignment.dart';
 import 'package:dartblock_code/widgets/views/variable_declaration.dart';
 import 'package:dartblock_code/widgets/views/while_loop.dart';

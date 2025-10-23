@@ -1,9 +1,9 @@
+import 'package:dartblock_code/widgets/views/toolbox/misc/toolbox_drag_target.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:dartblock_code/widgets/views/symbols.dart';
-import 'package:dartblock_code/widgets/views/toolbox_related.dart';
 import 'package:dartblock_code/widgets/views/variable_definition.dart';
 
 /// An explainer for a DartBlock feature.
