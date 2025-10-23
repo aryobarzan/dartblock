@@ -2,13 +2,14 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:code_text_field/code_text_field.dart';
 import 'package:collection/collection.dart';
-import 'package:dartblock_code/widgets/views/toolbox.dart';
 import 'package:dartblock_code/widgets/views/toolbox/components/toolbox_statement_category.dart';
-import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_action.dart';
+import 'package:dartblock_code/widgets/views/toolbox2/models/code_view_action.dart';
+import 'package:dartblock_code/widgets/views/toolbox2/models/toolbox_action.dart';
 import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_configuration.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:dartblock_code/widgets/views/toolbox2/mobile_toolbox.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_highlight/theme_map.dart';
@@ -460,16 +461,13 @@ class _DartBlockEditorState extends State<DartBlockEditor>
   /// Whether a statement type (block) is currently being dragged from the [_DartBlockToolbox].
   bool _isDraggingToolboxItem = false;
   Widget _buildToolbox() {
-    return DartBlockToolbox(
-      toolboxTabController: _toolboxTabController,
+    return MobileToolbox(
       isTransparent: _isDraggingToolbox,
       isDocked: _isToolboxDocked,
       canUndock: widget.isDense ? false : true,
       isShowingCode: viewOption == DartBlockViewOption.script,
       isExecuting: _isExecuting,
       showActions: widget.canChange,
-      language: language,
-      toolboxCategory: _toolboxCategory,
       onToolboxItemDragStart: () {
         /// Do not try dispatching the notification further up the widget tree, as we are at the same context level
         /// as the NotificationListener itself, meaning the notification would not be captured.
@@ -497,7 +495,7 @@ class _DartBlockEditorState extends State<DartBlockEditor>
           .map((e) => e.name)
           .toList(),
       canAddFunction: widget.canChange,
-      onTapExtraAction: (extraAction) {
+      onAction: (extraAction) {
         switch (extraAction) {
           case ToolboxExtraAction.console:
             _showConsole();
@@ -527,53 +525,20 @@ class _DartBlockEditorState extends State<DartBlockEditor>
             break;
         }
       },
+      onCodeViewAction: (action) {
+        switch (action) {
+          case CodeViewAction.copy:
+            _onCopyScript();
+            break;
+          case CodeViewAction.save:
+            _onDownloadScript();
+            break;
+        }
+      },
       onCreateFunction: (newFunction) {
         _onCreateFunction(newFunction);
       },
-      onCopyScript: () {
-        Clipboard.setData(
-          ClipboardData(text: widget.program.toScript(language: language)),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(
-          createDartBlockInfoSnackBar(
-            context,
-            iconData: Icons.copy,
-            message: "Copied code to clipboard.",
-          ),
-        );
-      },
-      onDownloadScript: () {
-        try {
-          FilePicker.platform
-              .saveFile(
-                fileName: 'DartBlock_script.${language.getFileExtension()}',
-                bytes: utf8.encode(widget.program.toScript(language: language)),
-              )
-              .then((result) async {
-                if (mounted && result != null) {
-                  /// On iOS and Android, the bytes are directly written to the selected path.
-                  ///
-                  /// On desktop platforms, this has to be done as a second step.
-                  if (Theme.of(context).platform == TargetPlatform.macOS ||
-                      Theme.of(context).platform == TargetPlatform.windows ||
-                      Theme.of(context).platform == TargetPlatform.linux) {
-                    try {
-                      await File(result).writeAsString(
-                        widget.program.toScript(language: language),
-                      );
-                    } catch (err) {
-                      // Failed to write contents of file
-                    }
-                  }
-                }
-              })
-              .catchError((error) {
-                return null;
-              });
-        } catch (err) {
-          // Encoding failed or save failed
-        }
-      },
+
       onRun: widget.canRun
           ? () async {
               if (!_isExecuting) {
@@ -626,6 +591,55 @@ class _DartBlockEditorState extends State<DartBlockEditor>
         message: "Created custom function: ${newFunction.name}",
       ),
     );
+  }
+
+  void _onCopyScript() {
+    DartBlockInteraction.create(
+      dartBlockInteractionType: DartBlockInteractionType.copyScript,
+    ).dispatch(context);
+    Clipboard.setData(
+      ClipboardData(text: widget.program.toScript(language: language)),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(
+      createDartBlockInfoSnackBar(
+        context,
+        iconData: Icons.copy,
+        message: "Copied code to clipboard.",
+      ),
+    );
+  }
+
+  void _onDownloadScript() {
+    try {
+      FilePicker.platform
+          .saveFile(
+            fileName: 'DartBlock_script.${language.getFileExtension()}',
+            bytes: utf8.encode(widget.program.toScript(language: language)),
+          )
+          .then((result) async {
+            if (mounted && result != null) {
+              /// On iOS and Android, the bytes are directly written to the selected path.
+              ///
+              /// On desktop platforms, this has to be done as a second step.
+              if (Theme.of(context).platform == TargetPlatform.macOS ||
+                  Theme.of(context).platform == TargetPlatform.windows ||
+                  Theme.of(context).platform == TargetPlatform.linux) {
+                try {
+                  await File(
+                    result,
+                  ).writeAsString(widget.program.toScript(language: language));
+                } catch (err) {
+                  // Failed to write contents of file
+                }
+              }
+            }
+          })
+          .catchError((error) {
+            return null;
+          });
+    } catch (err) {
+      // Encoding failed or save failed
+    }
   }
 
   void _constrainToolboxY(double maxHeight) {
