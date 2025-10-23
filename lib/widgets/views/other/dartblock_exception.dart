@@ -57,7 +57,7 @@ class DartBlockExceptionWidget extends StatelessWidget {
                   canChange: false,
                   canReorder: false,
                   includeBottomPadding: false,
-                  onDelete: (p0) {},
+                  onDelete: () {},
                   onDuplicate: (statementToDuplicate) {},
                   onCopyStatement: (statement, cut) {},
                   onCopiedStatement: (statement, cut) {},

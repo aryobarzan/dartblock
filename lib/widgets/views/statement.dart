@@ -27,7 +27,7 @@ class StatementWidget extends StatelessWidget {
   final bool canChange;
   final bool canReorder;
   final bool canDuplicate;
-  final Function(Statement) onDelete;
+  final Function() onDelete;
   final Function(Statement) onChanged;
   final Function(Statement statementToDuplicate) onDuplicate;
   final Function(Statement newStatement)? onAppendNewStatement;
@@ -329,7 +329,7 @@ class StatementWidget extends StatelessWidget {
                         content:
                             'StatementType-${statement.statementType.name}-StatementId-${statement.statementId}${exceptionWidget != null ? '-CausedException' : ''}',
                       ).dispatch(context);
-                      onDelete(statement);
+                      onDelete();
                       ScaffoldMessenger.of(context).showSnackBar(
                         createDartBlockInfoSnackBar(
                           context,

@@ -77,7 +77,7 @@ class StatementListView extends StatelessWidget {
                     },
                     canReorder: canReorder,
                     canDelete: canDelete,
-                    onDelete: (statementToDelete) {
+                    onDelete: () {
                       statements.removeAt(index);
                       onChanged(statements);
                     },

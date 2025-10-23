@@ -87,7 +87,7 @@ class ForLoopStatementWidget extends StatelessWidget {
                         statement.initStatement = value;
                         onChanged(statement);
                       },
-                      onDelete: (_) {
+                      onDelete: () {
                         statement.initStatement = null;
                         onChanged(statement);
                       },
@@ -452,7 +452,7 @@ class ForLoopStatementWidget extends StatelessWidget {
                         statement.postStatement = value;
                         onChanged(statement);
                       },
-                      onDelete: (_) {
+                      onDelete: () {
                         statement.postStatement = null;
                         onChanged(statement);
                       },
