@@ -34,36 +34,62 @@ class DartBlockToolboxStatementTypeWidget extends StatelessWidget {
       feedback: Material(
         elevation: 4,
         borderRadius: BorderRadius.circular(ToolboxConfig.borderRadius),
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: categoryColor,
-            borderRadius: BorderRadius.circular(ToolboxConfig.borderRadius),
-            border: Border.all(color: Theme.of(context).colorScheme.surface),
-          ),
-          child: Icon(
-            _getIconForType(statementType),
-            color: Theme.of(context).colorScheme.surface,
-          ),
-        ),
+        child: _buildCore(context, statementType, true),
       ),
       child: Tooltip(
         message: _getTooltipForType(statementType),
-        child: Container(
-          width: ToolboxConfig.minTouchSize,
-          height: ToolboxConfig.minTouchSize,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(ToolboxConfig.borderRadius),
-            border: Border.all(
-              color: Theme.of(
-                context,
-              ).colorScheme.outline.withValues(alpha: 0.5),
-            ),
-          ),
-          child: Icon(_getIconForType(statementType), color: categoryColor),
+        child: _buildCore(context, statementType, false),
+      ),
+    );
+  }
+
+  Widget _buildCore(BuildContext context, StatementType type, isBeingDragged) {
+    bool showLabel = MediaQuery.of(context).size.width > 700 ? true : false;
+    final icon = Icon(
+      _getIconForType(statementType),
+      color: isBeingDragged
+          ? Theme.of(context).colorScheme.surface
+          : categoryColor,
+    );
+    return Container(
+      // width: ToolboxConfig.minTouchSize,
+      height: ToolboxConfig.minTouchSize,
+      width: showLabel ? null : ToolboxConfig.minTouchSize,
+      decoration: BoxDecoration(
+        color: isBeingDragged
+            ? categoryColor
+            : Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(ToolboxConfig.borderRadius),
+        border: Border.all(
+          color: isBeingDragged
+              ? Theme.of(context).colorScheme.surface
+              : Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
         ),
       ),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: showLabel
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 4,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Icon(
+                  _getIconForType(statementType),
+                  color: isBeingDragged
+                      ? Theme.of(context).colorScheme.surface
+                      : categoryColor,
+                ),
+                Text(
+                  statementType.toString(),
+                  style: Theme.of(context).textTheme.bodyMedium?.apply(
+                    color: isBeingDragged
+                        ? Theme.of(context).colorScheme.surface
+                        : null,
+                  ),
+                ),
+              ],
+            )
+          : icon,
     );
   }
 
