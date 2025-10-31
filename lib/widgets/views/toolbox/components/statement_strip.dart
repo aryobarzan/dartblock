@@ -31,10 +31,10 @@ class ToolboxStatementTypePicker extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           children: [
             // Variables section
-            _buildCategorySection(
+            ..._buildCategorySection(
               context,
               color: ToolboxConfig.categoryColors['variables']!,
-              statements: [
+              statementTypes: [
                 StatementType.variableDeclarationStatement,
                 StatementType.variableAssignmentStatement,
               ],
@@ -42,10 +42,10 @@ class ToolboxStatementTypePicker extends StatelessWidget {
             ),
 
             // Loops section
-            _buildCategorySection(
+            ..._buildCategorySection(
               context,
               color: ToolboxConfig.categoryColors['loops']!,
-              statements: [
+              statementTypes: [
                 StatementType.forLoopStatement,
                 StatementType.whileLoopStatement,
                 StatementType.breakStatement,
@@ -55,18 +55,18 @@ class ToolboxStatementTypePicker extends StatelessWidget {
             ),
 
             // Logic section
-            _buildCategorySection(
+            ..._buildCategorySection(
               context,
               color: ToolboxConfig.categoryColors['logic']!,
-              statements: [StatementType.ifElseStatement],
+              statementTypes: [StatementType.ifElseStatement],
               categoryName: 'Logic',
             ),
 
             // 'Other' section
-            _buildCategorySection(
+            ..._buildCategorySection(
               context,
               color: ToolboxConfig.categoryColors['functions']!,
-              statements: [
+              statementTypes: [
                 StatementType.customFunctionCallStatement,
                 StatementType.returnStatement,
                 StatementType.printStatement,
@@ -79,28 +79,24 @@ class ToolboxStatementTypePicker extends StatelessWidget {
     );
   }
 
-  Widget _buildCategorySection(
+  List<Widget> _buildCategorySection(
     BuildContext context, {
     required Color color,
-    required List<StatementType> statements,
+    required List<StatementType> statementTypes,
     required String categoryName,
   }) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ...statements.map(
-            (type) => DartBlockToolboxStatementTypeWidget(
+    return statementTypes
+        .map(
+          (type) => Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            child: DartBlockToolboxStatementTypeWidget(
               statementType: type,
               categoryColor: color,
               onDragStart: onDragStart,
               onDragEnd: onDragEnd,
             ),
           ),
-        ],
-      ),
-    );
+        )
+        .toList();
   }
 }

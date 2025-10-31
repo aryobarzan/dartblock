@@ -17,7 +17,9 @@ class DartBlockToolboxStatementTypeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Draggable<StatementType>(
+    return LongPressDraggable<StatementType>(
+      /// We add a slight delay to avoid conflicting with the scrollable nature of the toolbox itself.
+      delay: Duration(milliseconds: 100),
       data: statementType,
       onDragStarted: () {
         if (onDragStart != null) {
@@ -50,7 +52,6 @@ class DartBlockToolboxStatementTypeWidget extends StatelessWidget {
         child: Container(
           width: ToolboxConfig.minTouchSize,
           height: ToolboxConfig.minTouchSize,
-          margin: const EdgeInsets.symmetric(horizontal: 2),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(ToolboxConfig.borderRadius),
