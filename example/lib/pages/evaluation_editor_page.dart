@@ -1,7 +1,4 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:dartblock_code/core/dartblock_program.dart';
 import 'package:dartblock_code/models/evaluator.dart';
 import 'package:dartblock_code/widgets/dartblock_editor.dart';
@@ -68,16 +65,7 @@ class _EvaluationEditorPageState extends State<EvaluationEditorPage> {
                 },
               ),
             ),
-            SliverToBoxAdapter(
-              child: TextButton(
-                onPressed: () {
-                  Clipboard.setData(
-                    ClipboardData(text: jsonEncode(evaluator?.toJson())),
-                  );
-                },
-                child: Text("Export"),
-              ),
-            ),
+
             SliverToBoxAdapter(child: SizedBox(height: 24)),
             SliverToBoxAdapter(child: Divider()),
             SliverToBoxAdapter(
