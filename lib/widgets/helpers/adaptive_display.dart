@@ -11,6 +11,7 @@ Future<void> showAdaptiveBottomSheetOrDialog(
   EdgeInsetsGeometry? dialogPadding,
   Widget? dialogTitle,
   required Widget child,
+  Function(DartBlockNotification notification)? onReceiveDartBlockNotification,
 }) async {
   final screenWidth = MediaQuery.of(context).size.width;
   final isLargeScreen = screenWidth > 700;
@@ -28,7 +29,11 @@ Future<void> showAdaptiveBottomSheetOrDialog(
       barrierDismissible: true,
       builder: (dialogContext) => NotificationListener<DartBlockNotification>(
         onNotification: (notification) {
-          notification.dispatch(context);
+          if (onReceiveDartBlockNotification != null) {
+            onReceiveDartBlockNotification(notification);
+          } else {
+            notification.dispatch(context);
+          }
           return true;
         },
         child: Dialog(

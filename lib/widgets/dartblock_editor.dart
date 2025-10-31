@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:dartblock_code/widgets/helpers/adaptive_display.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:code_text_field/code_text_field.dart';
 import 'package:collection/collection.dart';
@@ -890,53 +891,21 @@ void showNewFunctionSheet(
   onReceiveDartBlockNotification,
 }) {
   HapticFeedback.mediumImpact();
-  showModalBottomSheet(
-    isScrollControlled: true,
-    clipBehavior: Clip.hardEdge,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
+
+  showAdaptiveBottomSheetOrDialog(
+    context,
+    sheetPadding: EdgeInsets.all(8),
+    dialogPadding: EdgeInsets.all(16),
+    onReceiveDartBlockNotification: onReceiveDartBlockNotification,
+    child: CustomFunctionBasicEditor(
+      existingCustomFunctionNames: existingCustomFunctionNames,
+      canDelete: false,
+      canChange: true,
+      onDelete: () {},
+      onSaved: (newName, newReturnType) {
+        Navigator.of(context).pop();
+        onSaved(newName, newReturnType);
+      },
     ),
-    context: context,
-    builder: (sheetContext) {
-      /// Due to the modal sheet having a separate context and thus no relation
-      /// to the main context of the DartBlockEditor, we capture DartBlockNotifications
-      /// from the sheet's context and manually re-dispatch them using the parent context.
-      /// The parent context may not necessarily be the DartBlockEditor's context,
-      /// as certain sheets open additional nested sheets with their own contexts,
-      /// hence this process needs to be repeated for every sheet until the DartBlockEditor's
-      /// context is reached.
-      return NotificationListener<DartBlockNotification>(
-        onNotification: (notification) {
-          if (onReceiveDartBlockNotification != null) {
-            onReceiveDartBlockNotification(notification);
-          } else {
-            notification.dispatch(context);
-          }
-
-          return true;
-        },
-        child: Padding(
-          padding: EdgeInsets.only(
-            left: 8,
-            right: 8,
-            top: 8,
-
-            /// Important: do not use context, but sheetContext, otherwise the on-screen keyboard
-            /// will cover the editor and not properly push it up the screen.
-            bottom: 16 + MediaQuery.of(sheetContext).viewInsets.bottom,
-          ),
-          child: CustomFunctionBasicEditor(
-            existingCustomFunctionNames: existingCustomFunctionNames,
-            canDelete: false,
-            canChange: true,
-            onDelete: () {},
-            onSaved: (newName, newReturnType) {
-              Navigator.of(context).pop();
-              onSaved(newName, newReturnType);
-            },
-          ),
-        ),
-      );
-    },
   );
 }

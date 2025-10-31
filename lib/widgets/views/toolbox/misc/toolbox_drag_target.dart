@@ -73,23 +73,15 @@ class ToolboxDragTarget extends StatelessWidget {
                       HapticFeedback.lightImpact();
                       _onSelectStatementTypeToCreate(context, statementType);
                     },
-                    onPasteStatement: onPasteStatement,
+                    onPasteStatement: onPasteStatement != null
+                        ? () {
+                            Navigator.of(context).pop();
+                            HapticFeedback.lightImpact();
+                            onPasteStatement!();
+                          }
+                        : null,
                   ),
                 );
-                // StatementTypePicker(
-                //   onSelect: (statementType) {
-                //     Navigator.of(context).pop();
-                //     HapticFeedback.lightImpact();
-                //     _onSelectStatementTypeToCreate(context, statementType);
-                //   },
-                //   onPasteStatement: onPasteStatement,
-                // ).show(context);
-
-                // ScaffoldMessenger.of(context).showSnackBar(
-                //     createDartBlockInfoSnackBar(context,
-                //         iconData: Icons.edit,
-                //         message:
-                //             "Drag a new statement here from the Toolbox!"));
               },
               child: ToolboxDragTargetIndicator(
                 statementType: candidateData.isNotEmpty

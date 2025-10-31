@@ -30,12 +30,12 @@ class DartBlockConsole extends StatelessWidget {
         if (content.isEmpty && neoTechException == null)
           RichText(
             text: TextSpan(
-              style: Theme.of(context).textTheme.bodySmall,
+              style: Theme.of(context).textTheme.bodyMedium,
               children: [
                 const TextSpan(text: "Nothing to view. Tap '"),
                 TextSpan(
                   text: "Run",
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
                   ),
