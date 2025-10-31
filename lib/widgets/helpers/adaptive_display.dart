@@ -75,7 +75,14 @@ Future<void> showAdaptiveBottomSheetOrDialog(
           },
           child: SingleChildScrollView(
             child: Padding(
-              padding: sheetPadding ?? const EdgeInsets.symmetric(vertical: 8),
+              padding:
+                  sheetPadding ??
+                  EdgeInsets.only(
+                    top: 8,
+                    left: 8,
+                    right: 8,
+                    bottom: 16 + MediaQuery.of(modalContext).viewInsets.bottom,
+                  ),
               child: child,
             ),
           ),

@@ -3,7 +3,6 @@ import 'package:dartblock_code/widgets/helpers/adaptive_display.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/function.dart';
 import 'package:dartblock_code/models/dartblock_interaction.dart';
-import 'package:dartblock_code/models/dartblock_notification.dart';
 import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/editors/custom_function_basic.dart';
 import 'package:dartblock_code/widgets/editors/variable_definition.dart';
@@ -210,6 +209,93 @@ class CustomFunctionWidget extends StatelessWidget {
         },
       ),
     );
+  }
+
+  bool isParameterIndexValid(int? index) {
+    return index != null &&
+        index >= 0 &&
+        index < customFunction.parameters.length;
+  }
+
+  void _showCustomFunctionParameterEditorBottomSheet(
+    BuildContext context,
+    DartBlockEditorInheritedWidget neoTechCoreInheritedWidget, {
+    int? parameterIndex,
+  }) {
+    final neoTechCoreTree = neoTechCoreInheritedWidget.program.buildTree();
+    final variableDefinition = isParameterIndexValid(parameterIndex)
+        ? customFunction.parameters[parameterIndex!]
+        : null;
+    DartBlockInteraction.create(
+      dartBlockInteractionType: variableDefinition != null
+          ? DartBlockInteractionType.editFunctionParameter
+          : DartBlockInteractionType.createFunctionParameter,
+      content: variableDefinition != null
+          ? 'ParameterName-${variableDefinition.name}'
+          : '',
+    ).dispatch(context);
+
+    showAdaptiveBottomSheetOrDialog(
+      context,
+      // sheetPadding: EdgeInsets.all(8),
+      dialogPadding: EdgeInsets.all(16),
+      child: VariableDefinitionEditor(
+        functionDefinition: customFunction.getAsFunctionDefinition(),
+        variableDefinition: variableDefinition,
+        existingVariableDefinitions: variableDefinition != null
+            ? neoTechCoreTree
+                  .findVariableDefinitions(
+                    customFunction.hashCode,
+                    includeNode: true,
+                  )
+                  .whereNot((element) => element == variableDefinition)
+                  .toList()
+            : neoTechCoreTree.findVariableDefinitions(
+                customFunction.hashCode,
+                includeNode: true,
+              ),
+        canChange: neoTechCoreInheritedWidget.canChange,
+        canDelete: neoTechCoreInheritedWidget.canDelete,
+        onSaved: (value) {
+          Navigator.of(context).pop();
+          if (isParameterIndexValid(parameterIndex)) {
+            DartBlockInteraction.create(
+              dartBlockInteractionType:
+                  DartBlockInteractionType.editedFunctionParameter,
+            ).dispatch(context);
+            customFunction.parameters[parameterIndex!] = value;
+          } else {
+            DartBlockInteraction.create(
+              dartBlockInteractionType:
+                  DartBlockInteractionType.createdFunctionParameter,
+            ).dispatch(context);
+            customFunction.parameters.add(value);
+          }
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            createDartBlockInfoSnackBar(
+              context,
+              iconData: Icons.check,
+              message:
+                  "${isParameterIndexValid(parameterIndex) ? 'Saved' : 'Added'} function parameter: ${value.name}",
+            ),
+          );
+          onChanged(customFunction);
+        },
+        onDelete: () {
+          Navigator.of(context).pop();
+          if (isParameterIndexValid(parameterIndex)) {
+            DartBlockInteraction.create(
+              dartBlockInteractionType:
+                  DartBlockInteractionType.deletedFunctionParameter,
+            ).dispatch(context);
+            customFunction.parameters.removeAt(parameterIndex!);
+            onChanged(customFunction);
+          }
+        },
+      ),
+    );
+
     // showModalBottomSheet(
     //   isScrollControlled: true,
     //   clipBehavior: Clip.hardEdge,
@@ -237,152 +323,65 @@ class CustomFunctionWidget extends StatelessWidget {
     //           top: 8,
     //           bottom: 16 + MediaQuery.of(sheetContext).viewInsets.bottom,
     //         ),
-    //         child: CustomFunctionBasicEditor(
-    //           customFunctionName: customFunction.name,
-    //           returnType: customFunction.returnType,
-    //           existingCustomFunctionNames: neoTechCoreInheritedWidget
-    //               .program
-    //               .customFunctions
-    //               .map((e) => e.name)
-    //               .whereNot((element) => element == customFunction.name)
-    //               .toList(),
-    //           canDelete: neoTechCoreInheritedWidget.canDelete,
+    //         child: VariableDefinitionEditor(
+    //           functionDefinition: customFunction.getAsFunctionDefinition(),
+    //           variableDefinition: variableDefinition,
+    //           existingVariableDefinitions: variableDefinition != null
+    //               ? neoTechCoreTree
+    //                     .findVariableDefinitions(
+    //                       customFunction.hashCode,
+    //                       includeNode: true,
+    //                     )
+    //                     .whereNot((element) => element == variableDefinition)
+    //                     .toList()
+    //               : neoTechCoreTree.findVariableDefinitions(
+    //                   customFunction.hashCode,
+    //                   includeNode: true,
+    //                 ),
     //           canChange: neoTechCoreInheritedWidget.canChange,
-    //           onDelete: () {
-    //             if (onDelete != null) {
-    //               Navigator.of(sheetContext).pop();
-    //               onDelete!();
-    //             }
-    //           },
-    //           onSaved: (newName, newReturnType) {
+    //           canDelete: neoTechCoreInheritedWidget.canDelete,
+    //           onSaved: (value) {
     //             Navigator.of(sheetContext).pop();
-    //             customFunction.name = newName;
-    //             customFunction.returnType = newReturnType;
+    //             if (isParameterIndexValid(parameterIndex)) {
+    //               DartBlockInteraction.create(
+    //                 dartBlockInteractionType:
+    //                     DartBlockInteractionType.editedFunctionParameter,
+    //               ).dispatch(context);
+    //               customFunction.parameters[parameterIndex!] = value;
+    //             } else {
+    //               DartBlockInteraction.create(
+    //                 dartBlockInteractionType:
+    //                     DartBlockInteractionType.createdFunctionParameter,
+    //               ).dispatch(context);
+    //               customFunction.parameters.add(value);
+    //             }
+
     //             ScaffoldMessenger.of(sheetContext).showSnackBar(
     //               createDartBlockInfoSnackBar(
     //                 sheetContext,
     //                 iconData: Icons.check,
-    //                 message: "Saved custom function: $newName",
+    //                 message:
+    //                     "${isParameterIndexValid(parameterIndex) ? 'Saved' : 'Added'} function parameter: ${value.name}",
     //               ),
     //             );
     //             onChanged(customFunction);
+    //           },
+    //           onDelete: () {
+    //             Navigator.of(sheetContext).pop();
+    //             if (isParameterIndexValid(parameterIndex)) {
+    //               DartBlockInteraction.create(
+    //                 dartBlockInteractionType:
+    //                     DartBlockInteractionType.deletedFunctionParameter,
+    //               ).dispatch(context);
+    //               customFunction.parameters.removeAt(parameterIndex!);
+    //               onChanged(customFunction);
+    //             }
     //           },
     //         ),
     //       ),
     //     );
     //   },
     // );
-  }
-
-  bool isParameterIndexValid(int? index) {
-    return index != null &&
-        index >= 0 &&
-        index < customFunction.parameters.length;
-  }
-
-  void _showCustomFunctionParameterEditorBottomSheet(
-    BuildContext context,
-    DartBlockEditorInheritedWidget neoTechCoreInheritedWidget, {
-    int? parameterIndex,
-  }) {
-    final neoTechCoreTree = neoTechCoreInheritedWidget.program.buildTree();
-    final variableDefinition = isParameterIndexValid(parameterIndex)
-        ? customFunction.parameters[parameterIndex!]
-        : null;
-    DartBlockInteraction.create(
-      dartBlockInteractionType: variableDefinition != null
-          ? DartBlockInteractionType.editFunctionParameter
-          : DartBlockInteractionType.createFunctionParameter,
-      content: variableDefinition != null
-          ? 'ParameterName-${variableDefinition.name}'
-          : '',
-    ).dispatch(context);
-    showModalBottomSheet(
-      isScrollControlled: true,
-      clipBehavior: Clip.hardEdge,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
-      ),
-      context: context,
-      builder: (sheetContext) {
-        /// Due to the modal sheet having a separate context and thus no relation
-        /// to the main context of the NeoTechWidget, we capture DartBlockNotifications
-        /// from the sheet's context and manually re-dispatch them using the parent context.
-        /// The parent context may not necessarily be the NeoTechWidget's context,
-        /// as certain sheets open additional nested sheets with their own contexts,
-        /// hence this process needs to be repeated for every sheet until the NeoTechWidget's
-        /// context is reached.
-        return NotificationListener<DartBlockNotification>(
-          onNotification: (notification) {
-            notification.dispatch(context);
-            return true;
-          },
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: 8,
-              right: 8,
-              top: 8,
-              bottom: 16 + MediaQuery.of(sheetContext).viewInsets.bottom,
-            ),
-            child: VariableDefinitionEditor(
-              functionDefinition: customFunction.getAsFunctionDefinition(),
-              variableDefinition: variableDefinition,
-              existingVariableDefinitions: variableDefinition != null
-                  ? neoTechCoreTree
-                        .findVariableDefinitions(
-                          customFunction.hashCode,
-                          includeNode: true,
-                        )
-                        .whereNot((element) => element == variableDefinition)
-                        .toList()
-                  : neoTechCoreTree.findVariableDefinitions(
-                      customFunction.hashCode,
-                      includeNode: true,
-                    ),
-              canChange: neoTechCoreInheritedWidget.canChange,
-              canDelete: neoTechCoreInheritedWidget.canDelete,
-              onSaved: (value) {
-                Navigator.of(sheetContext).pop();
-                if (isParameterIndexValid(parameterIndex)) {
-                  DartBlockInteraction.create(
-                    dartBlockInteractionType:
-                        DartBlockInteractionType.editedFunctionParameter,
-                  ).dispatch(context);
-                  customFunction.parameters[parameterIndex!] = value;
-                } else {
-                  DartBlockInteraction.create(
-                    dartBlockInteractionType:
-                        DartBlockInteractionType.createdFunctionParameter,
-                  ).dispatch(context);
-                  customFunction.parameters.add(value);
-                }
-
-                ScaffoldMessenger.of(sheetContext).showSnackBar(
-                  createDartBlockInfoSnackBar(
-                    sheetContext,
-                    iconData: Icons.check,
-                    message:
-                        "${isParameterIndexValid(parameterIndex) ? 'Saved' : 'Added'} function parameter: ${value.name}",
-                  ),
-                );
-                onChanged(customFunction);
-              },
-              onDelete: () {
-                Navigator.of(sheetContext).pop();
-                if (isParameterIndexValid(parameterIndex)) {
-                  DartBlockInteraction.create(
-                    dartBlockInteractionType:
-                        DartBlockInteractionType.deletedFunctionParameter,
-                  ).dispatch(context);
-                  customFunction.parameters.removeAt(parameterIndex!);
-                  onChanged(customFunction);
-                }
-              },
-            ),
-          ),
-        );
-      },
-    );
   }
 }
 

@@ -6,7 +6,7 @@ import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_action.dart'
 import 'package:dartblock_code/widgets/views/toolbox/models/code_view_action.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/function.dart';
-import 'components/statement_strip.dart';
+import 'components/toolbox_statement_bar.dart';
 import 'components/toolbox_action_bar.dart';
 import 'models/toolbox_configuration.dart';
 
@@ -269,7 +269,7 @@ class _DartBlockToolboxState extends State<DartBlockToolbox> {
                             const Divider(height: 1),
                             const SizedBox(height: 8),
                             Expanded(
-                              child: ToolboxStatementTypePicker(
+                              child: ToolboxStatementTypeBar(
                                 scrollController: _scrollController,
                                 onDragStart: () {
                                   widget.onToolboxItemDragStart?.call();

@@ -7,12 +7,12 @@ import 'package:dartblock_code/models/statement.dart';
 import '../models/toolbox_configuration.dart';
 
 /// The statement types which can be dragged from the [DartBlockToolbox] to [ToolboxDragTarget]s.
-class ToolboxStatementTypePicker extends StatelessWidget {
+class ToolboxStatementTypeBar extends StatelessWidget {
   final Function()? onDragStart;
   final Function()? onDragEnd;
   final ScrollController scrollController;
 
-  const ToolboxStatementTypePicker({
+  const ToolboxStatementTypeBar({
     super.key,
     this.onDragStart,
     this.onDragEnd,
