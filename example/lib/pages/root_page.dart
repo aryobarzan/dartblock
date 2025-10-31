@@ -19,14 +19,12 @@ class RootPage extends StatefulWidget {
 class _RootPageState extends State<RootPage> {
   int pageIndex = 0;
   late DartBlockProgram program;
+  late final Future<List<DartBlockSampleProgram>> _samplesFuture;
   @override
   initState() {
     super.initState();
-    if (kDebugMode) {
-      program = DartBlockProgram.example();
-    } else {
-      program = DartBlockProgram.init([], []);
-    }
+    _samplesFuture = _loadSamplesFromDisk();
+    program = DartBlockProgram.example();
   }
 
   /// Load sample [DartBlockProgram]s from the `assets/dartBlockSamples/` folder.
@@ -146,7 +144,7 @@ class _RootPageState extends State<RootPage> {
         ),
         child: SingleChildScrollView(
           child: FutureBuilder(
-            future: _loadSamplesFromDisk(),
+            future: _samplesFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.active ||
                   snapshot.connectionState == ConnectionState.waiting) {
