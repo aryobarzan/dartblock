@@ -8,15 +8,15 @@ import 'package:dartblock_code/widgets/dartblock_editor.dart';
 import 'package:dartblock_code/widgets/evaluator_editor.dart';
 import 'package:dartblock_code/widgets/views/evaluation/evaluation_widget.dart';
 
-class EvaluationEditor extends StatefulWidget {
+class EvaluationEditorPage extends StatefulWidget {
   final DartBlockProgram sampleSolution;
-  const EvaluationEditor({super.key, required this.sampleSolution});
+  const EvaluationEditorPage({super.key, required this.sampleSolution});
 
   @override
-  State<EvaluationEditor> createState() => _EvaluationEditorState();
+  State<EvaluationEditorPage> createState() => _EvaluationEditorPageState();
 }
 
-class _EvaluationEditorState extends State<EvaluationEditor> {
+class _EvaluationEditorPageState extends State<EvaluationEditorPage> {
   DartBlockEvaluator? evaluator;
 
   @override

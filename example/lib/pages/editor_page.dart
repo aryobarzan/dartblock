@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:dartblock_code/core/dartblock_program.dart';
 import 'package:dartblock_code/widgets/dartblock_editor.dart';
 
-class EditorPage extends StatefulWidget {
+/// A simple widget integrating the main [DartBlockEditor] widget for viewing and editing a [DartBlockProgram].
+class EditorView extends StatefulWidget {
   final DartBlockProgram? program;
   final Function(DartBlockProgram program) onChanged;
-  const EditorPage({super.key, this.program, required this.onChanged});
+  const EditorView({super.key, this.program, required this.onChanged});
 
   @override
-  State<EditorPage> createState() => _EditorPageState();
+  State<EditorView> createState() => _EditorViewState();
 }
 
-class _EditorPageState extends State<EditorPage> {
+class _EditorViewState extends State<EditorView> {
   late DartBlockProgram program;
   @override
   void initState() {
@@ -33,12 +34,10 @@ class _EditorPageState extends State<EditorPage> {
               canDelete: true,
               canReorder: true,
               canRun: true,
-              onChanged: (changedDartBlockProgram) {
-                widget.onChanged(changedDartBlockProgram);
-              },
+              onChanged: widget.onChanged,
               onInteraction: (dartBlockInteraction) {
-                // example: user tapped on "Run" button
-                // Useful for statistics or logging
+                // Example interaction: user tapped on "Run" button.
+                // Can be useful for collecting usage statistics and general logging.
               },
             ),
           ),
