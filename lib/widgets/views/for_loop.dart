@@ -48,28 +48,31 @@ class ForLoopStatementWidget extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             // Title and execution order number
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    "1",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontWeight: FontWeight.bold,
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      "1",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  "Initialize Loop Variable",
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  Text(
+                    "Initialize Loop Variable",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ],
+              ),
             ),
             // Initialization statement
             Padding(
@@ -165,56 +168,60 @@ class ForLoopStatementWidget extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Condition with step number 2
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    "2",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontWeight: FontWeight.bold,
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      "2",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  "Check Condition",
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(width: 8),
-                Tooltip(
-                  message:
-                      "If the condition is false, exit the loop.\nIf the condition is true, continue to step 3.",
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text("Step 2: Check Condition"),
-                          content: Text(
-                            "If the condition is false, exit the loop.\nIf the condition is true, continue to step 3.",
-                          ),
-                          actions: <Widget>[
-                            TextButton(
-                              child: const Text('Okay'),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    child: Icon(Icons.info_outline),
+                  const SizedBox(width: 8),
+                  Text(
+                    "Check Condition",
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
-                ),
-              ],
+
+                  const SizedBox(width: 8),
+                  Tooltip(
+                    message:
+                        "If the condition is false, exit the loop.\nIf the condition is true, continue to step 3.",
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text("Step 2: Check Condition"),
+                            content: Text(
+                              "If the condition is false, exit the loop.\nIf the condition is true, continue to step 3.",
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                child: const Text('Okay'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      child: Icon(Icons.info_outline),
+                    ),
+                  ),
+                ],
+              ),
             ),
             // Decision visualization
             Padding(
@@ -239,84 +246,68 @@ class ForLoopStatementWidget extends StatelessWidget {
                       );
                     },
                   ),
-                  // Alternative approach: (slightly more performant, but requires manual calculation of padding)
-                  //       SizedBox(
-                  //   width: double.infinity,
-                  //   child: SingleChildScrollView(
-                  //     scrollDirection: Axis.horizontal,
-                  //     child: Container(
-                  //       constraints: BoxConstraints(
-                  //         minWidth:
-                  //             MediaQuery.of(context).size.width -
-                  //             72 -
-                  //             32, // Account for paddings
-                  //       ),
-                  //       child: DartBlockValueWidget(
-                  //         value: statement.condition,
-                  //         borderRadius: BorderRadius.circular(12),
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
                   const SizedBox(height: 8),
                   // Decision arrows
-                  Row(
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.check,
-                                size: 16,
-                                color: Colors.green,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                "If true:",
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(
-                                      color: Colors.green,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                "continue to step 3",
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.close,
-                                size: 16,
-                                color: Colors.red,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                "Else:",
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                "exit the loop",
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                              const SizedBox(width: 4),
-                              const Icon(Icons.exit_to_app, size: 16),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.check,
+                                  size: 16,
+                                  color: Colors.green,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  "If true:",
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: Colors.green,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  "continue to step 3",
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.close,
+                                  size: 16,
+                                  color: Colors.red,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  "Else:",
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  "exit the loop",
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(Icons.exit_to_app, size: 16),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -325,28 +316,31 @@ class ForLoopStatementWidget extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Loop body with step number 3
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    "3",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontWeight: FontWeight.bold,
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      "3",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  "Execute Loop Body",
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  Text(
+                    "Execute Loop Body",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ],
+              ),
             ),
             // Loop body statements
             Padding(
@@ -385,56 +379,59 @@ class ForLoopStatementWidget extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Update step with number 4
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    "4",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontWeight: FontWeight.bold,
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      "4",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  "Update Loop Variable",
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(width: 8),
-                Tooltip(
-                  message:
-                      "After executing the loop body, this step updates the loop variable before checking the condition again.",
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text("Step 4: Update Loop Variable"),
-                          content: Text(
-                            "After executing the loop body, this step updates the loop variable before checking the condition again.",
-                          ),
-                          actions: <Widget>[
-                            TextButton(
-                              child: const Text('Okay'),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    child: Icon(Icons.info_outline),
+                  const SizedBox(width: 8),
+                  Text(
+                    "Update Loop Variable",
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  Tooltip(
+                    message:
+                        "After executing the loop body, this step updates the loop variable before checking the condition again.",
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text("Step 4: Update Loop Variable"),
+                            content: Text(
+                              "After executing the loop body, this step updates the loop variable before checking the condition again.",
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                child: const Text('Okay'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      child: Icon(Icons.info_outline),
+                    ),
+                  ),
+                ],
+              ),
             ),
             // Update statement
             Padding(

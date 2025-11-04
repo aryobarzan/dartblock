@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dartblock_code/widgets/views/symbols.dart';
 import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_action.dart';
 import 'package:flutter/material.dart';
@@ -33,25 +35,31 @@ class ToolboxActionBar extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         // Calculate available width for extra actions
-        final runButtonWidth = 100; // "Run" FilledButton
+        final runButtonWidth = 94; // "Run" FilledButton
         final addFunctionWidth = onAddFunction != null
-            ? 48
+            ? 32
             : 0; // "New Function" IconButton
         final exceptionWidth = exceptionIndicator != null
-            ? 48
+            ? 32
             : 0; // "Exception" IconButton
-        final padding = 16;
+        final padding = 8 + 16 + 48;
 
-        final availableWidth =
-            constraints.maxWidth -
-            (runButtonWidth + addFunctionWidth + exceptionWidth + padding);
+        final availableWidth = max(
+          0,
+          constraints.maxWidth -
+              (runButtonWidth + addFunctionWidth + exceptionWidth + padding),
+        );
 
         // If an action is directly shown as an IconButton, it will take up a width of 48.
         // Here, we calculate how many such IconButtons we could fit into our availableWidth.
-        final maxVisibleActions = (availableWidth / 48.0).floor();
+        var maxVisibleActions = (availableWidth / 48.0).floor();
 
         /// All extra actions
         final allActions = ToolboxExtraAction.values.toList();
+        // Don't place a singular action under a PopupMenuButton.
+        if (maxVisibleActions == allActions.length - 1) {
+          maxVisibleActions += 1;
+        }
 
         // Take the first maxVisibleActions from the full list of actions, to be shown as IconButtons.
         final visibleActions = allActions.take(maxVisibleActions).toList();
@@ -99,62 +107,63 @@ class ToolboxActionBar extends StatelessWidget {
               ],
 
               const Spacer(),
-
-              /// Extra actions as IconButtons
-              ...visibleActions.map(
-                (action) => Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: IconButton(
-                    tooltip: action == ToolboxExtraAction.dock
-                        ? isToolboxDocked
-                              ? "Undock"
-                              : "Dock"
-                        : action.toString(),
-                    onPressed: () {
-                      onTapExtraAction(action);
-                    },
-                    icon: Icon(
-                      action == ToolboxExtraAction.dock
+              if (maxVisibleActions > 0) ...[
+                /// Extra actions as IconButtons
+                ...visibleActions.map(
+                  (action) => Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: IconButton(
+                      tooltip: action == ToolboxExtraAction.dock
                           ? isToolboxDocked
-                                ? Icons.open_in_new
-                                : Icons.publish
-                          : action.getIconData(),
+                                ? "Undock"
+                                : "Dock"
+                          : action.toString(),
+                      onPressed: () {
+                        onTapExtraAction(action);
+                      },
+                      icon: Icon(
+                        action == ToolboxExtraAction.dock
+                            ? isToolboxDocked
+                                  ? Icons.open_in_new
+                                  : Icons.publish
+                            : action.getIconData(),
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              /// Any remaining axtra actions under a PopupMenuButton
-              if (menuActions.isNotEmpty)
-                PopupMenuButton<ToolboxExtraAction>(
-                  tooltip: 'More Actions',
-                  onSelected: (action) {
-                    onTapExtraAction(action);
-                  },
-                  itemBuilder: (context) => menuActions
-                      .map(
-                        (action) => PopupMenuItem(
-                          value: action,
-                          child: ListTile(
-                            leading: Icon(
-                              action == ToolboxExtraAction.dock
-                                  ? isToolboxDocked
-                                        ? Icons.open_in_new
-                                        : Icons.publish
-                                  : action.getIconData(),
-                            ),
-                            title: Text(
-                              action == ToolboxExtraAction.dock
-                                  ? isToolboxDocked
-                                        ? "Undock"
-                                        : "Dock"
-                                  : action.toString(),
+                /// Any remaining axtra actions under a PopupMenuButton
+                if (menuActions.isNotEmpty)
+                  PopupMenuButton<ToolboxExtraAction>(
+                    tooltip: 'More Actions',
+                    onSelected: (action) {
+                      onTapExtraAction(action);
+                    },
+                    itemBuilder: (context) => menuActions
+                        .map(
+                          (action) => PopupMenuItem(
+                            value: action,
+                            child: ListTile(
+                              leading: Icon(
+                                action == ToolboxExtraAction.dock
+                                    ? isToolboxDocked
+                                          ? Icons.open_in_new
+                                          : Icons.publish
+                                    : action.getIconData(),
+                              ),
+                              title: Text(
+                                action == ToolboxExtraAction.dock
+                                    ? isToolboxDocked
+                                          ? "Undock"
+                                          : "Dock"
+                                    : action.toString(),
+                              ),
                             ),
                           ),
-                        ),
-                      )
-                      .toList(),
-                ),
+                        )
+                        .toList(),
+                  ),
+              ],
             ],
           ),
         );
