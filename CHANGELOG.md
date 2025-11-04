@@ -1,3 +1,10 @@
+## 1.1.1
+
+- The icons and colors used to represent statement types are now the same across the ToolboxStatementTypeBar and the modal StatementTypePicker.
+- Fixes renderflow issues regarding the toolbox when the screen width is too small.
+- Adjusted For-loop widget to have its steps be horizontally scrollable when the screen width is too small.
+- Minor adjustments to example app.
+
 ## 1.1.0
 
 - New dynamic UI elements depending on screen size:
