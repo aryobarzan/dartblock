@@ -91,7 +91,7 @@ class _QuizPageState extends State<QuizPage> {
                     child: Padding(
                       padding: const EdgeInsets.all(8),
                       child: Text(
-                        "Implement a custom function which has a parameter of type double. The function should return the triple of that value!",
+                        "Implement a custom function with the name 'triple' which has a parameter 'number' of type double. The function should return the triple of its argument!",
                       ),
                     ),
                   ),
@@ -133,6 +133,10 @@ class _QuizPageState extends State<QuizPage> {
 
   void _showEvaluation() {
     if (sampleSolution != null) {
+      final evaluationFuture = evaluator.evaluate(
+        sampleSolution!.program,
+        userSolution,
+      );
       showModalBottomSheet(
         isScrollControlled: true,
         showDragHandle: true,
@@ -144,13 +148,13 @@ class _QuizPageState extends State<QuizPage> {
           child: SingleChildScrollView(
             /// We use a FutureBuilder, as [DartBlockEvaluator.evaluate] is an async function.
             child: FutureBuilder(
-              future: evaluator.evaluate(sampleSolution!.program, userSolution),
+              future: evaluationFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.active ||
                     snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
