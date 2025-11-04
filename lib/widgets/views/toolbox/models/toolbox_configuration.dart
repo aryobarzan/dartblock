@@ -1,3 +1,4 @@
+import 'package:dartblock_code/models/statement.dart';
 import 'package:flutter/material.dart';
 
 /// Configuration constants for the toolbox.
@@ -21,11 +22,11 @@ class ToolboxConfig {
   static const Duration animationDuration = Duration(milliseconds: 200);
 
   /// Category colors for the different statement types.
-  static final Map<String, Color> categoryColors = {
-    'variables': const Color(0xFF2196F3), // Blue
-    'loops': const Color(0xFFFFC107), // Amber
-    'logic': const Color(0xFF4CAF50), // Green
-    'functions': const Color(0xFF9C27B0), // Purple
-    'other': const Color(0xFF607D8B), // Blue Grey
+  static final Map<StatementCategory, Color> categoryColors = {
+    StatementCategory.variable: const Color(0xFF2196F3), // Blue
+    StatementCategory.loop: const Color(0xFFFFC107), // Amber
+    StatementCategory.decisionStructure: const Color(0xFF4CAF50), // Green
+    StatementCategory.function: const Color(0xFF9C27B0), // Purple
+    StatementCategory.other: const Color(0xFF607D8B), // Blue Grey
   };
 }

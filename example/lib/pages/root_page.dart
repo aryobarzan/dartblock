@@ -4,7 +4,6 @@ import 'package:example/pages/editor_page.dart';
 import 'package:example/pages/evaluation_editor_page.dart';
 import 'package:example/misc/dartblock_sample_program.dart';
 import 'package:example/pages/quiz_page.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dartblock_code/dartblock_code.dart';

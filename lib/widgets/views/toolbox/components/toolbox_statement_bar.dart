@@ -88,7 +88,7 @@ class ToolboxStatementTypeBar extends StatelessWidget {
     return [
       ..._buildCategorySection(
         context,
-        color: ToolboxConfig.categoryColors['variables']!,
+        color: ToolboxConfig.categoryColors[StatementCategory.variable]!,
         statementTypes: [
           StatementType.variableDeclarationStatement,
           StatementType.variableAssignmentStatement,
@@ -99,7 +99,7 @@ class ToolboxStatementTypeBar extends StatelessWidget {
       // Loops section
       ..._buildCategorySection(
         context,
-        color: ToolboxConfig.categoryColors['loops']!,
+        color: ToolboxConfig.categoryColors[StatementCategory.loop]!,
         statementTypes: [
           StatementType.forLoopStatement,
           StatementType.whileLoopStatement,
@@ -112,7 +112,8 @@ class ToolboxStatementTypeBar extends StatelessWidget {
       // Logic section
       ..._buildCategorySection(
         context,
-        color: ToolboxConfig.categoryColors['logic']!,
+        color:
+            ToolboxConfig.categoryColors[StatementCategory.decisionStructure]!,
         statementTypes: [StatementType.ifElseStatement],
         categoryName: 'Logic',
       ),
@@ -120,7 +121,7 @@ class ToolboxStatementTypeBar extends StatelessWidget {
       // 'Functions' section
       ..._buildCategorySection(
         context,
-        color: ToolboxConfig.categoryColors['functions']!,
+        color: ToolboxConfig.categoryColors[StatementCategory.function]!,
         statementTypes: [
           StatementType.customFunctionCallStatement,
           StatementType.returnStatement,
@@ -130,7 +131,7 @@ class ToolboxStatementTypeBar extends StatelessWidget {
       // 'Other' section
       ..._buildCategorySection(
         context,
-        color: ToolboxConfig.categoryColors['other']!,
+        color: ToolboxConfig.categoryColors[StatementCategory.other]!,
         statementTypes: [StatementType.printStatement],
         categoryName: 'Other',
       ),

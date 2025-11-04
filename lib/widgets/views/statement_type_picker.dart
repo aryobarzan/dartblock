@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_configuration.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/dartblock_interaction.dart';
 import 'package:dartblock_code/models/statement.dart';
@@ -79,7 +80,12 @@ class _StatementTypeCard extends StatelessWidget {
                 ),
                 borderRadius: BorderRadius.circular(18),
               ),
-              child: statementType.getCategory().getIconData(18),
+              child: Icon(
+                statementType.getIconData(),
+                size: 18,
+                color:
+                    ToolboxConfig.categoryColors[statementType.getCategory()],
+              ),
             ),
             const SizedBox(height: 4),
             Text(
@@ -133,8 +139,7 @@ class _StatementPasteCard extends StatelessWidget {
             Text(
               "Paste",
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                fontWeight: FontWeight.bold,
+              style: Theme.of(context).textTheme.bodySmall?.apply(
                 color: Theme.of(context).colorScheme.primary,
               ),
               overflow: TextOverflow.ellipsis,

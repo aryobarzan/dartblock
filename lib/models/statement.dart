@@ -1,3 +1,4 @@
+import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_configuration.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -28,6 +29,7 @@ enum StatementCategory {
   variable,
   loop,
   decisionStructure,
+  function,
   other;
 
   @override
@@ -36,6 +38,7 @@ enum StatementCategory {
       StatementCategory.variable => 'Variable',
       StatementCategory.loop => 'Loop',
       StatementCategory.decisionStructure => 'Decision Structure',
+      StatementCategory.function => 'Function',
       StatementCategory.other => 'Other',
     };
   }
@@ -46,23 +49,29 @@ enum StatementCategory {
       StatementCategory.variable => Icon(
         Icons.data_object,
         size: width,
-        color: Colors.green,
+        color: ToolboxConfig.categoryColors[StatementCategory.variable],
       ),
       // const Text('(x)', style: TextStyle(fontSize: 14)),
       StatementCategory.loop => Icon(
         Icons.loop,
         size: width,
-        color: Colors.blue,
+        color: ToolboxConfig.categoryColors[StatementCategory.loop],
       ),
       StatementCategory.decisionStructure => Icon(
         Icons.alt_route,
         size: width,
-        color: Colors.red,
+        color:
+            ToolboxConfig.categoryColors[StatementCategory.decisionStructure],
+      ),
+      StatementCategory.function => Icon(
+        Icons.alt_route,
+        size: width,
+        color: ToolboxConfig.categoryColors[StatementCategory.function],
       ),
       StatementCategory.other => Icon(
         Icons.dashboard_outlined,
         size: width,
-        color: Colors.purple,
+        color: ToolboxConfig.categoryColors[StatementCategory.other],
       ),
     };
   }
@@ -184,40 +193,78 @@ enum StatementType {
       case StatementType.printStatement:
         return 9;
       case StatementType.returnStatement:
-        return 2;
-      case StatementType.ifElseStatement:
         return 8;
+      case StatementType.ifElseStatement:
+        return 6;
       case StatementType.forLoopStatement:
-        return 4;
+        return 2;
       case StatementType.whileLoopStatement:
-        return 5;
+        return 3;
       case StatementType.variableDeclarationStatement:
         return 0;
       case StatementType.variableAssignmentStatement:
         return 1;
       case StatementType.customFunctionCallStatement:
-        return 3;
-      case StatementType.breakStatement:
-        return 6;
-      case StatementType.continueStatement:
         return 7;
+      case StatementType.breakStatement:
+        return 4;
+      case StatementType.continueStatement:
+        return 5;
     }
   }
 
   /// Retrieve the category to which the [StatementType] belongs.
   StatementCategory getCategory() {
     return switch (this) {
-      StatementType.statementBlockStatement => StatementCategory.other,
-      StatementType.printStatement => StatementCategory.other,
-      StatementType.returnStatement => StatementCategory.variable,
-      StatementType.ifElseStatement => StatementCategory.decisionStructure,
-      StatementType.forLoopStatement => StatementCategory.loop,
-      StatementType.whileLoopStatement => StatementCategory.loop,
       StatementType.variableDeclarationStatement => StatementCategory.variable,
       StatementType.variableAssignmentStatement => StatementCategory.variable,
-      StatementType.customFunctionCallStatement => StatementCategory.variable,
+
+      StatementType.forLoopStatement => StatementCategory.loop,
+      StatementType.whileLoopStatement => StatementCategory.loop,
       StatementType.breakStatement => StatementCategory.loop,
       StatementType.continueStatement => StatementCategory.loop,
+
+      StatementType.ifElseStatement => StatementCategory.decisionStructure,
+
+      StatementType.customFunctionCallStatement => StatementCategory.function,
+      StatementType.returnStatement => StatementCategory.function,
+
+      StatementType.printStatement => StatementCategory.other,
+      StatementType.statementBlockStatement => StatementCategory.other,
+    };
+  }
+
+  /// Retrieve the symbolic icon for the [StatementType].
+  IconData getIconData() {
+    return switch (this) {
+      StatementType.variableDeclarationStatement => Icons.add_circle_outline,
+      StatementType.variableAssignmentStatement => Icons.edit_outlined,
+      StatementType.forLoopStatement => Icons.loop,
+      StatementType.whileLoopStatement => Icons.repeat,
+      StatementType.ifElseStatement => Icons.call_split,
+      StatementType.breakStatement => Icons.logout,
+      StatementType.continueStatement => Icons.skip_next,
+      StatementType.customFunctionCallStatement => Icons.functions,
+      StatementType.returnStatement => Icons.keyboard_return,
+      StatementType.printStatement => Icons.wysiwyg,
+      _ => Icons.code,
+    };
+  }
+
+  /// Retrieve a short, explanatory description of the [StatementType].
+  String getTooltip() {
+    return switch (this) {
+      StatementType.variableDeclarationStatement => 'Declare Variable',
+      StatementType.variableAssignmentStatement => 'Update Variable',
+      StatementType.forLoopStatement => 'For Loop',
+      StatementType.whileLoopStatement => 'While Loop',
+      StatementType.ifElseStatement => 'If-Else',
+      StatementType.breakStatement => 'Break',
+      StatementType.continueStatement => 'Continue',
+      StatementType.customFunctionCallStatement => 'Call Function',
+      StatementType.returnStatement => 'Return',
+      StatementType.printStatement => "Print",
+      _ => toString(),
     };
   }
 }

@@ -37,7 +37,7 @@ class DartBlockToolboxStatementTypeWidget extends StatelessWidget {
         child: _buildCore(context, statementType, true),
       ),
       child: Tooltip(
-        message: _getTooltipForType(statementType),
+        message: statementType.getTooltip(),
         child: _buildCore(context, statementType, false),
       ),
     );
@@ -46,7 +46,7 @@ class DartBlockToolboxStatementTypeWidget extends StatelessWidget {
   Widget _buildCore(BuildContext context, StatementType type, isBeingDragged) {
     bool showLabel = MediaQuery.of(context).size.width > 700 ? true : false;
     final icon = Icon(
-      _getIconForType(statementType),
+      statementType.getIconData(),
       color: isBeingDragged
           ? Theme.of(context).colorScheme.surface
           : categoryColor,
@@ -73,12 +73,7 @@ class DartBlockToolboxStatementTypeWidget extends StatelessWidget {
               spacing: 4,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Icon(
-                  _getIconForType(statementType),
-                  color: isBeingDragged
-                      ? Theme.of(context).colorScheme.surface
-                      : categoryColor,
-                ),
+                icon,
                 Text(
                   statementType.toString(),
                   style: Theme.of(context).textTheme.bodyMedium?.apply(
@@ -91,37 +86,5 @@ class DartBlockToolboxStatementTypeWidget extends StatelessWidget {
             )
           : icon,
     );
-  }
-
-  IconData _getIconForType(StatementType type) {
-    return switch (type) {
-      StatementType.variableDeclarationStatement => Icons.add_circle_outline,
-      StatementType.variableAssignmentStatement => Icons.edit_outlined,
-      StatementType.forLoopStatement => Icons.loop,
-      StatementType.whileLoopStatement => Icons.repeat,
-      StatementType.ifElseStatement => Icons.call_split,
-      StatementType.breakStatement => Icons.logout,
-      StatementType.continueStatement => Icons.skip_next,
-      StatementType.customFunctionCallStatement => Icons.functions,
-      StatementType.returnStatement => Icons.keyboard_return,
-      StatementType.printStatement => Icons.wysiwyg,
-      _ => Icons.code,
-    };
-  }
-
-  String _getTooltipForType(StatementType type) {
-    return switch (type) {
-      StatementType.variableDeclarationStatement => 'Declare Variable',
-      StatementType.variableAssignmentStatement => 'Update Variable',
-      StatementType.forLoopStatement => 'For Loop',
-      StatementType.whileLoopStatement => 'While Loop',
-      StatementType.ifElseStatement => 'If-Else',
-      StatementType.breakStatement => 'Break',
-      StatementType.continueStatement => 'Continue',
-      StatementType.customFunctionCallStatement => 'Call Function',
-      StatementType.returnStatement => 'Return',
-      StatementType.printStatement => "Print",
-      _ => type.toString(),
-    };
   }
 }
