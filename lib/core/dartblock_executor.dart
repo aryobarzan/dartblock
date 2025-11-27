@@ -27,7 +27,7 @@ void _isolateEntry(_IsolateArgs args) {
     final executor = DartBlockExecutor(program);
     try {
       FunctionCallStatement.init('main', []).run(executor);
-      // send execution result as a Map (call toJson)
+      // send execution result as a Map (JSON serialization)
       resultSendPort.send(executor.getExecutionResult().toJson());
     } catch (ex, _) {
       final executionResult = executor.getExecutionResult();
@@ -328,7 +328,7 @@ class DartBlockExecutor extends DartBlockArbiter {
         onExit: exitPort.sendPort,
       );
 
-      // Listen for the worker result (should be a Map<String, dynamic>)
+      // Listen for the worker result
       resultSub = resultPort.listen((message) {
         if (!completer.isCompleted) {
           completer.complete(message as Map<String, dynamic>?);
@@ -338,7 +338,6 @@ class DartBlockExecutor extends DartBlockArbiter {
       // Listen for uncaught errors from the isolate runtime
       errorSub = errorPort.listen((message) {
         if (!completer.isCompleted) {
-          // message is typically a List with [error, stackTrace]
           completer.completeError(message);
         }
       });
@@ -348,17 +347,17 @@ class DartBlockExecutor extends DartBlockArbiter {
         if (!completer.isCompleted) completer.complete(null);
       });
 
-      // Start the timeout timer that kills the isolate if it fires.
+      // Start the timeout timer that kills the isolate after the given duration.
       timeoutTimer = Timer(duration, () {
         if (!completer.isCompleted) {
           try {
             isolate?.kill(priority: Isolate.immediate);
           } catch (_) {}
-          completer.complete(null); // indicate a timeout/null result
+          completer.complete(null);
         }
       });
 
-      // Resume isolate and wait for completion/timeout/error
+      // Resume (start) isolate and wait for completion/timeout/error
       isolate.resume(isolate.pauseCapability!);
       final responseMap = await completer.future;
 
@@ -414,7 +413,7 @@ class DartBlockExecutor extends DartBlockArbiter {
       );
       printToConsole("Program execution interrupted by exception.");
     } finally {
-      // Best-effort cleanup if something threw earlier
+      // clean-up
       try {
         await resultSub?.cancel();
         await errorSub?.cancel();
