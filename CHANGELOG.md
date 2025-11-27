@@ -1,3 +1,9 @@
+## 1.2.0
+
+- Fixed: DartBlockExecutor now kills the spawned isolate if there is an execution timeout.
+- Fixed: the program execution via an isolate is now deterministic, with the spawned isolate and the timeout timer on the host no longer being able to return a result at the same time (race condition).
+- Improved: a serialized payload is now sent to the spawned isolate for the program execution, with the response to the host also being serialized.
+
 ## 1.1.1
 
 - The icons and colors used to represent statement types are now the same across the ToolboxStatementTypeBar and the modal StatementTypePicker.
