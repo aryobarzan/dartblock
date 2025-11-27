@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:isolate';
 
 import 'package:collection/collection.dart';
+import 'package:dartblock_code/core/dartblock_execution_result.dart';
 import 'package:flutter/foundation.dart';
 import 'package:dartblock_code/core/dartblock_program.dart';
 import 'package:dartblock_code/models/function.dart';
@@ -8,6 +10,50 @@ import 'package:dartblock_code/models/environment.dart';
 import 'package:dartblock_code/models/exception.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/models/statement.dart';
+
+class _IsolateArgs {
+  final SendPort sendPort;
+  final Map<String, dynamic> payload;
+  _IsolateArgs(this.sendPort, this.payload);
+}
+
+// top-level worker entry
+void _isolateEntry(_IsolateArgs args) {
+  final SendPort resultSendPort = args.sendPort;
+  try {
+    final programJson = args.payload['program'] as Map<String, dynamic>;
+    final program = DartBlockProgram.fromJson(programJson);
+
+    final executor = DartBlockExecutor(program);
+    try {
+      FunctionCallStatement.init('main', []).run(executor);
+      // send execution result as a Map (call toJson)
+      resultSendPort.send(executor.getExecutionResult().toJson());
+    } catch (ex, _) {
+      final executionResult = executor.getExecutionResult();
+      if (ex is DartBlockException) {
+        executionResult.exception = ex.toJson();
+      } else if (ex is StackOverflowError) {
+        executionResult.exception = DartBlockException(
+          title: "Stack Overflow",
+          message:
+              "The program was killed due to a stack overflow error. This can occur if you have a recursive function without an appropriate ending condition.",
+        ).toJson();
+      } else if (ex is Exception) {
+        executionResult.exception = DartBlockException.fromException(
+          exception: ex,
+        ).toJson();
+      } else {
+        executionResult.exception = DartBlockException(
+          title: "Critical Error",
+          message:
+              "The program was killed due to an unknown error. Ensure your program does not contain an infinite loop or a recursive function without an ending condition!",
+        ).toJson();
+      }
+      resultSendPort.send(executor.getExecutionResult().toJson());
+    }
+  } catch (_) {}
+}
 
 /// The executor for DartBlock programs. Serves for executing and keeping track of the output of a [DartBlockProgram].
 ///
@@ -260,109 +306,136 @@ class DartBlockExecutor extends DartBlockArbiter {
       _executeWeb();
       return;
     }
-    bool finishedExecution = false;
+
+    final resultPort = ReceivePort();
+    final errorPort = ReceivePort();
+    final exitPort = ReceivePort();
+    Isolate? isolate;
+    Timer? timeoutTimer;
+    StreamSubscription? resultSub;
+    StreamSubscription? errorSub;
+    StreamSubscription? exitSub;
+    final completer = Completer<Map<String, dynamic>?>();
 
     try {
-      final resultPort = ReceivePort();
-      // Spawn a new isolate on which the DartBlockProgram should be executed.
-      final isolate = await Isolate.spawn(
-        (List<dynamic> args) async {
-          SendPort resultPort = args[0];
-          DartBlockExecutor executor = args[1];
-          try {
-            FunctionCallStatement.init("main", []).run(executor);
-          } on DartBlockException catch (ex) {
-            Isolate.exit(resultPort, [executor, ex]);
-          } on Exception catch (ex) {
-            Isolate.exit(resultPort, [executor, ex]);
-          } on StackOverflowError catch (_) {
-            // DartBlock relies on the StackOverflowError thrown by Dart's own execution engine.
-            Isolate.exit(resultPort, [
-              executor,
-              DartBlockException(
-                title: "Stack Overflow",
-                message:
-                    "The program was killed due to a stack overflow error. This can occur if you have a recursive function without an appropriate ending condition.",
-              ),
-            ]);
-          } on Error catch (_) {
-            // Any other (unknown) type of error which may occur.
-            Isolate.exit(resultPort, [
-              executor,
-              DartBlockException(
-                title: "Critical Error",
-                message:
-                    "The program was killed due to an unknown error. Ensure your program does not contain an infinite loop or a recursive function without an ending condition!",
-              ),
-            ]);
-          }
-          // Leave the isolate after the execution has finished and send back the DartBlockExecutor which contains the environment and execution output.
-          Isolate.exit(resultPort, [executor, null]);
-        },
-        [resultPort.sendPort, this],
-
-        /// Initially paused such that the timer can be started at the same time.
+      // serializable payload
+      final Map<String, dynamic> payload = {'program': program.toJson()};
+      isolate = await Isolate.spawn<_IsolateArgs>(
+        _isolateEntry, // top-level function
+        _IsolateArgs(resultPort.sendPort, payload),
         paused: true,
-        onExit: resultPort.sendPort,
+        onError: errorPort.sendPort,
+        onExit: exitPort.sendPort,
       );
 
-      /// Start the preventive timer, which aims to stop the execution (kill the isolate)
-      /// after a certain amount of time in case it has not finished execution yet.
-      Future.delayed(duration).then((value) {
-        if (!finishedExecution) {
-          isolate.kill(priority: Isolate.immediate);
+      // Listen for the worker result (should be a Map<String, dynamic>)
+      resultSub = resultPort.listen((message) {
+        if (!completer.isCompleted) {
+          completer.complete(message as Map<String, dynamic>?);
         }
       });
-      isolate.resume(isolate.pauseCapability!);
-      final response = await resultPort.first;
-      finishedExecution = true;
 
-      /// This means the isolate was killed early.
-      if (response == null) {
+      // Listen for uncaught errors from the isolate runtime
+      errorSub = errorPort.listen((message) {
+        if (!completer.isCompleted) {
+          // message is typically a List with [error, stackTrace]
+          completer.completeError(message);
+        }
+      });
+
+      // If isolate exits without sending a payload
+      exitSub = exitPort.listen((_) {
+        if (!completer.isCompleted) completer.complete(null);
+      });
+
+      // Start the timeout timer that kills the isolate if it fires.
+      timeoutTimer = Timer(duration, () {
+        if (!completer.isCompleted) {
+          try {
+            isolate?.kill(priority: Isolate.immediate);
+          } catch (_) {}
+          completer.complete(null); // indicate a timeout/null result
+        }
+      });
+
+      // Resume isolate and wait for completion/timeout/error
+      isolate.resume(isolate.pauseCapability!);
+      final responseMap = await completer.future;
+
+      // Cleanup listeners + ports + timer
+      await resultSub.cancel();
+      await errorSub.cancel();
+      await exitSub.cancel();
+      resultPort.close();
+      errorPort.close();
+      exitPort.close();
+      timeoutTimer.cancel();
+
+      // Handle the resultMap (null => timeout/killed)
+      if (responseMap == null) {
+        // treat as timeout
         _thrownException = DartBlockException(
           title: "Infinite Loop",
           message:
-              "The program was killed due to its execution taking too long. Ensure your program does not contain an infinite loop or a recursive function without an ending condition!",
+              "The program was killed due to timeout. Ensure your program does not contain an infinite loop or a recursive function without an ending condition!",
         );
-      } else {
-        DartBlockExecutor receivedExecutor = response[0];
-        copyFrom(receivedExecutor);
-        Exception? exception = response[1];
-        if (exception != null) {
-          if (exception is DartBlockException) {
-            _thrownException = exception;
-            printToConsole("Program execution interrupted by exception.");
-          } else {
-            _thrownException = DartBlockException.fromException(
-              exception: exception,
-            );
-            printToConsole("Program execution interrupted by exception.");
-          }
-        } else {
-          printToConsole("Program execution finished successfully.");
-        }
+        printToConsole("Program execution interrupted by exception.");
+        return;
       }
-    } on DartBlockException catch (ex) {
-      _thrownException = ex;
-      printToConsole("Program execution interrupted by exception.");
-    } on Exception catch (ex) {
-      _thrownException = DartBlockException.fromException(exception: ex);
-      printToConsole("Program execution interrupted by exception.");
-    } on StackOverflowError catch (_) {
-      _thrownException = DartBlockException(
-        title: "Stack Overflow",
-        message:
-            "The program was killed due to a stack overflow error. This can occur if you have a recursive function without an appropriate ending condition.",
-      );
-      printToConsole("Program execution interrupted by exception.");
-    } on Error catch (_) {
+
+      final response = DartBlockExecutionResult.fromJson(responseMap);
+
+      // Apply state of isolate's executor to this executor
+      _consoleOutput
+        ..clear()
+        ..addAll(response.consoleOutput);
+      final env = response.getEnvironment();
+      if (env != null) {
+        environment.copyFrom(env); // deep copy
+      }
+      _currentStatementBlockKey = response.currentStatementBlockKey;
+      _currentStatement = response.getCurrentStatement();
+      _blockHistory
+        ..clear()
+        ..addAll(response.blockHistory);
+      _thrownException = response.getException();
+
+      if (_thrownException != null) {
+        printToConsole("Program execution interrupted by exception.");
+      } else {
+        printToConsole("Program execution finished successfully.");
+      }
+    } catch (ex) {
+      // Should normally never occur.
       _thrownException = DartBlockException(
         title: "Critical Error",
         message:
             "The program was killed due to an unknown error. Ensure your program does not contain an infinite loop or a recursive function without an ending condition!",
       );
       printToConsole("Program execution interrupted by exception.");
+    } finally {
+      // Best-effort cleanup if something threw earlier
+      try {
+        await resultSub?.cancel();
+        await errorSub?.cancel();
+        await exitSub?.cancel();
+      } catch (_) {}
+      resultPort.close();
+      errorPort.close();
+      exitPort.close();
+      timeoutTimer?.cancel();
     }
+  }
+
+  DartBlockExecutionResult getExecutionResult() {
+    return DartBlockExecutionResult(
+      consoleOutput: consoleOutput,
+      environment: environment.toJson(),
+      currentStatementBlockKey: _currentStatementBlockKey,
+      currentStatement: _currentStatement?.toJson(),
+      blockHistory: List.from(_blockHistory),
+      exception: _thrownException?.toJson(),
+    );
   }
 
   /// Rudimentary execution model for the web platform, without the usage of isolates.

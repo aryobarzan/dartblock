@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Pub cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 'stable'
+
+      - name: Flutter --version
+        run: flutter --version
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Dart analyze
+        run: dart analyze
+
+      - name: Check for build_runner in pubspec
+        id: check_build_runner
+        run: |
+          if grep -q "build_runner" pubspec.yaml; then echo "present=true" >> $GITHUB_OUTPUT; else echo "present=false" >> $GITHUB_OUTPUT; fi
+
+      - name: Run build_runner build (if present)
+        if: steps.check_build_runner.outputs.present == 'true'
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Run tests
+        run: flutter test --no-pub --coverage

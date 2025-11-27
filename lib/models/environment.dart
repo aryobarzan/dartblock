@@ -1,6 +1,8 @@
 import 'package:dartblock_code/core/dartblock_executor.dart';
 import 'package:dartblock_code/models/exception.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
+import 'package:json_annotation/json_annotation.dart';
+part 'environment.g.dart';
 
 class VariableDeclarationInfo {
   DartBlockDataType dataType;
@@ -10,6 +12,7 @@ class VariableDeclarationInfo {
 
 /// Models the scope of variables by storing the values for each variable name
 /// in a simple Map.
+@JsonSerializable(explicitToJson: true)
 class DartBlockEnvironment {
   /// If indicated, the parent property provides the link to the parent Environment
   /// which contains this Environment. This models for example the nesting of
@@ -18,6 +21,7 @@ class DartBlockEnvironment {
   /// The highest-up Environment (scope) has its parent property set to null,
   /// thus indicating it is the "global" scope.
   final int key; // hashCode of StatementBlock
+  @JsonKey(includeFromJson: false, includeToJson: false)
   DartBlockEnvironment? _parent;
   final List<DartBlockEnvironment> _children;
   final Map<String, DartBlockValue?> _memory;
@@ -33,6 +37,30 @@ class DartBlockEnvironment {
        _memory = {},
        _memoryTypes = {};
 
+  /// NOTE: The serialized form intentionally omits the upward `parent` link to
+  /// avoid infinite recursion (child -> parent -> child ...) during JSON
+  /// (de)serialization. We call the generated `_$DartBlockEnvironmentFromJson` to
+  /// deserialize children (downward links) and then restore parent references
+  /// in-memory via `_rebuildParentReferences()`.
+  ///
+  /// This keeps the JSON acyclic and prevents stack overflows while preserving
+  /// parent pointers after deserialization.
+  factory DartBlockEnvironment.fromJson(Map<String, dynamic> json) =>
+      // Use generated deserializer then re-establish parent links for children
+      (() {
+        final env = _$DartBlockEnvironmentFromJson(json);
+        env._rebuildParentReferences();
+        return env;
+      })();
+
+  /// NOTE: `parent` is excluded from JSON output on purpose to prevent cyclic
+  /// traversal of the object graph (parent -> child -> parent -> ...), which
+  /// causes stack overflows. Only downward links (`children`) are serialized.
+  /// Parent links are restored after `fromJson` runs `_rebuildParentReferences()`.
+  ///
+  /// See: `@JsonKey(includeFromJson: false, includeToJson: false)` on `parent` (including its getter) and `DartBlockEnvironment.fromJson`.
+  Map<String, dynamic> toJson() => _$DartBlockEnvironmentToJson(this);
+
   void addChild(DartBlockEnvironment child) {
     child.setParent(this);
     _children.add(child);
@@ -44,6 +72,7 @@ class DartBlockEnvironment {
     }
   }
 
+  @JsonKey(includeFromJson: false, includeToJson: false)
   DartBlockEnvironment? get parent => _parent;
 
   List<DartBlockEnvironment> get children => _children;
@@ -223,7 +252,31 @@ class DartBlockEnvironment {
     _memoryTypes.clear();
     _memoryTypes.addAll(environment._memoryTypes);
     children.clear();
-    children.addAll(environment.children);
+    children.addAll(
+      environment.children.map(
+        (c) => DartBlockEnvironment.fromJson(c.toJson()),
+      ),
+    );
+
+    // Ensure parent references are correct after copying children
+    _rebuildParentReferences();
+  }
+
+  /// Create a deep copy of this environment (including children and memory).
+  DartBlockEnvironment clone() {
+    // toJson omits parent pointers (acyclic); fromJson rebuilds parents.
+    final json = toJson();
+    return DartBlockEnvironment.fromJson(json);
+  }
+
+  /// After deserialization or copying, ensure every child points back to this
+  /// environment as its parent. This prevents cycles during JSON (de)serialization
+  /// while preserving the parent links at runtime.
+  void _rebuildParentReferences() {
+    for (var child in _children) {
+      child.setParent(this);
+      child._rebuildParentReferences();
+    }
   }
 
   @override
