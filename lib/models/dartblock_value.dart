@@ -214,18 +214,21 @@ class DartBlockVariable extends DartBlockDynamicValue {
 
 @JsonSerializable(explicitToJson: true)
 class DartBlockFunctionCallValue extends DartBlockDynamicValue {
-  final FunctionCallStatement customFunctionCall;
-  DartBlockFunctionCallValue.init(this.customFunctionCall)
+  // For backwards compatibility with previously serialized JSON, the old
+  // name "customFunctionCall" is kept here.
+  @JsonKey(name: "customFunctionCall")
+  final FunctionCallStatement functionCall;
+  DartBlockFunctionCallValue.init(this.functionCall)
     : super.init(DartBlockDynamicValueType.functionCall);
   DartBlockFunctionCallValue(
-    this.customFunctionCall,
+    this.functionCall,
     super.dynamicValueType,
     super.valueType,
   );
 
   @override
   getValue(DartBlockArbiter arbiter) {
-    var result = customFunctionCall.run(arbiter);
+    var result = functionCall.run(arbiter);
     if (result == null || result.returnValue == null) {
       // An error should be thrown here.
     } else {
@@ -235,12 +238,12 @@ class DartBlockFunctionCallValue extends DartBlockDynamicValue {
 
   @override
   DartBlockFunctionCallValue copy() {
-    /// WARNING: DO NOT CALL customFunctionCall.copy().
+    /// WARNING: DO NOT CALL functionCall.copy().
     /// This would cause an infinite recursion!
     return DartBlockFunctionCallValue.init(
       FunctionCallStatement.init(
-        customFunctionCall.customFunctionName,
-        List.from(customFunctionCall.arguments.map((e) => e.copy())),
+        functionCall.functionName,
+        List.from(functionCall.arguments.map((e) => e.copy())),
       ),
     );
   }
@@ -252,14 +255,14 @@ class DartBlockFunctionCallValue extends DartBlockDynamicValue {
 
   @override
   String toString() {
-    return customFunctionCall.toString();
+    return functionCall.toString();
   }
 
   @override
   String toScript({
     DartBlockTypedLanguage language = DartBlockTypedLanguage.java,
   }) {
-    String script = customFunctionCall.toScript(language: language);
+    String script = functionCall.toScript(language: language);
     if (script.endsWith(";") && script.length > 1) {
       script = script.substring(0, script.length - 1);
     }

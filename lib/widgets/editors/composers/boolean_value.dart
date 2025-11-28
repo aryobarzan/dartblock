@@ -12,7 +12,7 @@ import 'package:dartblock_code/widgets/views/other/dartblock_colors.dart';
 class BooleanValueComposer extends StatefulWidget {
   final DartBlockValueTreeBooleanNode? value;
   final List<DartBlockVariableDefinition> variableDefinitions;
-  final List<DartBlockFunction> customFunctions;
+  final List<DartBlockCustomFunction> customFunctions;
   final Function(DartBlockValueTreeBooleanNode?) onChange;
   const BooleanValueComposer({
     super.key,
@@ -407,17 +407,17 @@ class _BooleanValueComposerState extends State<BooleanValueComposer> {
   }
 
   void _onReceiveFunctionCall(
-    DartBlockFunction customFunction,
+    DartBlockFunction function,
     DartBlockFunctionCallValue functionCallValue,
   ) {
     // Do not accept function calls with a 'void' return type
-    if (customFunction.returnType != null) {
+    if (function.returnType != null) {
       DartBlockInteraction.create(
         dartBlockInteractionType:
             DartBlockInteractionType.saveBooleanComposerFunctionCall,
-        content: 'FunctionName-${customFunction.name}',
+        content: 'FunctionName-${function.name}',
       ).dispatch(context);
-      switch (customFunction.returnType!) {
+      switch (function.returnType!) {
         /// If the function call has a numeric return type, automatically
         /// wrap it in an AlgebraicExpression such that the user can use
         /// the number comparison operators such as >, == and <=.

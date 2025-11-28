@@ -15,7 +15,7 @@ class IfElseStatementWidget extends StatelessWidget {
   final Function(IfElseStatement) onChanged;
   final Function(Statement statement, bool cut) onCopiedStatement;
   final Function() onPastedStatement;
-  final List<DartBlockFunction> customFunctions;
+  final List<DartBlockCustomFunction> customFunctions;
   final bool displayToolboxItemDragTarget;
   const IfElseStatementWidget({
     super.key,

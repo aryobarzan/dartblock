@@ -15,7 +15,7 @@ class VariableDeclarationEditor extends StatefulWidget {
   final Function(VariableDeclarationStatement) onSaved;
 
   final List<DartBlockVariableDefinition> existingVariableDefinitions;
-  final List<DartBlockFunction> customFunctions;
+  final List<DartBlockCustomFunction> customFunctions;
   const VariableDeclarationEditor({
     super.key,
     this.statement,

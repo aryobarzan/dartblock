@@ -560,7 +560,7 @@ class _DartBlockEditorState extends State<DartBlockEditor>
     );
   }
 
-  void _onCreateFunction(DartBlockFunction newFunction) {
+  void _onCreateFunction(DartBlockCustomFunction newFunction) {
     setState(() {
       program.customFunctions.add(newFunction);
     });
@@ -717,7 +717,7 @@ class _DartBlockEditorState extends State<DartBlockEditor>
                   },
                   onSaved: (newName, newReturnType) {
                     _onCreateFunction(
-                      DartBlockFunction(newName, newReturnType, [], []),
+                      DartBlockCustomFunction(newName, newReturnType, [], []),
                     );
                   },
                 );

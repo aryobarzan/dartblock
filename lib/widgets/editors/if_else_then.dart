@@ -14,7 +14,7 @@ class IfElseStatementEditor extends StatefulWidget {
   final Function(IfElseStatement) onSaved;
 
   final List<DartBlockVariableDefinition> existingVariableDefinitions;
-  final List<DartBlockFunction> customFunctions;
+  final List<DartBlockCustomFunction> customFunctions;
   const IfElseStatementEditor({
     super.key,
     this.statement,

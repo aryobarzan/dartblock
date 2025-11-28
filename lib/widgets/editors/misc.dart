@@ -11,10 +11,10 @@ import 'package:dartblock_code/widgets/views/variable_definition.dart';
 
 class FunctionVariableSplitButton extends StatelessWidget {
   final DartBlockFunctionCallValue? functionCallValue;
-  final List<DartBlockFunction> customFunctions;
+  final List<DartBlockCustomFunction> customFunctions;
   final List<DartBlockVariableDefinition> variableDefinitions;
   final Function(
-    DartBlockFunction customFunction,
+    DartBlockFunction function,
     FunctionCallStatement functionCallStatement,
   )
   onSavedFunctionCallStatement;
@@ -32,7 +32,7 @@ class FunctionVariableSplitButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<DartBlockFunction> filteredCustomFunctions =
+    final List<DartBlockCustomFunction> filteredCustomFunctions =
         restrictFunctionCallReturnTypes == null
         ? customFunctions
         : customFunctions
@@ -177,7 +177,7 @@ class FunctionVariableSplitButton extends StatelessWidget {
       Padding(
         padding: const EdgeInsets.only(bottom: 4),
         child: FunctionCallComposer(
-          statement: functionCallValue?.customFunctionCall,
+          statement: functionCallValue?.functionCall,
           customFunctions: customFunctions,
           existingVariableDefinitions: variableDefinitions,
           onSaved: (customFunction, savedFunctionCall) {

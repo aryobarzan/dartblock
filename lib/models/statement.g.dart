@@ -240,7 +240,7 @@ Map<String, dynamic> _$FunctionCallStatementToJson(
   'statementType': _$StatementTypeEnumMap[instance.statementType]!,
   'statementId': instance.statementId,
   'isIsolated': instance.isIsolated,
-  'customFunctionName': instance.customFunctionName,
+  'customFunctionName': instance.functionName,
   'arguments': instance.arguments.map((e) => e.toJson()).toList(),
 };
 

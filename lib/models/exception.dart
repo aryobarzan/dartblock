@@ -279,10 +279,10 @@ class MalformedBooleanNumberComparisonExpressionException
 }
 
 /// An exception thrown when DartBlock attempts to execute a [FunctionCallStatement], where the relevant custom function can not be retrieved based on the given name.
-class UndefinedCustomFunctionException extends DartBlockException {
+class UndefinedDartBlockFunctionException extends DartBlockException {
   /// The function name being looked up.
   String functionName;
-  UndefinedCustomFunctionException(this.functionName)
+  UndefinedDartBlockFunctionException(this.functionName)
     : super(
         title: "Undefined Function",
         message: "Function '$functionName' is not defined.",
@@ -290,7 +290,7 @@ class UndefinedCustomFunctionException extends DartBlockException {
 }
 
 /// An exception thrown when DartBlock attempts to execute a [FunctionCallStatement], where the number of arguments passed to the function call does not match the expected number based on the parameter list of the function.
-class CustomFunctionArgumentsCountException extends DartBlockException {
+class DartBlockFunctionArgumentsCountException extends DartBlockException {
   /// The name of the function being called.
   final String functionName;
 
@@ -299,7 +299,7 @@ class CustomFunctionArgumentsCountException extends DartBlockException {
 
   /// The actual number of arguments to the function call.
   final int gotCount;
-  CustomFunctionArgumentsCountException(
+  DartBlockFunctionArgumentsCountException(
     this.functionName,
     this.expectedCount,
     this.gotCount,
@@ -311,7 +311,7 @@ class CustomFunctionArgumentsCountException extends DartBlockException {
 }
 
 /// An exception thrown when DartBlock attempts to execute a [FunctionCallStatement], where one of the argument's value type does not match the corresponding function parameter's type. (based on parameter position/index)
-class CustomFunctionMissingArgumentException extends DartBlockException {
+class DartBlockFunctionMissingArgumentException extends DartBlockException {
   /// The name of the function being called.
   final String functionName;
 
@@ -323,7 +323,7 @@ class CustomFunctionMissingArgumentException extends DartBlockException {
 
   /// The actual type of the argument for the corresponding parameter.
   final Type gotType;
-  CustomFunctionMissingArgumentException(
+  DartBlockFunctionMissingArgumentException(
     this.functionName,
     this.variableDefinition,
     this.parameterIndex,

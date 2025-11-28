@@ -425,8 +425,7 @@ class NeoTechFunctionOutputEvaluationSchemaEditor extends StatelessWidget {
                           customFunction: neoTechCore.customFunctions
                               .firstWhereOrNull(
                                 (customFunction) =>
-                                    customFunction.name ==
-                                    element.customFunctionName,
+                                    customFunction.name == element.functionName,
                               ),
                         ),
                       ),

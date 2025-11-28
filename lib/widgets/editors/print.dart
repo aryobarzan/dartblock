@@ -10,7 +10,7 @@ class PrintStatementEditor extends StatefulWidget {
   final Function(PrintStatement) onSaved;
 
   final List<DartBlockVariableDefinition> existingVariableDefinitions;
-  final List<DartBlockFunction> customFunctions;
+  final List<DartBlockCustomFunction> customFunctions;
   const PrintStatementEditor({
     super.key,
     this.statement,

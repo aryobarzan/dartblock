@@ -35,7 +35,7 @@ class StatementWidget extends StatelessWidget {
   final Function(Statement statement, bool cut) onCopiedStatement;
   final Function(Statement statementToPaste) onPasteStatement;
   final Function() onPastedStatement;
-  final List<DartBlockFunction> customFunctions;
+  final List<DartBlockCustomFunction> customFunctions;
   const StatementWidget({
     super.key,
     required this.statement,
@@ -184,7 +184,7 @@ class StatementWidget extends StatelessWidget {
           statement: customFunctionCallStatement,
           customFunction: customFunctions.firstWhereOrNull(
             (element) =>
-                element.name == customFunctionCallStatement.customFunctionName,
+                element.name == customFunctionCallStatement.functionName,
           ),
         );
         break;

@@ -24,7 +24,7 @@ class DartBlockToolbox extends StatefulWidget {
   final Function()? onRun;
   final List<String> existingFunctionNames;
   final bool canAddFunction;
-  final Function(DartBlockFunction) onCreateFunction;
+  final Function(DartBlockCustomFunction) onCreateFunction;
   final Function(ToolboxExtraAction action) onAction;
   final Function(CodeViewAction action) onCodeViewAction;
 
@@ -247,7 +247,7 @@ class _DartBlockToolboxState extends State<DartBlockToolbox> {
                                                 null,
                                             onSaved: (newName, newReturnType) {
                                               widget.onCreateFunction(
-                                                DartBlockFunction(
+                                                DartBlockCustomFunction(
                                                   newName,
                                                   newReturnType,
                                                   [],

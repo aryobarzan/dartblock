@@ -11,7 +11,7 @@ class ReturnStatementEditor extends StatefulWidget {
   final Function(ReturnStatement) onSaved;
 
   final List<DartBlockVariableDefinition> existingVariableDefinitions;
-  final List<DartBlockFunction> customFunctions;
+  final List<DartBlockCustomFunction> customFunctions;
   const ReturnStatementEditor({
     super.key,
     this.statement,

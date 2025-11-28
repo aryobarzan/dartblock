@@ -16,7 +16,7 @@ class StatementEditor extends StatelessWidget {
   final StatementType statementType;
   final Statement? statement;
   final List<DartBlockVariableDefinition> existingVariableDefinitions;
-  final List<DartBlockFunction> customFunctions;
+  final List<DartBlockCustomFunction> customFunctions;
   final Function(Statement) onSaved;
   const StatementEditor.create({
     super.key,

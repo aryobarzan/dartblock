@@ -18,7 +18,7 @@ class ForLoopStatementEditor extends StatefulWidget {
   final Function(ForLoopStatement) onSaved;
 
   final List<DartBlockVariableDefinition> existingVariableDefinitions;
-  final List<DartBlockFunction> customFunctions;
+  final List<DartBlockCustomFunction> customFunctions;
   const ForLoopStatementEditor({
     super.key,
     this.statement,

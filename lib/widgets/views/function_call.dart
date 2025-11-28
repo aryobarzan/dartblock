@@ -12,7 +12,7 @@ class FunctionCallStatementWidget extends StatelessWidget {
 
   /// If the custom function being called by this statement cannot be found, this field is null.
   /// A warning should be shown in that case to tell the user to update this statement to fix the issue.
-  final DartBlockFunction? customFunction;
+  final DartBlockCustomFunction? customFunction;
   const FunctionCallStatementWidget({
     super.key,
     required this.statement,
@@ -25,11 +25,11 @@ class FunctionCallStatementWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (customFunction == null && statement.customFunctionName != 'main')
+        if (customFunction == null && statement.functionName != 'main')
           WarningIconButton(
             title: "Function not found",
             message:
-                "The function '${statement.customFunctionName}' does not exist, which may happen when you've changed a function's name.\nEdit this function call to fix the issue!",
+                "The function '${statement.functionName}' does not exist, which may happen when you've changed a function's name.\nEdit this function call to fix the issue!",
           ),
         if (customFunction != null &&
             statement.arguments.length < customFunction!.parameters.length)
@@ -39,7 +39,7 @@ class FunctionCallStatementWidget extends StatelessWidget {
                 "The function '${customFunction!.name}' expects ${customFunction!.parameters.length} argument${customFunction!.parameters.length == 1 ? '' : 's'}, but you have only indicated ${statement.arguments.length}.\nEdit this function call to fix the issue!",
           ),
         ColoredTitleChip(
-          title: statement.customFunctionName,
+          title: statement.functionName,
           textStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
             fontWeight: FontWeight.w500,
             color: Colors.white,

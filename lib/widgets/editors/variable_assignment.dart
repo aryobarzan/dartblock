@@ -14,7 +14,7 @@ class VariableAssignmentEditor extends StatefulWidget {
   final Function(VariableAssignmentStatement) onSaved;
 
   final List<DartBlockVariableDefinition> existingVariableDefinitions;
-  final List<DartBlockFunction> customFunctions;
+  final List<DartBlockCustomFunction> customFunctions;
   const VariableAssignmentEditor({
     super.key,
     this.statement,

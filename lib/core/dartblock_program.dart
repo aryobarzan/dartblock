@@ -30,10 +30,10 @@ class DartBlockProgram {
   final DartBlockTypedLanguage mainLanguage;
 
   /// The entry point of a DartBlock program.
-  final DartBlockFunction mainFunction;
+  final DartBlockCustomFunction mainFunction;
 
   /// Any additional custom functions defined in addition to the default main function.
-  final List<DartBlockFunction> customFunctions;
+  final List<DartBlockCustomFunction> customFunctions;
 
   /// The version of DartBlock which was used to build this DartBlock program.
   final int version;
@@ -44,14 +44,14 @@ class DartBlockProgram {
     this.customFunctions, {
     this.mainLanguage = DartBlockTypedLanguage.java,
   }) : version = 1,
-       mainFunction = DartBlockFunction("main", null, [], statements);
+       mainFunction = DartBlockCustomFunction("main", null, [], statements);
 
   /// An example DartBlock program, available as an additional constructor.
   DartBlockProgram.example()
     : customFunctions = [],
       mainLanguage = DartBlockTypedLanguage.java,
       version = 1,
-      mainFunction = DartBlockFunction("main", null, [], []) {
+      mainFunction = DartBlockCustomFunction("main", null, [], []) {
     addStatementToMain(
       VariableDeclarationStatement.init(
         "z",
@@ -286,7 +286,7 @@ Types: ${variableDefinitions.map((e) => e.dataType.toString()).toSet().join(', '
   }) {
     trimPercentage = 1.0 - max(0.0, min(1.0, trimPercentage));
 
-    DartBlockFunction trimFunction(DartBlockFunction function) {
+    DartBlockCustomFunction trimFunction(DartBlockCustomFunction function) {
       /// Get the max depth of the function based on its tree-based representation.
       final int? functionDepth = buildTree()
           .findNodeByKey(function.hashCode)
@@ -301,15 +301,17 @@ Types: ${variableDefinitions.map((e) => e.dataType.toString()).toSet().join(', '
     }
 
     /// Trim the main function.
-    DartBlockFunction trimmedMainFunction = trimMainFunction
+    DartBlockCustomFunction trimmedMainFunction = trimMainFunction
         ? trimFunction(mainFunction)
         : mainFunction;
 
     /// Trim each custom function
-    List<DartBlockFunction> trimmedCustomFunctions = [];
+    List<DartBlockCustomFunction> trimmedCustomFunctions = [];
     if (trimCustomFunctions) {
       for (final customFunction in customFunctions) {
-        DartBlockFunction trimmedCustomFunction = trimFunction(customFunction);
+        DartBlockCustomFunction trimmedCustomFunction = trimFunction(
+          customFunction,
+        );
         trimmedCustomFunctions.add(trimmedCustomFunction);
       }
     } else {

@@ -1458,37 +1458,40 @@ class WhileLoopStatement extends StatementContext {
 
 class FunctionCallPreExecutionResult
     extends StatementContextPreExecutionResult {
-  final DartBlockFunction customFunction;
+  final DartBlockFunction dartBlockFunction;
   final List<VariableDeclarationStatement> parameterDeclarations;
   FunctionCallPreExecutionResult(
-    this.customFunction,
+    this.dartBlockFunction,
     this.parameterDeclarations,
   );
 }
 
 class FunctionCallBodyExecutionResult
     extends StatementContextBodyExecutionResult {
-  final DartBlockFunction customFunction;
+  final DartBlockFunction dartBlockFunction;
   final DartBlockValue? returnValue;
-  FunctionCallBodyExecutionResult(this.customFunction, this.returnValue);
+  FunctionCallBodyExecutionResult(this.dartBlockFunction, this.returnValue);
 }
 
 class FunctionCallPostExecutionResult
     extends StatementContextPostExecutionResult {
-  final DartBlockFunction customFunction;
+  final DartBlockFunction dartBlockFunction;
   final dynamic returnValue;
-  FunctionCallPostExecutionResult(this.customFunction, this.returnValue);
+  FunctionCallPostExecutionResult(this.dartBlockFunction, this.returnValue);
 }
 
 @JsonSerializable(explicitToJson: true)
 class FunctionCallStatement
     extends StatementContext<FunctionCallPostExecutionResult> {
-  final String customFunctionName;
+  // For backwards compatibility with previously serialized JSON, the old
+  // name "customFunctionName" is kept here.
+  @JsonKey(name: "customFunctionName")
+  final String functionName;
   List<DartBlockValue> arguments;
-  FunctionCallStatement.init(this.customFunctionName, this.arguments)
+  FunctionCallStatement.init(this.functionName, this.arguments)
     : super.init(StatementType.customFunctionCallStatement, isIsolated: true);
   FunctionCallStatement(
-    this.customFunctionName,
+    this.functionName,
     this.arguments,
     super.statementType,
     super.statementId,
@@ -1502,17 +1505,17 @@ class FunctionCallStatement
 
   @override
   FunctionCallPreExecutionResult? preExecute(DartBlockArbiter arbiter) {
-    final DartBlockFunction? customFunction = arbiter.retrieveCustomFunction(
-      customFunctionName,
+    final DartBlockFunction? dartBlockFunction = arbiter.retrieveFunction(
+      functionName,
     );
-    if (customFunction == null) {
-      throw UndefinedCustomFunctionException(customFunctionName);
+    if (dartBlockFunction == null) {
+      throw UndefinedDartBlockFunctionException(functionName);
     }
 
-    if (customFunction.parameters.length != arguments.length) {
-      throw CustomFunctionArgumentsCountException(
-        customFunctionName,
-        customFunction.parameters.length,
+    if (dartBlockFunction.parameters.length != arguments.length) {
+      throw DartBlockFunctionArgumentsCountException(
+        functionName,
+        dartBlockFunction.parameters.length,
         arguments.length,
       );
     }
@@ -1521,7 +1524,7 @@ class FunctionCallStatement
       /// Get the concrete value in the preExecute step, as the variable scope
       /// (Environment) has not yet changed.
       final concreteValue = argument.getValue(arbiter);
-      final expectedParameter = customFunction.parameters[idx];
+      final expectedParameter = dartBlockFunction.parameters[idx];
 
       final (isCorrectType, givenWrongType) = arbiter
           .verifyDataTypeOfConcreteValue(
@@ -1571,8 +1574,8 @@ class FunctionCallStatement
           ),
         );
       } else {
-        throw CustomFunctionMissingArgumentException(
-          customFunctionName,
+        throw DartBlockFunctionMissingArgumentException(
+          functionName,
           expectedParameter,
           idx,
           givenWrongType!,
@@ -1581,7 +1584,7 @@ class FunctionCallStatement
     }
 
     return FunctionCallPreExecutionResult(
-      customFunction,
+      dartBlockFunction,
       parameterDeclarations,
     );
   }
@@ -1591,23 +1594,25 @@ class FunctionCallStatement
     DartBlockArbiter arbiter,
     FunctionCallPreExecutionResult preExecutionResult,
   ) {
+    // Declare parameters (VariableDeclarationStatements) in the current scope
     for (var parameterDeclaration in preExecutionResult.parameterDeclarations) {
       parameterDeclaration.run(arbiter);
     }
-    for (var statement in preExecutionResult.customFunction.statements) {
-      try {
-        statement.run(arbiter);
-      } on ReturnStatementException catch (ex) {
-        return FunctionCallBodyExecutionResult(
-          preExecutionResult.customFunction,
-          ex.value,
-        );
-      }
-    }
+
+    DartBlockValue? returnValue;
+    // Extract the argument values that were already validated in preExecute
+    final argValues = preExecutionResult.parameterDeclarations
+        .map((decl) => arbiter.getVariableValue(decl.name)!)
+        .toList();
+    // Actual execution logic of the function
+    returnValue = preExecutionResult.dartBlockFunction.execute(
+      arbiter,
+      argValues,
+    );
 
     return FunctionCallBodyExecutionResult(
-      preExecutionResult.customFunction,
-      null,
+      preExecutionResult.dartBlockFunction,
+      returnValue,
     );
   }
 
@@ -1616,22 +1621,22 @@ class FunctionCallStatement
     DartBlockArbiter arbiter,
     FunctionCallBodyExecutionResult bodyExecutionResult,
   ) {
-    if (bodyExecutionResult.customFunction.returnType != null) {
+    if (bodyExecutionResult.dartBlockFunction.returnType != null) {
       if (bodyExecutionResult.returnValue == null) {
         throw CustomFunctionMissingReturnValueException(
-          customFunctionName,
-          bodyExecutionResult.customFunction.returnType!,
+          functionName,
+          bodyExecutionResult.dartBlockFunction.returnType!,
         );
       } else {
         final (isCorrectType, givenWrongType) = arbiter
             .verifyDataTypeOfNeoValue(
-              bodyExecutionResult.customFunction.returnType!,
+              bodyExecutionResult.dartBlockFunction.returnType!,
               bodyExecutionResult.returnValue!,
             );
         if (!isCorrectType) {
           throw CustomFunctionInvalidReturnValueTypeException(
-            customFunctionName,
-            bodyExecutionResult.customFunction.returnType!,
+            functionName,
+            bodyExecutionResult.dartBlockFunction.returnType!,
             givenWrongType!,
           );
         }
@@ -1641,7 +1646,7 @@ class FunctionCallStatement
     }
 
     return FunctionCallPostExecutionResult(
-      bodyExecutionResult.customFunction,
+      bodyExecutionResult.dartBlockFunction,
       bodyExecutionResult.returnValue?.getValue(arbiter),
     );
   }
@@ -1663,19 +1668,19 @@ class FunctionCallStatement
   }) {
     switch (language) {
       case DartBlockTypedLanguage.java:
-        return "$customFunctionName(${arguments.join(", ")});";
+        return "$functionName(${arguments.join(", ")});";
     }
   }
 
   @override
   String toString() {
-    return "$customFunctionName(${arguments.join(", ")})";
+    return "$functionName(${arguments.join(", ")})";
   }
 
   @override
   FunctionCallStatement copy() {
     return FunctionCallStatement.init(
-      customFunctionName,
+      functionName,
       List.from(arguments.map((e) => e.copy())),
     );
   }

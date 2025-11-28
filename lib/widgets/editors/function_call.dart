@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dartblock_code/models/function.dart';
+import 'package:dartblock_code/models/function_builtin.dart';
 import 'package:dartblock_code/models/dartblock_notification.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/models/statement.dart';
@@ -15,15 +16,16 @@ import 'package:dartblock_code/widgets/views/variable_definition.dart';
 
 class FunctionCallComposer extends StatefulWidget {
   final List<DartBlockVariableDefinition> existingVariableDefinitions;
-  final List<DartBlockFunction> customFunctions;
+  final List<DartBlockCustomFunction> customFunctions;
+  final List<DartBlockFunction> availableFunctions;
   final FunctionCallStatement? statement;
   final Function(
-    DartBlockFunction customFunction,
+    DartBlockFunction function,
     FunctionCallStatement functionCallStatement,
   )?
   onSaved;
   final Function(
-    DartBlockFunction customFunction,
+    DartBlockFunction function,
     FunctionCallStatement newFunctionCallStatement,
   )?
   onChange;
@@ -32,7 +34,7 @@ class FunctionCallComposer extends StatefulWidget {
   final bool autoSelectDefaultFunction;
   FunctionCallComposer({
     super.key,
-    required List<DartBlockFunction> customFunctions,
+    required List<DartBlockCustomFunction> customFunctions,
     required this.existingVariableDefinitions,
     this.statement,
     this.onSaved,
@@ -40,14 +42,17 @@ class FunctionCallComposer extends StatefulWidget {
     required this.restrictToDataTypes,
     this.showArgumentEditorAsModalBottomSheet = false,
     this.autoSelectDefaultFunction = true,
-  }) : customFunctions = restrictToDataTypes.isNotEmpty
-           ? customFunctions
-                 .where(
-                   (element) =>
-                       restrictToDataTypes.contains(element.returnType),
-                 )
-                 .toList()
-           : customFunctions;
+  }) : customFunctions = customFunctions,
+       availableFunctions = restrictToDataTypes.isNotEmpty
+           ? [
+               ...customFunctions.where(
+                 (element) => restrictToDataTypes.contains(element.returnType),
+               ),
+               ...DartBlockBuiltinFunctions.all.where(
+                 (element) => restrictToDataTypes.contains(element.returnType),
+               ),
+             ]
+           : [...customFunctions, ...DartBlockBuiltinFunctions.all];
 
   @override
   State<FunctionCallComposer> createState() => _FunctionCallComposerState();
@@ -62,13 +67,13 @@ class _FunctionCallComposerState extends State<FunctionCallComposer> {
   void initState() {
     super.initState();
     if (widget.statement != null) {
-      selectedFunction = widget.customFunctions.firstWhereOrNull(
-        (element) => element.name == widget.statement!.customFunctionName,
+      selectedFunction = widget.availableFunctions.firstWhereOrNull(
+        (element) => element.name == widget.statement!.functionName,
       );
       _updateIndicatedParameters(widget.statement!.arguments);
     } else {
       if (widget.autoSelectDefaultFunction) {
-        selectedFunction = widget.customFunctions.firstOrNull;
+        selectedFunction = widget.availableFunctions.firstOrNull;
       } else {
         selectedFunction = null;
       }
@@ -99,14 +104,28 @@ class _FunctionCallComposerState extends State<FunctionCallComposer> {
                   value: selectedFunction,
                   hint: const Text("Select a function..."),
                   underline: const SizedBox(),
-                  items: widget.customFunctions
+                  items: widget.availableFunctions
                       .map(
                         (e) => DropdownMenuItem(
                           value: e,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(e.name),
+                              Row(
+                                children: [
+                                  Text(e.name),
+                                  if (e is DartBlockBuiltinFunction) ...[
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      Icons.star,
+                                      size: 14,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
+                                    ),
+                                  ],
+                                ],
+                              ),
                               const SizedBox(width: 4),
                               e.returnType != null
                                   ? NeoTechDataTypeSymbol(
@@ -165,7 +184,7 @@ class _FunctionCallComposerState extends State<FunctionCallComposer> {
           ],
         ),
         const SizedBox(height: 4),
-        if (widget.customFunctions.isEmpty)
+        if (widget.availableFunctions.isEmpty)
           RichText(
             textAlign: TextAlign.center,
             text: TextSpan(

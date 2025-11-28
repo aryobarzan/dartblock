@@ -19,7 +19,7 @@ import 'package:reorderables/reorderables.dart';
 class ConcatenationValueComposer extends StatefulWidget {
   final DartBlockConcatenationValue? value;
   final List<DartBlockVariableDefinition> variableDefinitions;
-  final List<DartBlockFunction> customFunctions;
+  final List<DartBlockCustomFunction> customFunctions;
   final Function(DartBlockConcatenationValue?) onChange;
   final Function() onInteract;
   const ConcatenationValueComposer({
@@ -674,7 +674,7 @@ class _ConcatenationValueComposerState extends State<ConcatenationValueComposer>
                 ? ValueKey("FunctionCallComposer-$_selectedIndex")
                 : null,
             statement: selectedValue is DartBlockFunctionCallValue
-                ? selectedValue.customFunctionCall
+                ? selectedValue.functionCall
                 : null,
             autoSelectDefaultFunction: false,
             customFunctions: widget.customFunctions,

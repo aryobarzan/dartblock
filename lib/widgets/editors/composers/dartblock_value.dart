@@ -9,7 +9,7 @@ class DartBlockValueEditor extends StatelessWidget {
   final DartBlockDataType dataType;
   final DartBlockValue? value;
   final List<DartBlockVariableDefinition> variableDefinitions;
-  final List<DartBlockFunction> customFunctions;
+  final List<DartBlockCustomFunction> customFunctions;
   final Function(DartBlockValue?) onChange;
   const DartBlockValueEditor({
     super.key,

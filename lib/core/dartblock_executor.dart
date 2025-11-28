@@ -6,6 +6,7 @@ import 'package:dartblock_code/core/dartblock_execution_result.dart';
 import 'package:flutter/foundation.dart';
 import 'package:dartblock_code/core/dartblock_program.dart';
 import 'package:dartblock_code/models/function.dart';
+import 'package:dartblock_code/models/function_builtin.dart';
 import 'package:dartblock_code/models/environment.dart';
 import 'package:dartblock_code/models/exception.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
@@ -50,7 +51,7 @@ void _isolateEntry(_IsolateArgs args) {
               "The program was killed due to an unknown error. Ensure your program does not contain an infinite loop or a recursive function without an ending condition!",
         ).toJson();
       }
-      resultSendPort.send(executor.getExecutionResult().toJson());
+      resultSendPort.send(executionResult.toJson());
     }
   } catch (_) {}
 }
@@ -124,11 +125,25 @@ abstract class DartBlockArbiter {
         : environment.key;
   }
 
-  /// Retrieve a [DartBlockFunction] based on its unique name.
-  DartBlockFunction? retrieveCustomFunction(String name) {
-    return ([program.mainFunction] + program.customFunctions)
-        .where((customFunction) => customFunction.name == name)
+  /// Retrieve a function based on its unique name.
+  ///
+  /// Searches first in custom functions (including main), then in built-in functions.
+  DartBlockFunction? retrieveFunction(String name) {
+    // Search custom functions (including main)
+    final allCustomFunctions = <DartBlockCustomFunction>[
+      program.mainFunction,
+      ...program.customFunctions,
+    ];
+    final customFunction = allCustomFunctions
+        .where((func) => func.name == name)
         .firstOrNull;
+
+    if (customFunction != null) {
+      return customFunction;
+    }
+
+    // Search built-in functions
+    return DartBlockBuiltinFunctions.getByName(name);
   }
 
   DartBlockEnvironment _getCurrentEnvironment() {
@@ -690,13 +705,13 @@ class DartBlockProgramTreeRootNode extends DartBlockProgramTreeNode {
   }
 }
 
-/// The node for a [DartBlockFunction] in the tree representation.
+/// The node for a [DartBlockCustomFunction] in the tree representation.
 class DartBlockProgramTreeCustomFunctionNode extends DartBlockProgramTreeNode {
-  final DartBlockFunction customFunction;
+  final DartBlockCustomFunction customFunction;
   DartBlockProgramTreeCustomFunctionNode(this.customFunction, super.parent)
     : super(key: customFunction.hashCode);
 
-  /// The parameters of this [DartBlockFunction] are its inherent variable definitions.
+  /// The parameters of this [DartBlockCustomFunction] are its inherent variable definitions.
   @override
   List<DartBlockVariableDefinition> _getInherentVariableDefinitions() {
     return List.from(customFunction.parameters.map((e) => e.copy()));

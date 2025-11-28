@@ -14,7 +14,7 @@ class WhileLoopStatementWidget extends StatelessWidget {
   final Function(WhileLoopStatement) onChanged;
   final Function(Statement statement, bool cut) onCopiedStatement;
   final Function() onPastedStatement;
-  final List<DartBlockFunction> customFunctions;
+  final List<DartBlockCustomFunction> customFunctions;
   final bool displayToolboxItemDragTarget;
   const WhileLoopStatementWidget({
     super.key,

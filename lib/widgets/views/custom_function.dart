@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:dartblock_code/models/function_builtin.dart';
 import 'package:dartblock_code/widgets/helpers/adaptive_display.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/function.dart';
@@ -13,10 +14,10 @@ import 'package:dartblock_code/widgets/views/symbols.dart';
 import 'package:dartblock_code/widgets/views/variable_definition.dart';
 
 class CustomFunctionWidget extends StatelessWidget {
-  final DartBlockFunction customFunction;
+  final DartBlockCustomFunction customFunction;
   final bool isMainFunction;
 
-  final Function(DartBlockFunction) onChanged;
+  final Function(DartBlockCustomFunction) onChanged;
   final Function()? onDelete;
   final Function(Statement statement, bool cut) onCopiedStatement;
   final Function() onPastedStatement;
@@ -386,7 +387,7 @@ class CustomFunctionWidget extends StatelessWidget {
 }
 
 class CustomFunctionHeaderWidget extends StatelessWidget {
-  final DartBlockFunction customFunction;
+  final DartBlockCustomFunction customFunction;
   final Function onTap;
   const CustomFunctionHeaderWidget({
     super.key,

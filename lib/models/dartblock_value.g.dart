@@ -70,7 +70,7 @@ Map<String, dynamic> _$DartBlockFunctionCallValueToJson(
   'neoValueType': _$DartBlockValueTypeEnumMap[instance.valueType]!,
   'dynamicValueType':
       _$DartBlockDynamicValueTypeEnumMap[instance.dynamicValueType]!,
-  'customFunctionCall': instance.customFunctionCall.toJson(),
+  'customFunctionCall': instance.functionCall.toJson(),
 };
 
 DartBlockStringValue _$DartBlockStringValueFromJson(

@@ -13,7 +13,7 @@ import 'package:dartblock_code/widgets/dartblock_value_widgets.dart';
 class NumberValueComposer extends StatefulWidget {
   final DartBlockValueTreeAlgebraicNode? value;
   final List<DartBlockVariableDefinition> variableDefinitions;
-  final List<DartBlockFunction> customFunctions;
+  final List<DartBlockCustomFunction> customFunctions;
   final Function(DartBlockValueTreeAlgebraicNode?) onChange;
   final bool showFunctionVariableButton;
   final bool showUndoRedoButton;
@@ -500,7 +500,7 @@ class _NumberValueComposerState extends State<NumberValueComposer> {
     DartBlockInteraction.create(
       dartBlockInteractionType:
           DartBlockInteractionType.saveNumberComposerFunctionCall,
-      content: "FunctionName-${functionCallStatement.customFunctionName}",
+      content: "FunctionName-${functionCallStatement.functionName}",
     ).dispatch(context);
     final selectedNode = getSelectedNode();
     setState(() {

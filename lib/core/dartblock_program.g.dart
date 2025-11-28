@@ -9,9 +9,13 @@ part of 'dartblock_program.dart';
 DartBlockProgram _$DartBlockProgramFromJson(Map<String, dynamic> json) =>
     DartBlockProgram(
       $enumDecode(_$DartBlockTypedLanguageEnumMap, json['mainLanguage']),
-      DartBlockFunction.fromJson(json['mainFunction'] as Map<String, dynamic>),
+      DartBlockCustomFunction.fromJson(
+        json['mainFunction'] as Map<String, dynamic>,
+      ),
       (json['customFunctions'] as List<dynamic>)
-          .map((e) => DartBlockFunction.fromJson(e as Map<String, dynamic>))
+          .map(
+            (e) => DartBlockCustomFunction.fromJson(e as Map<String, dynamic>),
+          )
           .toList(),
       (json['version'] as num).toInt(),
     );

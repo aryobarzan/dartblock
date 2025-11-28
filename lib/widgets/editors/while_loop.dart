@@ -15,7 +15,7 @@ class WhileLoopStatementEditor extends StatefulWidget {
   final Function(WhileLoopStatement) onSaved;
 
   final List<DartBlockVariableDefinition> existingVariableDefinitions;
-  final List<DartBlockFunction> customFunctions;
+  final List<DartBlockCustomFunction> customFunctions;
   const WhileLoopStatementEditor({
     super.key,
     this.statement,

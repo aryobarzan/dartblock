@@ -22,7 +22,7 @@ class StatementListView extends StatelessWidget {
   ///
   /// This callback simply signals that the operation has been processed, such that the parent NeoTechCoreInheritedWidget can be adjusted accordingly to clear the clipboard in case the statement had been cut.
   final Function() onPastedStatement;
-  final List<DartBlockFunction> customFunctions;
+  final List<DartBlockCustomFunction> customFunctions;
   const StatementListView({
     super.key,
     required this.neoTechCoreNodeKey,

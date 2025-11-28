@@ -1199,7 +1199,7 @@ class _FunctionCallWidget extends StatelessWidget {
     return Row(
       children: [
         ColoredTitleChip(
-          title: functionCallStatement.customFunctionName,
+          title: functionCallStatement.functionName,
           textStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
             fontWeight: FontWeight.w500,
             color: Colors.white,
