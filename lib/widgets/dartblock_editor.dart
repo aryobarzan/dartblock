@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:dartblock_code/widgets/helpers/adaptive_display.dart';
-import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:code_text_field/code_text_field.dart';
 import 'package:collection/collection.dart';
@@ -699,7 +698,8 @@ class _DartBlockEditorState extends State<DartBlockEditor>
   }
 
   void _showConsole() {
-    context.showProviderAwareBottomSheet(
+    showModalBottomSheet(
+      context: context,
       isScrollControlled: true,
       showDragHandle: true,
       clipBehavior: Clip.hardEdge,
@@ -735,8 +735,8 @@ class _DartBlockEditorState extends State<DartBlockEditor>
                 padding: const EdgeInsets.all(8),
                 child: DartBlockConsole(
                   content: executor.consoleOutput,
-                  neoTechException: executor.thrownException,
-                  neoTechCore: program,
+                  exception: executor.thrownException,
+                  program: program,
                 ),
               ),
             ),
@@ -747,7 +747,8 @@ class _DartBlockEditorState extends State<DartBlockEditor>
   }
 
   void _showHelpCenter() {
-    context.showProviderAwareBottomSheet(
+    showModalBottomSheet(
+      context: context,
       showDragHandle: true,
       isScrollControlled: true,
       clipBehavior: Clip.hardEdge,

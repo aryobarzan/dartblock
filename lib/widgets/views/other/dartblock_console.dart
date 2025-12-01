@@ -5,13 +5,13 @@ import 'package:dartblock_code/widgets/views/other/dartblock_exception.dart';
 
 class DartBlockConsole extends StatelessWidget {
   final List<String> content;
-  final DartBlockException? neoTechException;
-  final DartBlockProgram neoTechCore;
+  final DartBlockException? exception;
+  final DartBlockProgram program;
   const DartBlockConsole({
     super.key,
     required this.content,
-    this.neoTechException,
-    required this.neoTechCore,
+    this.exception,
+    required this.program,
   });
 
   @override
@@ -27,7 +27,7 @@ class DartBlockConsole extends StatelessWidget {
           ],
         ),
         const Divider(),
-        if (content.isEmpty && neoTechException == null)
+        if (content.isEmpty && exception == null)
           RichText(
             text: TextSpan(
               style: Theme.of(context).textTheme.bodyMedium,
@@ -55,10 +55,10 @@ class DartBlockConsole extends StatelessWidget {
               )
               .join("\n"),
         ),
-        if (neoTechException != null)
+        if (exception != null)
           DartBlockExceptionWidget(
-            dartblockException: neoTechException!,
-            program: neoTechCore,
+            dartblockException: exception!,
+            program: program,
           ),
       ],
     );
