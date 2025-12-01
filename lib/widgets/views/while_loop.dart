@@ -15,7 +15,6 @@ class WhileLoopStatementWidget extends StatelessWidget {
   final Function(Statement statement, bool cut) onCopiedStatement;
   final Function() onPastedStatement;
   final List<DartBlockCustomFunction> customFunctions;
-  final bool displayToolboxItemDragTarget;
   const WhileLoopStatementWidget({
     super.key,
     required this.statement,
@@ -26,7 +25,6 @@ class WhileLoopStatementWidget extends StatelessWidget {
     required this.onCopiedStatement,
     required this.onPastedStatement,
     required this.customFunctions,
-    required this.displayToolboxItemDragTarget,
   });
 
   @override
@@ -91,7 +89,6 @@ class WhileLoopStatementWidget extends StatelessWidget {
                       : statement.hashCode,
                   statements: statement.bodyStatements,
                   canDelete: canDelete,
-                  canChange: canChange,
                   canReorder: canReorder,
                   onChanged: (newStatements) {
                     statement.bodyStatements = newStatements;
@@ -112,7 +109,6 @@ class WhileLoopStatementWidget extends StatelessWidget {
                   },
                   onCopiedStatement: onCopiedStatement,
                   onPastedStatement: onPastedStatement,
-                  customFunctions: customFunctions,
                 ),
               ),
               if (statement.isDoWhile)

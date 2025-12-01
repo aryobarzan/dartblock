@@ -1,3 +1,5 @@
+import 'package:dartblock_code/core/dartblock_program.dart';
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:dartblock_code/widgets/helpers/adaptive_display.dart';
 import 'package:dartblock_code/widgets/views/statement_type_picker.dart';
 import 'package:flutter/material.dart';
@@ -5,16 +7,15 @@ import 'package:flutter/services.dart';
 import 'package:dartblock_code/models/dartblock_interaction.dart';
 import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/editors/statement.dart';
-import 'package:dartblock_code/widgets/dartblock_editor.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Widget on which a [StatementType] can be dropped on to start creating a statement of that type and adding it to that location of the program.
 ///
 /// Specifically, the user drags a [Draggable] from within the [StatementStrip] of the [DartBlockToolbox].
-class ToolboxDragTarget extends StatelessWidget {
+class ToolboxDragTarget extends ConsumerWidget {
   final int nodeKey;
   final Function(Statement) onSaved;
   final bool isEnabled;
-  final ValueNotifier<bool>? isToolboxItemBeingDragged;
   final Widget Function(BuildContext, List<StatementType?>, List<dynamic>)?
   builder;
   final Function()? onPasteStatement;
@@ -23,13 +24,13 @@ class ToolboxDragTarget extends StatelessWidget {
     required this.nodeKey,
     required this.onSaved,
     required this.isEnabled,
-    required this.isToolboxItemBeingDragged,
     this.onPasteStatement,
     this.builder,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final program = ref.watch(programProvider);
     return DragTarget<StatementType>(
       onWillAcceptWithDetails: (data) {
         if (!isEnabled) {
@@ -47,7 +48,11 @@ class ToolboxDragTarget extends StatelessWidget {
                     .droppedStatementFromToolboxToDragTarget,
           content: 'StatementType-${dragTargetDetails.data.name}',
         ).dispatch(context);
-        _onSelectStatementTypeToCreate(context, dragTargetDetails.data);
+        _onSelectStatementTypeToCreate(
+          context,
+          dragTargetDetails.data,
+          program,
+        );
       },
       builder:
           builder ??
@@ -71,7 +76,11 @@ class ToolboxDragTarget extends StatelessWidget {
                     onSelect: (statementType) {
                       Navigator.of(context).pop();
                       HapticFeedback.lightImpact();
-                      _onSelectStatementTypeToCreate(context, statementType);
+                      _onSelectStatementTypeToCreate(
+                        context,
+                        statementType,
+                        program,
+                      );
                     },
                     onPasteStatement: onPasteStatement != null
                         ? () {
@@ -87,7 +96,6 @@ class ToolboxDragTarget extends StatelessWidget {
                 statementType: candidateData.isNotEmpty
                     ? candidateData.first
                     : null,
-                isToolboxItemBeingDragged: isToolboxItemBeingDragged,
               ),
             );
           },
@@ -97,12 +105,9 @@ class ToolboxDragTarget extends StatelessWidget {
   void _onSelectStatementTypeToCreate(
     BuildContext context,
     StatementType statementType,
+    DartBlockProgram program,
   ) {
-    final dartBlockEditorInheritedWidget = DartBlockEditorInheritedWidget.of(
-      context,
-    );
-    final dartBlockProgramTree = dartBlockEditorInheritedWidget.program
-        .buildTree();
+    final dartBlockProgramTree = program.buildTree();
     final existingVariableDefinitions = dartBlockProgramTree
         .findVariableDefinitions(nodeKey, includeNode: true);
     switch (statementType) {
@@ -123,8 +128,7 @@ class ToolboxDragTarget extends StatelessWidget {
         StatementEditor.create(
           statementType: statementType,
           existingVariableDefinitions: existingVariableDefinitions,
-          customFunctions:
-              dartBlockEditorInheritedWidget.program.customFunctions,
+          customFunctions: program.customFunctions,
 
           /// DO NOT call Navigator.of(context).pop(); here, e.g., onSaved: (newStatement){Navigator.of(context).pop();onSaved(newStatement);}
           /// This can cause a context disposal error in certain cases.
@@ -145,30 +149,14 @@ class ToolboxDragTarget extends StatelessWidget {
   }
 }
 
-class ToolboxDragTargetIndicator extends StatelessWidget {
+class ToolboxDragTargetIndicator extends ConsumerWidget {
   final StatementType? statementType;
-  final ValueNotifier<bool>? isToolboxItemBeingDragged;
-  const ToolboxDragTargetIndicator({
-    super.key,
-    required this.statementType,
-    this.isToolboxItemBeingDragged,
-  });
+  const ToolboxDragTargetIndicator({super.key, required this.statementType});
 
   @override
-  Widget build(BuildContext context) {
-    if (isToolboxItemBeingDragged != null) {
-      return ListenableBuilder(
-        listenable: isToolboxItemBeingDragged!,
-        builder: (context, child) {
-          return _buildBody(
-            context,
-            isGlowing: isToolboxItemBeingDragged!.value,
-          );
-        },
-      );
-    } else {
-      return _buildBody(context);
-    }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDraggingToolboxItem = ref.watch(isDraggingToolboxItemProvider);
+    return _buildBody(context, isGlowing: isDraggingToolboxItem);
   }
 
   Widget _buildBody(BuildContext context, {bool isGlowing = false}) {

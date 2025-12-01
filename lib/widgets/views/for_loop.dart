@@ -1,3 +1,4 @@
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/function.dart';
 
@@ -5,11 +6,11 @@ import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/editors/statement.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:dartblock_code/widgets/dartblock_value_widgets.dart';
-import 'package:dartblock_code/widgets/dartblock_editor.dart';
 import 'package:dartblock_code/widgets/views/statement.dart';
 import 'package:dartblock_code/widgets/views/statement_listview.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ForLoopStatementWidget extends StatelessWidget {
+class ForLoopStatementWidget extends ConsumerWidget {
   final ForLoopStatement statement;
   final bool canDelete;
   final bool canChange;
@@ -18,7 +19,6 @@ class ForLoopStatementWidget extends StatelessWidget {
   final Function(Statement statement, bool cut) onCopiedStatement;
   final Function() onPastedStatement;
   final List<DartBlockCustomFunction> customFunctions;
-  final bool displayToolboxItemDragTarget;
 
   const ForLoopStatementWidget({
     super.key,
@@ -30,16 +30,12 @@ class ForLoopStatementWidget extends StatelessWidget {
     required this.onCopiedStatement,
     required this.onPastedStatement,
     required this.customFunctions,
-    required this.displayToolboxItemDragTarget,
   });
 
   @override
-  Widget build(BuildContext context) {
-    /// CRITICAL: do not try to retrieve DartBlockEditorInheritedWidget here.
-    /// Reason: when re-ordering statements, the inherited widget does not appear to be retrievable during the drag, causing a null error to be thrown.
-    /// Explanation: when a drag gesture is stared, the widget starts "floating", essentially leaving its original parent widget. As such, it loses the context of its parent who holds the DartBlockEditorInheritedWidget.
-    /// Solution: only access the inherited widget in parent widgets which cannot be re-ordered,e.g., the CustomFunctionWidget.
-    // final dartBlockEditorInheritedWidget = DartBlockEditorInheritedWidget.of(context);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final program = ref.watch(programProvider);
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.only(left: 4, right: 4, bottom: 8),
@@ -82,7 +78,6 @@ class ForLoopStatementWidget extends StatelessWidget {
                       statement: statement.initStatement!,
                       includeBottomPadding: false,
                       showLabel: false,
-                      canChange: canChange,
                       canDelete: canDelete,
                       canReorder: false,
                       canDuplicate: false,
@@ -130,16 +125,11 @@ class ForLoopStatementWidget extends StatelessWidget {
                         // The initialization statement cannot be duplicated.
                       },
                       onAppendNewStatement: null,
-                      customFunctions: customFunctions,
                     )
                   : TextButton.icon(
                       onPressed: canChange
                           ? () {
-                              final dartBlockInheritedWidget =
-                                  DartBlockEditorInheritedWidget.of(context);
-                              final programTree = dartBlockInheritedWidget
-                                  .program
-                                  .buildTree();
+                              final programTree = program.buildTree();
                               final existingVariableDefinitions = programTree
                                   .findVariableDefinitions(
                                     statement.hashCode,
@@ -150,9 +140,7 @@ class ForLoopStatementWidget extends StatelessWidget {
                                     StatementType.variableDeclarationStatement,
                                 existingVariableDefinitions:
                                     existingVariableDefinitions,
-                                customFunctions: dartBlockInheritedWidget
-                                    .program
-                                    .customFunctions,
+                                customFunctions: program.customFunctions,
                                 onSaved: (value) {
                                   Navigator.of(context).pop();
                                   statement.initStatement = value;
@@ -351,7 +339,6 @@ class ForLoopStatementWidget extends StatelessWidget {
                     : (statement.initStatement?.hashCode ?? statement.hashCode),
                 statements: statement.bodyStatements,
                 canDelete: canDelete,
-                canChange: canChange,
                 canReorder: canReorder,
                 onCopiedStatement: onCopiedStatement,
                 onChanged: (statements) {
@@ -372,7 +359,6 @@ class ForLoopStatementWidget extends StatelessWidget {
                   onChanged(statement);
                 },
                 onPastedStatement: onPastedStatement,
-                customFunctions: customFunctions,
               ),
             ),
 
@@ -441,7 +427,6 @@ class ForLoopStatementWidget extends StatelessWidget {
                       statement: statement.postStatement!,
                       includeBottomPadding: false,
                       showLabel: false,
-                      canChange: canChange,
                       canDelete: canDelete,
                       canReorder: canReorder,
                       canDuplicate: false,
@@ -490,16 +475,11 @@ class ForLoopStatementWidget extends StatelessWidget {
                         }
                       },
                       onAppendNewStatement: null,
-                      customFunctions: customFunctions,
                     )
                   : TextButton.icon(
                       onPressed: canChange
                           ? () {
-                              final dartBlockEditorInheritedWidget =
-                                  DartBlockEditorInheritedWidget.of(context);
-                              final programTree = dartBlockEditorInheritedWidget
-                                  .program
-                                  .buildTree();
+                              final programTree = program.buildTree();
                               final existingVariableDefinitions = programTree
                                   .findVariableDefinitions(
                                     statement.initStatement?.hashCode ??
@@ -511,9 +491,7 @@ class ForLoopStatementWidget extends StatelessWidget {
                                     StatementType.variableAssignmentStatement,
                                 existingVariableDefinitions:
                                     existingVariableDefinitions,
-                                customFunctions: dartBlockEditorInheritedWidget
-                                    .program
-                                    .customFunctions,
+                                customFunctions: program.customFunctions,
                                 onSaved: (value) {
                                   Navigator.of(context).pop();
                                   statement.postStatement = value;

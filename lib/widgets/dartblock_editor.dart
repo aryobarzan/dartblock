@@ -13,6 +13,7 @@ import 'package:dartblock_code/widgets/views/toolbox/toolbox.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_highlight/theme_map.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:highlight/languages/all.dart';
 import 'package:dartblock_code/core/dartblock_executor.dart';
@@ -28,66 +29,7 @@ import 'package:dartblock_code/widgets/views/custom_function.dart';
 import 'package:dartblock_code/widgets/views/other/dartblock_console.dart';
 import 'package:dartblock_code/widgets/views/other/help_center.dart';
 import 'package:dartblock_code/widgets/views/symbols.dart';
-
-/// Inherited widget to keep track of dynamic data.
-class DartBlockEditorInheritedWidget extends InheritedWidget {
-  DartBlockEditorInheritedWidget({
-    super.key,
-    required this.program,
-    required this.executor,
-    required super.child,
-    this.canChange = true,
-    this.canDelete = true,
-    this.canReorder = true,
-    required bool isDraggingToolboxItem,
-    required this.copiedStatement,
-    required this.isCopiedStatementCut,
-  }) : isDraggingToolboxItem = ValueNotifier(isDraggingToolboxItem);
-
-  /// The DartBlock program.
-  ///
-  /// Includes main function and custom functions.
-  final DartBlockProgram program;
-
-  /// The DartBlock program executor.
-  ///
-  /// Keeps track of the execution result, including the console output and any exception that was thrown.
-  final DartBlockExecutor executor;
-
-  /// Whether new statements and custom functions can be created.
-  final bool canChange;
-
-  /// Whenever existing statements and custom functions can be deleted.
-  final bool canDelete;
-
-  /// Whether existing statements can have their order re-arranged.
-  final bool canReorder;
-
-  /// Whether a statement type ('chip') is being dragged from the toolbox.
-  final ValueNotifier<bool> isDraggingToolboxItem;
-
-  /// The last statement copied to the clipboard.
-  final Statement? copiedStatement;
-
-  /// Whether pasting the statement should clear out the clipboard.
-  final bool isCopiedStatementCut;
-
-  static DartBlockEditorInheritedWidget? maybeOf(BuildContext context) {
-    return context
-        .dependOnInheritedWidgetOfExactType<DartBlockEditorInheritedWidget>();
-  }
-
-  static DartBlockEditorInheritedWidget of(BuildContext context) {
-    final DartBlockEditorInheritedWidget? result = maybeOf(context);
-    assert(result != null, 'No NeoTechCoreInheritedWidget found in context');
-
-    return result!;
-  }
-
-  @override
-  bool updateShouldNotify(DartBlockEditorInheritedWidget oldWidget) =>
-      program != oldWidget.program;
-}
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 
 /// The main widget for viewing and editing a [DartBlockProgram].
 ///
@@ -204,22 +146,19 @@ class _DartBlockEditorState extends State<DartBlockEditor>
   /// Used internally to render a [CircularProgressIndicator] in the "Run" button of the [_DartBlockToolbox], as well as to disable said "Run" button.
   bool _isExecuting = false;
 
-  /// The [Statement] currently copied to the clipboard.
-  Statement? _copiedStatement;
-
-  /// Whether the copied statement is cut, i.e., it has been removed from the program rather than simply being copied to memory.
-  bool _isCopiedStatementCut = false;
   @override
   Widget build(BuildContext context) {
-    return DartBlockEditorInheritedWidget(
-      program: program,
-      executor: executor,
-      canChange: widget.canChange,
-      canDelete: widget.canDelete,
-      canReorder: widget.canReorder,
-      isDraggingToolboxItem: _isDraggingToolboxItem,
-      copiedStatement: _copiedStatement,
-      isCopiedStatementCut: _isCopiedStatementCut,
+    return ProviderScope(
+      overrides: [
+        programProvider.overrideWith((ref) => program),
+        settingsProvider.overrideWith(
+          (ref) => DartBlockSettings(
+            canChange: widget.canChange,
+            canDelete: widget.canDelete,
+            canReorder: widget.canReorder,
+          ),
+        ),
+      ],
       child: NotificationListener<DartBlockNotification>(
         onNotification: (notification) {
           _onReceiveDartBlockNotification(notification);
@@ -438,125 +377,126 @@ class _DartBlockEditorState extends State<DartBlockEditor>
   /// Used to restore the previous docked/undocked state when switching back to [DartBlockViewOption.blocks].
   bool _wasToolboxPreviouslyDocked = false;
 
-  /// Whether a statement type (block) is currently being dragged from the [_DartBlockToolbox].
-  bool _isDraggingToolboxItem = false;
   Widget _buildToolbox() {
-    return DartBlockToolbox(
-      isTransparent: _isDraggingToolbox,
-      isDocked: _isToolboxDocked,
-      canUndock: widget.isDense ? false : true,
-      isShowingCode: viewOption == DartBlockViewOption.script,
-      isExecuting: _isExecuting,
-      showActions: widget.canChange,
-      onToolboxItemDragStart: () {
-        /// Do not try dispatching the notification further up the widget tree, as we are at the same context level
-        /// as the NotificationListener itself, meaning the notification would not be captured.
-        _onReceiveDartBlockNotification(
-          DartBlockInteractionNotification(
-            DartBlockInteraction.create(
-              dartBlockInteractionType:
-                  DartBlockInteractionType.startedDraggingStatementFromToolbox,
+    return Consumer(
+      builder: (context, ref, child) => DartBlockToolbox(
+        isTransparent: _isDraggingToolbox,
+        isDocked: _isToolboxDocked,
+        canUndock: widget.isDense ? false : true,
+        isShowingCode: viewOption == DartBlockViewOption.script,
+        isExecuting: _isExecuting,
+        showActions: widget.canChange,
+        onToolboxItemDragStart: () {
+          /// Do not try dispatching the notification further up the widget tree, as we are at the same context level
+          /// as the NotificationListener itself, meaning the notification would not be captured.
+          _onReceiveDartBlockNotification(
+            DartBlockInteractionNotification(
+              DartBlockInteraction.create(
+                dartBlockInteractionType: DartBlockInteractionType
+                    .startedDraggingStatementFromToolbox,
+              ),
             ),
-          ),
-        );
-        setState(() {
-          _isToolboxHidden = true;
-          _isDraggingToolboxItem = true;
-        });
-        HapticFeedback.lightImpact();
-      },
-      onToolboxItemDragEnd: () {
-        setState(() {
-          _isToolboxHidden = false;
-          _isDraggingToolboxItem = false;
-        });
-      },
-      existingFunctionNames: program.customFunctions
-          .map((e) => e.name)
-          .toList(),
-      canAddFunction: widget.canChange,
-      onAction: (extraAction) {
-        switch (extraAction) {
-          case ToolboxExtraAction.console:
-            _showConsole();
-            break;
-          case ToolboxExtraAction.code:
-            setState(() {
-              if (viewOption == DartBlockViewOption.blocks) {
-                viewOption = DartBlockViewOption.script;
-                _wasToolboxPreviouslyDocked = _isToolboxDocked;
-                _isToolboxDocked = true;
-              } else {
-                viewOption = DartBlockViewOption.blocks;
-                _isToolboxDocked = _wasToolboxPreviouslyDocked;
-              }
-            });
-            break;
-          case ToolboxExtraAction.help:
-            _showHelpCenter();
-            break;
-          case ToolboxExtraAction.dock:
-            setState(() {
-              _isToolboxDocked = !_isToolboxDocked;
-            });
-            if (_isToolboxDocked) {
-              _toolboxY = 25;
-            }
-            break;
-        }
-      },
-      onCodeViewAction: (action) {
-        switch (action) {
-          case CodeViewAction.copy:
-            _onCopyScript();
-            break;
-          case CodeViewAction.save:
-            _onDownloadScript();
-            break;
-        }
-      },
-      onCreateFunction: (newFunction) {
-        _onCreateFunction(newFunction);
-      },
+          );
+          setState(() {
+            _isToolboxHidden = true;
 
-      onRun: widget.canRun
-          ? () async {
-              if (!_isExecuting) {
-                setState(() {
-                  _isExecuting = true;
-                });
-                if (widget.maximumExecutionDuration != null) {
-                  await executor.execute(
-                    duration: widget.maximumExecutionDuration!,
-                  );
+            ref.read(isDraggingToolboxItemProvider.notifier).state = true;
+          });
+          HapticFeedback.lightImpact();
+        },
+        onToolboxItemDragEnd: () {
+          setState(() {
+            _isToolboxHidden = false;
+            ref.read(isDraggingToolboxItemProvider.notifier).state = false;
+          });
+        },
+        existingFunctionNames: program.customFunctions
+            .map((e) => e.name)
+            .toList(),
+        canAddFunction: widget.canChange,
+        onAction: (extraAction) {
+          switch (extraAction) {
+            case ToolboxExtraAction.console:
+              _showConsole();
+              break;
+            case ToolboxExtraAction.code:
+              setState(() {
+                if (viewOption == DartBlockViewOption.blocks) {
+                  viewOption = DartBlockViewOption.script;
+                  _wasToolboxPreviouslyDocked = _isToolboxDocked;
+                  _isToolboxDocked = true;
                 } else {
-                  await executor.execute();
+                  viewOption = DartBlockViewOption.blocks;
+                  _isToolboxDocked = _wasToolboxPreviouslyDocked;
                 }
-                if (executor.thrownException != null) {
-                  /// In case the execution is interrupted by an exception,
-                  /// additionally log this as a pseudo user interaction to best
-                  /// keep track of the user's context.
-                  _onReceiveDartBlockNotification(
-                    DartBlockInteractionNotification(
-                      DartBlockInteraction.create(
-                        dartBlockInteractionType: DartBlockInteractionType
-                            .executedProgramInterruptedByException,
+              });
+              break;
+            case ToolboxExtraAction.help:
+              _showHelpCenter();
+              break;
+            case ToolboxExtraAction.dock:
+              setState(() {
+                _isToolboxDocked = !_isToolboxDocked;
+              });
+              if (_isToolboxDocked) {
+                _toolboxY = 25;
+              }
+              break;
+          }
+        },
+        onCodeViewAction: (action) {
+          switch (action) {
+            case CodeViewAction.copy:
+              _onCopyScript();
+              break;
+            case CodeViewAction.save:
+              _onDownloadScript();
+              break;
+          }
+        },
+        onCreateFunction: (newFunction) {
+          _onCreateFunction(newFunction);
+        },
+
+        onRun: widget.canRun
+            ? () async {
+                if (!_isExecuting) {
+                  setState(() {
+                    _isExecuting = true;
+                  });
+                  if (widget.maximumExecutionDuration != null) {
+                    await executor.execute(
+                      duration: widget.maximumExecutionDuration!,
+                    );
+                  } else {
+                    await executor.execute();
+                  }
+                  if (executor.thrownException != null) {
+                    /// In case the execution is interrupted by an exception,
+                    /// additionally log this as a pseudo user interaction to best
+                    /// keep track of the user's context.
+                    _onReceiveDartBlockNotification(
+                      DartBlockInteractionNotification(
+                        DartBlockInteraction.create(
+                          dartBlockInteractionType: DartBlockInteractionType
+                              .executedProgramInterruptedByException,
+                        ),
                       ),
+                    );
+                  }
+                  _isExecuting = false;
+                  _showConsole();
+                  setState(() {});
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Your program is already executing..."),
                     ),
                   );
                 }
-                _isExecuting = false;
-                _showConsole();
-                setState(() {});
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Your program is already executing..."),
-                  ),
-                );
               }
-            }
-          : null,
+            : null,
+      ),
     );
   }
 
@@ -646,49 +586,76 @@ class _DartBlockEditorState extends State<DartBlockEditor>
               : EdgeInsets.only(
                   bottom: index < program.customFunctions.length - 1 ? 8 : 0,
                 ),
-          child: CustomFunctionWidget(
-            customFunction: dartBlockFunction,
-            isMainFunction: dartBlockFunction.isMainFunction(),
-            onChanged: (value) {
-              setState(() {
-                if (!dartBlockFunction.isMainFunction()) {
-                  /// IMPORTANT: -1 due to main function being the first element
-                  program.customFunctions[index - 1] = value;
+          child: Consumer(
+            builder: (context, ref, child) => CustomFunctionWidget(
+              customFunction: dartBlockFunction,
+              isMainFunction: dartBlockFunction.isMainFunction(),
+              onChanged: (value) {
+                setState(() {
+                  if (!dartBlockFunction.isMainFunction()) {
+                    /// IMPORTANT: -1 due to main function being the first element
+                    program.customFunctions[index - 1] = value;
+                  }
+                });
+                ref.read(programProvider.notifier).state = ref.read(
+                  programProvider,
+                );
+                if (widget.onChanged != null) {
+                  widget.onChanged!(program);
                 }
-              });
-              if (widget.onChanged != null) {
-                widget.onChanged!(program);
-              }
-            },
-            onCopiedStatement: (statement, cut) {
-              _onCopyStatement(statement, cut);
-            },
-            onPastedStatement: () {
-              _onPastedStatement();
-            },
-            onDelete: dartBlockFunction.isMainFunction()
-                ? null
-                : () {
+              },
+              onCopiedStatement: (statement, cut) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  createDartBlockInfoSnackBar(
+                    context,
+                    iconData: cut ? Icons.cut : Icons.copy,
+                    message:
+                        "${cut ? "Cut" : "Copied"} '${statement.statementType.toString()}' statement.",
+                  ),
+                );
+              },
+              onPastedStatement: () {
+                final editorState = ref.watch(editorStateProvider);
+                if (editorState.copiedStatement != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    createDartBlockInfoSnackBar(
+                      context,
+                      iconData: Icons.paste,
+                      message:
+                          "Pasted '${editorState.copiedStatement!.statementType.toString()}' statement.",
+                    ),
+                  );
+                  if (editorState.isCopiedStatementCut) {
                     setState(() {
-                      /// IMPORTANT: -1 due to main function being the first element
-                      program.customFunctions.removeAt(index - 1);
+                      ref.read(editorStateProvider.notifier).clearClipboard();
                     });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      createDartBlockInfoSnackBar(
-                        context,
-                        iconData: Icons.delete,
-                        message:
-                            "Deleted custom function: ${dartBlockFunction.name}",
-                        backgroundColor: Theme.of(
+                  }
+                }
+              },
+              onDelete: dartBlockFunction.isMainFunction()
+                  ? null
+                  : () {
+                      setState(() {
+                        /// IMPORTANT: -1 due to main function being the first element
+                        program.customFunctions.removeAt(index - 1);
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        createDartBlockInfoSnackBar(
                           context,
-                        ).colorScheme.errorContainer,
-                        color: Theme.of(context).colorScheme.onErrorContainer,
-                      ),
-                    );
-                    if (widget.onChanged != null) {
-                      widget.onChanged!(program);
-                    }
-                  },
+                          iconData: Icons.delete,
+                          message:
+                              "Deleted custom function: ${dartBlockFunction.name}",
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.errorContainer,
+                          color: Theme.of(context).colorScheme.onErrorContainer,
+                        ),
+                      );
+                      if (widget.onChanged != null) {
+                        widget.onChanged!(program);
+                      }
+                    },
+            ),
           ),
         ),
       ),
@@ -728,50 +695,6 @@ class _DartBlockEditorState extends State<DartBlockEditor>
           ],
         ),
     ];
-  }
-
-  /// Copy a statement to memory.
-  ///
-  /// Show a SnackBar message about this event.
-  ///
-  /// If 'cut' is true, the copied statement can only be pasted once.
-  void _onCopyStatement(Statement statement, bool cut) {
-    setState(() {
-      _copiedStatement = statement.copy();
-      _isCopiedStatementCut = cut;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      createDartBlockInfoSnackBar(
-        context,
-        iconData: cut ? Icons.cut : Icons.copy,
-        message:
-            "${cut ? "Cut" : "Copied"} '${statement.statementType.toString()}' statement.",
-      ),
-    );
-  }
-
-  /// The copied statement has already been pasted at some part of the DartBlock program.
-  ///
-  /// Show a SnackBar message about this event.
-  ///
-  /// If the copied statement had been cut, clear out the copied statement such that it cannot be pasted again.
-  void _onPastedStatement() {
-    if (_copiedStatement != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        createDartBlockInfoSnackBar(
-          context,
-          iconData: Icons.paste,
-          message:
-              "Pasted '${_copiedStatement!.statementType.toString()}' statement.",
-        ),
-      );
-      if (_isCopiedStatementCut) {
-        setState(() {
-          _copiedStatement = null;
-          _isCopiedStatementCut = false;
-        });
-      }
-    }
   }
 
   void _showConsole() {

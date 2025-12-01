@@ -64,7 +64,6 @@ class DartBlockExceptionWidget extends StatelessWidget {
                   onPasteStatement: (statementToPaste) {},
                   onPastedStatement: () {},
                   onAppendNewStatement: null,
-                  customFunctions: program?.customFunctions ?? [],
                 ),
               ),
             ],

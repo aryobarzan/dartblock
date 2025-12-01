@@ -16,7 +16,6 @@ class IfElseStatementWidget extends StatelessWidget {
   final Function(Statement statement, bool cut) onCopiedStatement;
   final Function() onPastedStatement;
   final List<DartBlockCustomFunction> customFunctions;
-  final bool displayToolboxItemDragTarget;
   const IfElseStatementWidget({
     super.key,
     required this.statement,
@@ -27,7 +26,6 @@ class IfElseStatementWidget extends StatelessWidget {
     required this.onCopiedStatement,
     required this.onPastedStatement,
     required this.customFunctions,
-    required this.displayToolboxItemDragTarget,
   });
 
   @override
@@ -96,7 +94,6 @@ class IfElseStatementWidget extends StatelessWidget {
                           : statement.hashCode,
                       statements: statement.ifThenStatementBlock.statements,
                       canDelete: canDelete,
-                      canChange: canChange,
                       canReorder: canReorder,
                       onChanged: (newStatements) {
                         statement.ifThenStatementBlock.statements =
@@ -124,7 +121,6 @@ class IfElseStatementWidget extends StatelessWidget {
                       },
                       onCopiedStatement: onCopiedStatement,
                       onPastedStatement: onPastedStatement,
-                      customFunctions: customFunctions,
                     ),
                   ],
                 ),
@@ -179,7 +175,6 @@ class IfElseStatementWidget extends StatelessWidget {
                           : statement.hashCode,
                       statements: statement.elseStatementBlock.statements,
                       canDelete: canDelete,
-                      canChange: canChange,
                       canReorder: canReorder,
                       onChanged: (newStatements) {
                         statement.elseStatementBlock.statements = newStatements;
@@ -206,7 +201,6 @@ class IfElseStatementWidget extends StatelessWidget {
                       },
                       onCopiedStatement: onCopiedStatement,
                       onPastedStatement: onPastedStatement,
-                      customFunctions: customFunctions,
                     ),
                   ],
                 ),
@@ -288,7 +282,6 @@ class IfElseStatementWidget extends StatelessWidget {
                     : statement.hashCode,
                 statements: statementBlock.statements,
                 canDelete: canDelete,
-                canChange: canChange,
                 canReorder: canReorder,
                 onChanged: (newStatements) {
                   statement.elseIfStatementBlocks[blockIndex].$2.statements =
@@ -318,7 +311,6 @@ class IfElseStatementWidget extends StatelessWidget {
                 },
                 onCopiedStatement: onCopiedStatement,
                 onPastedStatement: onPastedStatement,
-                customFunctions: customFunctions,
               ),
             ],
           ),

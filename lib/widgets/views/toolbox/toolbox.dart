@@ -1,7 +1,5 @@
 import 'package:dartblock_code/models/dartblock_interaction.dart';
 import 'package:dartblock_code/widgets/dartblock_editor.dart';
-import 'package:dartblock_code/widgets/helper_widgets.dart';
-import 'package:dartblock_code/widgets/views/other/dartblock_exception.dart';
 import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_action.dart';
 import 'package:dartblock_code/widgets/views/toolbox/models/code_view_action.dart';
 import 'package:flutter/material.dart';
@@ -61,9 +59,6 @@ class _DartBlockToolboxState extends State<DartBlockToolbox> {
 
   @override
   Widget build(BuildContext context) {
-    final dartBlockEditorInheritedWidget = DartBlockEditorInheritedWidget.of(
-      context,
-    );
     return LayoutBuilder(
       builder: (context, constraints) {
         double toolboxHeight = 120;
@@ -180,57 +175,6 @@ class _DartBlockToolboxState extends State<DartBlockToolbox> {
                                 child: ToolboxActionBar(
                                   isExecuting: widget.isExecuting,
                                   isToolboxDocked: widget.isDocked,
-                                  exceptionIndicator:
-                                      dartBlockEditorInheritedWidget
-                                              .executor
-                                              .thrownException !=
-                                          null
-                                      ? PopupWidgetButton(
-                                          isFullWidth: true,
-                                          blurBackground: true,
-                                          tooltip: "Exception...",
-                                          onOpened: () {
-                                            DartBlockInteraction.create(
-                                              dartBlockInteractionType:
-                                                  DartBlockInteractionType
-                                                      .tapExceptionIndicatorInToolbox,
-                                              content:
-                                                  "ExceptionTitle-${dartBlockEditorInheritedWidget.executor.thrownException?.title}",
-                                            ).dispatch(context);
-                                          },
-                                          widget: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.stretch,
-                                            children: [
-                                              const Text(
-                                                "An exception was thrown during the last execution:",
-                                              ),
-                                              DartBlockExceptionWidget(
-                                                dartblockException:
-                                                    dartBlockEditorInheritedWidget
-                                                        .executor
-                                                        .thrownException!,
-                                                program:
-                                                    dartBlockEditorInheritedWidget
-                                                        .program,
-                                              ),
-                                              Text(
-                                                "Think it's fixed now? Try running your program again.",
-                                                textAlign: TextAlign.center,
-                                                style: Theme.of(
-                                                  context,
-                                                ).textTheme.bodySmall,
-                                              ),
-                                            ],
-                                          ),
-                                          icon: Icon(
-                                            Icons.error,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.error,
-                                          ),
-                                        )
-                                      : null,
                                   onRun: widget.onRun,
                                   onAddFunction: widget.canAddFunction
                                       ? () {

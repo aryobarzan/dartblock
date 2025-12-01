@@ -1,9 +1,15 @@
 import 'dart:math';
 
+import 'package:dartblock_code/core/dartblock_executor.dart';
+import 'package:dartblock_code/models/dartblock_interaction.dart';
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
+import 'package:dartblock_code/widgets/helper_widgets.dart';
+import 'package:dartblock_code/widgets/views/other/dartblock_exception.dart';
 import 'package:dartblock_code/widgets/views/symbols.dart';
 import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_action.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/toolbox_configuration.dart';
 
 /// The controls of the DartBlockToolbox.
@@ -11,13 +17,12 @@ import '../models/toolbox_configuration.dart';
 /// Primary: "Run", "Create New Function"
 /// Secondary ("extra"): console, code, dock/undock, help
 /// Exception indicator icon
-class ToolboxActionBar extends StatelessWidget {
+class ToolboxActionBar extends ConsumerWidget {
   final bool isExecuting;
   final bool isToolboxDocked;
   final Function()? onRun;
   final Function()? onAddFunction;
   final Function(ToolboxExtraAction) onTapExtraAction;
-  final Widget? exceptionIndicator;
 
   const ToolboxActionBar({
     super.key,
@@ -26,11 +31,13 @@ class ToolboxActionBar extends StatelessWidget {
     this.onRun,
     required this.onAddFunction,
     required this.onTapExtraAction,
-    this.exceptionIndicator,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final executor = ref.watch(executorProvider);
+    final exceptionIndicator = _buildExceptionIndicator(context, executor);
+
     /// Depending on screen size, show the extra actions directly as IconButtons, rather than all under a PopupMenuButton.
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -102,7 +109,7 @@ class ToolboxActionBar extends StatelessWidget {
 
               /// Exception indicator
               if (exceptionIndicator != null) ...[
-                exceptionIndicator!,
+                exceptionIndicator,
                 const SizedBox(width: 8),
               ],
 
@@ -169,5 +176,45 @@ class ToolboxActionBar extends StatelessWidget {
         );
       },
     );
+  }
+
+  Widget? _buildExceptionIndicator(
+    BuildContext context,
+    DartBlockExecutor executor,
+  ) {
+    if (executor.thrownException != null) {
+      return PopupWidgetButton(
+        isFullWidth: true,
+        blurBackground: true,
+        tooltip: "Exception...",
+        onOpened: () {
+          DartBlockInteraction.create(
+            dartBlockInteractionType:
+                DartBlockInteractionType.tapExceptionIndicatorInToolbox,
+            content: "ExceptionTitle-${executor.thrownException?.title}",
+          ).dispatch(context);
+        },
+        widget: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text("An exception was thrown during the last execution:"),
+            DartBlockExceptionWidget(
+              dartblockException: executor.thrownException!,
+              program:
+                  // TODO: safe to pass executor's program instead of ref.watch(programProvider)?
+                  executor.program,
+            ),
+            Text(
+              "Think it's fixed now? Try running your program again.",
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+        icon: Icon(Icons.error, color: Theme.of(context).colorScheme.error),
+      );
+    } else {
+      return null;
+    }
   }
 }

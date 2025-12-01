@@ -1,15 +1,14 @@
 import 'package:collection/collection.dart';
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:dartblock_code/widgets/views/toolbox/misc/toolbox_drag_target.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:dartblock_code/models/function.dart';
 import 'package:dartblock_code/models/dartblock_interaction.dart';
 import 'package:dartblock_code/models/dartblock_notification.dart';
 import 'package:dartblock_code/models/exception.dart';
 import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/editors/statement.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
-import 'package:dartblock_code/widgets/dartblock_editor.dart';
 import 'package:dartblock_code/widgets/views/for_loop.dart';
 import 'package:dartblock_code/widgets/views/function_call.dart';
 import 'package:dartblock_code/widgets/views/if_else_then.dart';
@@ -18,13 +17,16 @@ import 'package:dartblock_code/widgets/views/variable_assignment.dart';
 import 'package:dartblock_code/widgets/views/variable_declaration.dart';
 import 'package:dartblock_code/widgets/views/while_loop.dart';
 import 'package:dartblock_code/widgets/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class StatementWidget extends StatelessWidget {
+class StatementWidget extends ConsumerWidget {
   final Statement statement;
   final bool includeBottomPadding;
   final bool showLabel;
   final bool canDelete;
-  final bool canChange;
+  // Overrides settingsProvider's canChange if provided
+  // TODO: rework
+  final bool? canChange;
   final bool canReorder;
   final bool canDuplicate;
   final Function() onDelete;
@@ -35,14 +37,13 @@ class StatementWidget extends StatelessWidget {
   final Function(Statement statement, bool cut) onCopiedStatement;
   final Function(Statement statementToPaste) onPasteStatement;
   final Function() onPastedStatement;
-  final List<DartBlockCustomFunction> customFunctions;
   const StatementWidget({
     super.key,
     required this.statement,
     required this.onChanged,
     required this.canDelete,
-    required this.canChange,
     required this.canReorder,
+    this.canChange,
     this.canDuplicate = true,
     required this.onDelete,
     required this.onDuplicate,
@@ -53,25 +54,22 @@ class StatementWidget extends StatelessWidget {
     required this.onPastedStatement,
     this.includeBottomPadding = true,
     this.showLabel = true,
-    required this.customFunctions,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
+    final editorState = ref.watch(editorStateProvider);
+    final executor = ref.watch(executorProvider);
+    final program = ref.watch(programProvider);
+
     Widget widget = Text(statement.toScript());
     String label;
     IconData? iconData;
     bool isStatementBlock = false;
-    bool canEdit = canChange;
+    bool canEdit = canChange ?? settings.canChange;
 
-    /// Use maybeOf here as it becomes null when the StatementWidget is being reordered,
-    /// at which point it is in a different BuildContext and no longer has access to
-    /// the NeoTechInheritedWidget.
-    final neoTechCoreInheritedWidget = DartBlockEditorInheritedWidget.maybeOf(
-      context,
-    );
-    DartBlockException? neoTechException =
-        neoTechCoreInheritedWidget?.executor.thrownException;
+    DartBlockException? neoTechException = executor.thrownException;
     Widget? exceptionWidget =
         neoTechException != null &&
             neoTechException.statement != null &&
@@ -92,7 +90,7 @@ class StatementWidget extends StatelessWidget {
             },
             widget: DartBlockExceptionWidget(
               dartblockException: neoTechException,
-              program: neoTechCoreInheritedWidget?.program,
+              program: program,
             ),
             child: Icon(
               Icons.error,
@@ -112,14 +110,12 @@ class StatementWidget extends StatelessWidget {
         widget = ForLoopStatementWidget(
           statement: statement as ForLoopStatement,
           canDelete: canDelete,
-          canChange: canChange,
+          canChange: canChange ?? settings.canChange,
           canReorder: canReorder,
           onChanged: onChanged,
           onCopiedStatement: onCopiedStatement,
           onPastedStatement: onPastedStatement,
-          customFunctions: customFunctions,
-          displayToolboxItemDragTarget:
-              neoTechCoreInheritedWidget?.isDraggingToolboxItem.value ?? false,
+          customFunctions: program.customFunctions,
         );
         break;
       case WhileLoopStatement():
@@ -130,14 +126,12 @@ class StatementWidget extends StatelessWidget {
         widget = WhileLoopStatementWidget(
           statement: statement as WhileLoopStatement,
           canDelete: canDelete,
-          canChange: canChange,
+          canChange: canChange ?? settings.canChange,
           canReorder: canReorder,
           onChanged: onChanged,
           onCopiedStatement: onCopiedStatement,
           onPastedStatement: onPastedStatement,
-          customFunctions: customFunctions,
-          displayToolboxItemDragTarget:
-              neoTechCoreInheritedWidget?.isDraggingToolboxItem.value ?? false,
+          customFunctions: program.customFunctions,
         );
         break;
       case PrintStatement():
@@ -167,14 +161,12 @@ class StatementWidget extends StatelessWidget {
         widget = IfElseStatementWidget(
           statement: statement as IfElseStatement,
           canDelete: canDelete,
-          canChange: canChange,
+          canChange: canChange ?? settings.canChange,
           canReorder: canReorder,
           onChanged: onChanged,
           onCopiedStatement: onCopiedStatement,
           onPastedStatement: onPastedStatement,
-          customFunctions: customFunctions,
-          displayToolboxItemDragTarget:
-              neoTechCoreInheritedWidget?.isDraggingToolboxItem.value ?? false,
+          customFunctions: program.customFunctions,
         );
         break;
       case FunctionCallStatement():
@@ -182,7 +174,7 @@ class StatementWidget extends StatelessWidget {
         final customFunctionCallStatement = statement as FunctionCallStatement;
         widget = FunctionCallStatementWidget(
           statement: customFunctionCallStatement,
-          customFunction: customFunctions.firstWhereOrNull(
+          customFunction: program.customFunctions.firstWhereOrNull(
             (element) =>
                 element.name == customFunctionCallStatement.functionName,
           ),
@@ -212,142 +204,138 @@ class StatementWidget extends StatelessWidget {
                 'StatementType-${statement.statementType.name}-StatementId-${statement.statementId}${exceptionWidget != null ? '-CausedException' : ''}',
           ).dispatch(context);
 
-          /// Use maybeOf rather of here, as the user may have been dragging
-          /// the statement and the drop animation has not yet finished.
-          /// If the animation has not finished, the context will not find the NeoTechCoreInheritedWidget.
-          final neoTechCoreInheritedWidget =
-              DartBlockEditorInheritedWidget.maybeOf(context);
           final RenderBox overlay =
               Overlay.of(context).context.findRenderObject() as RenderBox;
-          if (neoTechCoreInheritedWidget != null) {
-            _showMoreOptions(
-              context,
-              position: RelativeRect.fromRect(
-                details.globalPosition & const Size(40, 40),
-                Offset.zero & overlay.size,
-              ),
-              canEdit: canEdit,
-              canCopy: canChange,
-              canDelete: canDelete,
-              canDuplicate: canChange && canDuplicate,
-              canPaste:
-                  canChange &&
-                  neoTechCoreInheritedWidget.copiedStatement != null,
-            ).then((selectedOption) {
-              if (selectedOption != null) {
-                if (context.mounted) {
-                  switch (selectedOption) {
-                    case 'edit':
-                      DartBlockInteraction.create(
-                        dartBlockInteractionType:
-                            DartBlockInteractionType.editStatement,
-                        content:
-                            'StatementType-${statement.statementType.name}-StatementId-${statement.statementId}${exceptionWidget != null ? '-CausedException' : ''}',
-                      ).dispatch(context);
-                      final existingVariableDefinitions =
-                          neoTechCoreInheritedWidget.program
-                              .buildTree()
-                              .findVariableDefinitions(
-                                statement.hashCode,
-                                includeNode: false,
-                              );
-                      StatementEditor.edit(
-                        statement: statement,
-                        existingVariableDefinitions:
-                            existingVariableDefinitions,
-                        customFunctions:
-                            neoTechCoreInheritedWidget.program.customFunctions,
-                        onSaved: (value) {
-                          DartBlockInteraction.create(
-                            dartBlockInteractionType:
-                                DartBlockInteractionType.editedStatement,
-                            content:
-                                'StatementType-${statement.statementType.name}-StatementId-${statement.statementId}${exceptionWidget != null ? '-CausedException' : ''}',
-                          ).dispatch(context);
-                          Navigator.of(context).pop();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            createDartBlockInfoSnackBar(
-                              context,
-                              iconData: Icons.check,
-                              message:
-                                  "Saved '${value.statementType.toString()}' statement.",
-                            ),
-                          );
-                          onChanged(value);
-                        },
-                      ).showAsModalBottomSheet(context);
-                    case 'cut':
-                      DartBlockInteraction.create(
-                        dartBlockInteractionType:
-                            DartBlockInteractionType.cutStatement,
-                        content:
-                            'StatementType-${statement.statementType.name}-StatementId-${statement.statementId}${exceptionWidget != null ? '-CausedException' : ''}',
-                      ).dispatch(context);
-                      onCopyStatement(statement, true);
-                      break;
-                    case 'copy':
-                      DartBlockInteraction.create(
-                        dartBlockInteractionType:
-                            DartBlockInteractionType.copyStatement,
-                        content:
-                            'StatementType-${statement.statementType.name}-StatementId-${statement.statementId}${exceptionWidget != null ? '-CausedException' : ''}',
-                      ).dispatch(context);
-                      onCopyStatement(statement, false);
-                      break;
-                    case 'paste':
-                      if (neoTechCoreInheritedWidget.copiedStatement != null) {
-                        DartBlockInteraction.create(
-                          dartBlockInteractionType: DartBlockInteractionType
-                              .pasteStatementOnExistingStatement,
-                        ).dispatch(context);
-                        onPasteStatement(
-                          neoTechCoreInheritedWidget.copiedStatement!,
+
+          _showMoreOptions(
+            context,
+            position: RelativeRect.fromRect(
+              details.globalPosition & const Size(40, 40),
+              Offset.zero & overlay.size,
+            ),
+            canEdit: canEdit,
+            canCopy: canChange ?? settings.canChange,
+            canDelete: canDelete,
+            canDuplicate: (canChange ?? settings.canChange) && canDuplicate,
+            canPaste:
+                (canChange ?? settings.canChange) &&
+                editorState.copiedStatement != null,
+          ).then((selectedOption) {
+            if (selectedOption != null) {
+              if (context.mounted) {
+                switch (selectedOption) {
+                  case 'edit':
+                    DartBlockInteraction.create(
+                      dartBlockInteractionType:
+                          DartBlockInteractionType.editStatement,
+                      content:
+                          'StatementType-${statement.statementType.name}-StatementId-${statement.statementId}${exceptionWidget != null ? '-CausedException' : ''}',
+                    ).dispatch(context);
+                    final existingVariableDefinitions = program
+                        .buildTree()
+                        .findVariableDefinitions(
+                          statement.hashCode,
+                          includeNode: false,
                         );
-                      }
-                      break;
-                    case 'duplicate':
-                      DartBlockInteraction.create(
-                        dartBlockInteractionType:
-                            DartBlockInteractionType.duplicateStatement,
-                        content:
-                            'StatementType-${statement.statementType.name}-StatementId-${statement.statementId}${exceptionWidget != null ? '-CausedException' : ''}',
-                      ).dispatch(context);
-                      onDuplicate(statement);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        createDartBlockInfoSnackBar(
-                          context,
-                          iconData: Icons.copy,
-                          message:
-                              "Duplicated '${statement.statementType.toString()}' statement.",
-                        ),
-                      );
-                      break;
-                    case 'delete':
-                      DartBlockInteraction.create(
-                        dartBlockInteractionType:
-                            DartBlockInteractionType.deleteStatement,
-                        content:
-                            'StatementType-${statement.statementType.name}-StatementId-${statement.statementId}${exceptionWidget != null ? '-CausedException' : ''}',
-                      ).dispatch(context);
-                      onDelete();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        createDartBlockInfoSnackBar(
-                          context,
-                          iconData: Icons.delete,
-                          message:
-                              "Deleted '${statement.statementType.toString()}' statement.",
-                          backgroundColor: Theme.of(
+                    StatementEditor.edit(
+                      statement: statement,
+                      existingVariableDefinitions: existingVariableDefinitions,
+                      customFunctions: program.customFunctions,
+                      onSaved: (value) {
+                        DartBlockInteraction.create(
+                          dartBlockInteractionType:
+                              DartBlockInteractionType.editedStatement,
+                          content:
+                              'StatementType-${statement.statementType.name}-StatementId-${statement.statementId}${exceptionWidget != null ? '-CausedException' : ''}',
+                        ).dispatch(context);
+                        Navigator.of(context).pop();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          createDartBlockInfoSnackBar(
                             context,
-                          ).colorScheme.errorContainer,
-                          color: Theme.of(context).colorScheme.onErrorContainer,
-                        ),
-                      );
-                      break;
-                  }
+                            iconData: Icons.check,
+                            message:
+                                "Saved '${value.statementType.toString()}' statement.",
+                          ),
+                        );
+                        onChanged(value);
+                      },
+                    ).showAsModalBottomSheet(context);
+                  case 'cut':
+                    DartBlockInteraction.create(
+                      dartBlockInteractionType:
+                          DartBlockInteractionType.cutStatement,
+                      content:
+                          'StatementType-${statement.statementType.name}-StatementId-${statement.statementId}${exceptionWidget != null ? '-CausedException' : ''}',
+                    ).dispatch(context);
+                    ref
+                        .read(editorStateProvider.notifier)
+                        .copyStatement(statement, cut: true);
+                    // onCopiedStatement(statement, true);
+                    onCopyStatement(statement, true);
+                    break;
+                  case 'copy':
+                    DartBlockInteraction.create(
+                      dartBlockInteractionType:
+                          DartBlockInteractionType.copyStatement,
+                      content:
+                          'StatementType-${statement.statementType.name}-StatementId-${statement.statementId}${exceptionWidget != null ? '-CausedException' : ''}',
+                    ).dispatch(context);
+                    ref
+                        .read(editorStateProvider.notifier)
+                        .copyStatement(statement, cut: false);
+                    onCopiedStatement(statement, false);
+                    break;
+                  case 'paste':
+                    if (editorState.copiedStatement != null) {
+                      DartBlockInteraction.create(
+                        dartBlockInteractionType: DartBlockInteractionType
+                            .pasteStatementOnExistingStatement,
+                      ).dispatch(context);
+                      onPasteStatement(editorState.copiedStatement!);
+                    }
+                    break;
+                  case 'duplicate':
+                    DartBlockInteraction.create(
+                      dartBlockInteractionType:
+                          DartBlockInteractionType.duplicateStatement,
+                      content:
+                          'StatementType-${statement.statementType.name}-StatementId-${statement.statementId}${exceptionWidget != null ? '-CausedException' : ''}',
+                    ).dispatch(context);
+                    onDuplicate(statement);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      createDartBlockInfoSnackBar(
+                        context,
+                        iconData: Icons.copy,
+                        message:
+                            "Duplicated '${statement.statementType.toString()}' statement.",
+                      ),
+                    );
+                    break;
+                  case 'delete':
+                    DartBlockInteraction.create(
+                      dartBlockInteractionType:
+                          DartBlockInteractionType.deleteStatement,
+                      content:
+                          'StatementType-${statement.statementType.name}-StatementId-${statement.statementId}${exceptionWidget != null ? '-CausedException' : ''}',
+                    ).dispatch(context);
+                    onDelete();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      createDartBlockInfoSnackBar(
+                        context,
+                        iconData: Icons.delete,
+                        message:
+                            "Deleted '${statement.statementType.toString()}' statement.",
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.errorContainer,
+                        color: Theme.of(context).colorScheme.onErrorContainer,
+                      ),
+                    );
+                    break;
                 }
               }
-            });
-          }
+            }
+          });
         },
         child: isStatementBlock
             ? Card(
@@ -401,8 +389,6 @@ class StatementWidget extends StatelessWidget {
             : ToolboxDragTarget(
                 isEnabled: onAppendNewStatement != null,
                 nodeKey: statement.hashCode,
-                isToolboxItemBeingDragged:
-                    neoTechCoreInheritedWidget?.isDraggingToolboxItem,
                 onSaved: (newStatement) {
                   // Navigator.of(context).pop();
                   if (onAppendNewStatement != null) {

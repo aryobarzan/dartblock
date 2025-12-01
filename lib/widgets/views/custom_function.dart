@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
-import 'package:dartblock_code/models/function_builtin.dart';
+import 'package:dartblock_code/core/dartblock_program.dart';
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:dartblock_code/widgets/helpers/adaptive_display.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/function.dart';
@@ -8,12 +9,12 @@ import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/editors/custom_function_basic.dart';
 import 'package:dartblock_code/widgets/editors/variable_definition.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
-import 'package:dartblock_code/widgets/dartblock_editor.dart';
 import 'package:dartblock_code/widgets/views/statement_listview.dart';
 import 'package:dartblock_code/widgets/views/symbols.dart';
 import 'package:dartblock_code/widgets/views/variable_definition.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CustomFunctionWidget extends StatelessWidget {
+class CustomFunctionWidget extends ConsumerWidget {
   final DartBlockCustomFunction customFunction;
   final bool isMainFunction;
 
@@ -32,10 +33,9 @@ class CustomFunctionWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final neoTechCoreInheritedWidget = DartBlockEditorInheritedWidget.of(
-      context,
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final program = ref.watch(programProvider);
+    final settings = ref.watch(settingsProvider);
 
     return Card(
       shape: RoundedRectangleBorder(
@@ -59,7 +59,8 @@ class CustomFunctionWidget extends StatelessWidget {
                     ).dispatch(context);
                     _showCustomFunctionBasicEditorBottomSheet(
                       context,
-                      neoTechCoreInheritedWidget,
+                      settings,
+                      program,
                     );
                   },
                 ),
@@ -79,13 +80,12 @@ class CustomFunctionWidget extends StatelessWidget {
                   children: [
                     ...customFunction.parameters.mapIndexed(
                       (index, e) => InkWell(
-                        onTap:
-                            neoTechCoreInheritedWidget.canDelete ||
-                                neoTechCoreInheritedWidget.canChange
+                        onTap: settings.canDelete || settings.canChange
                             ? () {
                                 _showCustomFunctionParameterEditorBottomSheet(
                                   context,
-                                  neoTechCoreInheritedWidget,
+                                  settings,
+                                  program,
                                   parameterIndex: index,
                                 );
                               }
@@ -99,13 +99,14 @@ class CustomFunctionWidget extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (neoTechCoreInheritedWidget.canChange)
+                    if (settings.canChange)
                       customFunction.parameters.isEmpty
                           ? TextButton.icon(
                               onPressed: () {
                                 _showCustomFunctionParameterEditorBottomSheet(
                                   context,
-                                  neoTechCoreInheritedWidget,
+                                  settings,
+                                  program,
                                 );
                               },
                               icon: Icon(
@@ -120,7 +121,8 @@ class CustomFunctionWidget extends StatelessWidget {
                               onPressed: () {
                                 _showCustomFunctionParameterEditorBottomSheet(
                                   context,
-                                  neoTechCoreInheritedWidget,
+                                  settings,
+                                  program,
                                 );
                               },
                               tooltip: "Add new parameter...",
@@ -139,9 +141,8 @@ class CustomFunctionWidget extends StatelessWidget {
                   ? customFunction.statements.last.hashCode
                   : customFunction.hashCode,
               statements: customFunction.statements,
-              canDelete: neoTechCoreInheritedWidget.canDelete,
-              canChange: neoTechCoreInheritedWidget.canChange,
-              canReorder: neoTechCoreInheritedWidget.canReorder,
+              canDelete: settings.canDelete,
+              canReorder: settings.canReorder,
               onChanged: (newStatements) {
                 customFunction.statements = newStatements;
                 onChanged(customFunction);
@@ -161,8 +162,6 @@ class CustomFunctionWidget extends StatelessWidget {
               },
               onCopiedStatement: onCopiedStatement,
               onPastedStatement: onPastedStatement,
-              customFunctions:
-                  neoTechCoreInheritedWidget.program.customFunctions,
             ),
           ),
         ],
@@ -172,7 +171,8 @@ class CustomFunctionWidget extends StatelessWidget {
 
   void _showCustomFunctionBasicEditorBottomSheet(
     BuildContext context,
-    DartBlockEditorInheritedWidget neoTechCoreInheritedWidget,
+    DartBlockSettings settings,
+    DartBlockProgram program,
   ) {
     showAdaptiveBottomSheetOrDialog(
       context,
@@ -181,14 +181,12 @@ class CustomFunctionWidget extends StatelessWidget {
       child: CustomFunctionBasicEditor(
         customFunctionName: customFunction.name,
         returnType: customFunction.returnType,
-        existingCustomFunctionNames: neoTechCoreInheritedWidget
-            .program
-            .customFunctions
+        existingCustomFunctionNames: program.customFunctions
             .map((e) => e.name)
             .whereNot((element) => element == customFunction.name)
             .toList(),
-        canDelete: neoTechCoreInheritedWidget.canDelete,
-        canChange: neoTechCoreInheritedWidget.canChange,
+        canDelete: settings.canDelete,
+        canChange: settings.canChange,
         onDelete: () {
           if (onDelete != null) {
             Navigator.of(context).pop();
@@ -220,10 +218,11 @@ class CustomFunctionWidget extends StatelessWidget {
 
   void _showCustomFunctionParameterEditorBottomSheet(
     BuildContext context,
-    DartBlockEditorInheritedWidget neoTechCoreInheritedWidget, {
+    DartBlockSettings settings,
+    DartBlockProgram program, {
     int? parameterIndex,
   }) {
-    final neoTechCoreTree = neoTechCoreInheritedWidget.program.buildTree();
+    final neoTechCoreTree = program.buildTree();
     final variableDefinition = isParameterIndexValid(parameterIndex)
         ? customFunction.parameters[parameterIndex!]
         : null;
@@ -255,8 +254,8 @@ class CustomFunctionWidget extends StatelessWidget {
                 customFunction.hashCode,
                 includeNode: true,
               ),
-        canChange: neoTechCoreInheritedWidget.canChange,
-        canDelete: neoTechCoreInheritedWidget.canDelete,
+        canChange: settings.canChange,
+        canDelete: settings.canDelete,
         onSaved: (value) {
           Navigator.of(context).pop();
           if (isParameterIndexValid(parameterIndex)) {

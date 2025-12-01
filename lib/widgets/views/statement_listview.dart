@@ -1,18 +1,17 @@
 import 'package:collection/collection.dart';
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:dartblock_code/widgets/views/toolbox/misc/toolbox_drag_target.dart';
 import 'package:flutter/material.dart';
-import 'package:dartblock_code/models/function.dart';
 import 'package:dartblock_code/models/dartblock_interaction.dart';
 import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
-import 'package:dartblock_code/widgets/dartblock_editor.dart';
 import 'package:dartblock_code/widgets/views/statement.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class StatementListView extends StatelessWidget {
+class StatementListView extends ConsumerWidget {
   final int neoTechCoreNodeKey;
   final List<Statement> statements;
   final bool canDelete;
-  final bool canChange;
   final bool canReorder;
   final Function(List<Statement>) onChanged;
   final Function(int index) onDuplicate;
@@ -22,27 +21,27 @@ class StatementListView extends StatelessWidget {
   ///
   /// This callback simply signals that the operation has been processed, such that the parent NeoTechCoreInheritedWidget can be adjusted accordingly to clear the clipboard in case the statement had been cut.
   final Function() onPastedStatement;
-  final List<DartBlockCustomFunction> customFunctions;
   const StatementListView({
     super.key,
     required this.neoTechCoreNodeKey,
     required this.statements,
     required this.canDelete,
-    required this.canChange,
     required this.canReorder,
     required this.onChanged,
     required this.onDuplicate,
     required this.onCopiedStatement,
     required this.onPastedStatement,
-    required this.customFunctions,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final editorState = ref.watch(editorStateProvider);
+    final settings = ref.watch(settingsProvider);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (statements.isEmpty && !canChange)
+        if (statements.isEmpty && !settings.canChange)
           Text(
             "No statements.",
             style: Theme.of(
@@ -66,52 +65,73 @@ class StatementListView extends StatelessWidget {
                   enabled: canReorder && statements.length > 1,
                   index: index,
                   key: ValueKey(bodyStatement.hashCode),
-                  child: StatementWidget(
-                    statement: bodyStatement,
-                    includeBottomPadding:
-                        true, // statements.length > 1 &&   (index < statements.length - 1)
-                    canChange: canChange,
-                    onChanged: (value) {
-                      statements[index] = value;
-                      onChanged(statements);
-                    },
-                    canReorder: canReorder,
-                    canDelete: canDelete,
-                    onDelete: () {
-                      statements.removeAt(index);
-                      onChanged(statements);
-                    },
-                    onDuplicate: (statementToDuplicate) {
-                      onDuplicate(index);
-                    },
-                    onAppendNewStatement: (newStatement) {
-                      if (index + 1 < statements.length) {
-                        statements.insert(index + 1, newStatement);
-                      } else {
-                        statements.add(newStatement);
-                      }
-                      onChanged(statements);
-                    },
-                    onCopyStatement: (statementToCopy, cut) {
-                      if (cut) {
+                  // IMPORTANT: on the use of UncontrolledProviderScope here:
+                  // When a drag operation is started, e.g., using Draggable or ReorderableListView,
+                  // The dragged widget is moved to an Overlay. Consequently, the original widget is
+                  // no longer part of the main widget tree, i.e., it uses a different BuildContext.
+                  // This can cause issues with InheritedWidgets and Providers (including riverpod),
+                  // as they rely on the BuildContext to retrieve the correct dependencies.
+                  // For example, if the main ProviderScope wraps the main app widget (DartBlockEditor),
+                  // and it defines a provider such as programProvider, the dragged widget cannot rely
+                  // on a ConsumerWidget to access programProvider anymore, because its BuildContext is now
+                  // different and does not have access to the original ProviderScope.
+                  // Illustration of the problem:
+                  // MaterialApp
+                  // - ProviderScope
+                  //     - ...
+                  // - Overlay (DIFFERENT BUILDCONTEXT)
+
+                  // SOLUTION: By wrapping the widget which can be dragged with UncontrolledProviderScope,
+                  // we expose our original ProviderScope to the dragged widget, ensuring it can still access
+                  // all providers once a drag operation has started.
+                  child: UncontrolledProviderScope(
+                    container: ProviderScope.containerOf(context),
+                    child: StatementWidget(
+                      statement: bodyStatement,
+                      includeBottomPadding:
+                          true, // statements.length > 1 &&   (index < statements.length - 1)
+                      onChanged: (value) {
+                        statements[index] = value;
+                        onChanged(statements);
+                      },
+                      canReorder: canReorder,
+                      canDelete: canDelete,
+                      onDelete: () {
                         statements.removeAt(index);
-                      }
-                      onCopiedStatement(statementToCopy, cut);
-                    },
-                    onCopiedStatement: onCopiedStatement,
-                    onPastedStatement: onPastedStatement,
-                    onPasteStatement: (statementToPaste) {
-                      // If the current statement is not the last one, paste the copied statement after it.
-                      if (index + 1 < statements.length) {
-                        statements.insert(index + 1, statementToPaste.copy());
-                      } else {
-                        // Otherwise, append the copied statement at the end.
-                        statements.add(statementToPaste.copy());
-                      }
-                      onPastedStatement();
-                      onChanged(statements);
-                    },
-                    customFunctions: customFunctions,
+                        onChanged(statements);
+                      },
+                      onDuplicate: (statementToDuplicate) {
+                        onDuplicate(index);
+                      },
+                      onAppendNewStatement: (newStatement) {
+                        if (index + 1 < statements.length) {
+                          statements.insert(index + 1, newStatement);
+                        } else {
+                          statements.add(newStatement);
+                        }
+                        onChanged(statements);
+                      },
+                      onCopyStatement: (statementToCopy, cut) {
+                        if (cut) {
+                          statements.removeAt(index);
+                          onChanged(statements);
+                        }
+                        onCopiedStatement(statementToCopy, cut);
+                      },
+                      onCopiedStatement: onCopiedStatement,
+                      onPastedStatement: onPastedStatement,
+                      onPasteStatement: (statementToPaste) {
+                        // If the current statement is not the last one, paste the copied statement after it.
+                        if (index + 1 < statements.length) {
+                          statements.insert(index + 1, statementToPaste.copy());
+                        } else {
+                          // Otherwise, append the copied statement at the end.
+                          statements.add(statementToPaste.copy());
+                        }
+                        onPastedStatement();
+                        onChanged(statements);
+                      },
+                    ),
                   ),
                 ),
               )
@@ -135,13 +155,10 @@ class StatementListView extends StatelessWidget {
             onChanged(statements);
           },
         ),
-        if (canChange) //  && statements.isEmpty
+        if (settings.canChange) //  && statements.isEmpty
           ToolboxDragTarget(
-            isEnabled: canChange,
+            isEnabled: settings.canChange,
             nodeKey: neoTechCoreNodeKey,
-            isToolboxItemBeingDragged: DartBlockEditorInheritedWidget.maybeOf(
-              context,
-            )?.isDraggingToolboxItem,
             onSaved: (savedStatement) {
               //Navigator.of(context).pop();
               statements.add(savedStatement);
@@ -157,16 +174,11 @@ class StatementListView extends StatelessWidget {
             },
             onPasteStatement:
                 // Only show "Paste" option if there is a copied statement
-                DartBlockEditorInheritedWidget.maybeOf(
-                      context,
-                    )?.copiedStatement !=
-                    null
+                editorState.copiedStatement != null
                 ? () {
                     // Retrieve copied statement and make a copy of it.
-                    final statementToPaste =
-                        DartBlockEditorInheritedWidget.maybeOf(
-                          context,
-                        )?.copiedStatement?.copy();
+                    final statementToPaste = editorState.copiedStatement
+                        ?.copy();
                     if (statementToPaste != null) {
                       statements.add(statementToPaste);
                       onPastedStatement();
