@@ -1,3 +1,4 @@
+import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/dartblock_notification.dart';
 
@@ -12,6 +13,7 @@ Future<void> showAdaptiveBottomSheetOrDialog(
   Widget? dialogTitle,
   required Widget child,
   Function(DartBlockNotification notification)? onReceiveDartBlockNotification,
+  required bool useProviderAwareModal,
 }) async {
   final screenWidth = MediaQuery.of(context).size.width;
   final isLargeScreen = screenWidth > 700;
@@ -24,70 +26,111 @@ Future<void> showAdaptiveBottomSheetOrDialog(
   /// Hence, this process needs to be repeated for every dialog / sheet until the DartBlockEditor's
   /// context is reached.
   if (isLargeScreen) {
-    await showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (dialogContext) => NotificationListener<DartBlockNotification>(
-        onNotification: (notification) {
-          if (onReceiveDartBlockNotification != null) {
-            onReceiveDartBlockNotification(notification);
-          } else {
-            notification.dispatch(context);
-          }
-          return true;
-        },
-        child: Dialog(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600, maxHeight: 400),
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: dialogPadding ?? EdgeInsets.zero,
-                child: dialogTitle != null
-                    ? Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          dialogTitle,
-                          const SizedBox(height: 8),
-                          Flexible(child: child),
-                        ],
-                      )
-                    : child,
-              ),
+    final dialogChild = NotificationListener<DartBlockNotification>(
+      onNotification: (notification) {
+        if (onReceiveDartBlockNotification != null) {
+          onReceiveDartBlockNotification(notification);
+        } else {
+          notification.dispatch(context);
+        }
+        return true;
+      },
+      child: Dialog(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600, maxHeight: 400),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: dialogPadding ?? EdgeInsets.zero,
+              child: dialogTitle != null
+                  ? Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        dialogTitle,
+                        const SizedBox(height: 8),
+                        Flexible(child: child),
+                      ],
+                    )
+                  : child,
             ),
           ),
         ),
       ),
     );
+    if (useProviderAwareModal) {
+      await context.showProviderAwareDialog(
+        barrierDismissible: true,
+        builder: (dialogContext) => dialogChild,
+      );
+    } else {
+      await showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (dialogContext) => dialogChild,
+      );
+    }
   } else {
-    showModalBottomSheet(
-      isScrollControlled: true,
-      clipBehavior: Clip.hardEdge,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      context: context,
-      builder: (modalContext) {
-        return NotificationListener<DartBlockNotification>(
-          onNotification: (notification) {
-            notification.dispatch(context);
-            return true;
-          },
-          child: SingleChildScrollView(
-            child: Padding(
-              padding:
-                  sheetPadding ??
-                  EdgeInsets.only(
-                    top: 8,
-                    left: 8,
-                    right: 8,
-                    bottom: 16 + MediaQuery.of(modalContext).viewInsets.bottom,
-                  ),
-              child: child,
+    if (useProviderAwareModal) {
+      await context.showProviderAwareBottomSheet(
+        isScrollControlled: true,
+        clipBehavior: Clip.hardEdge,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        builder: (modalContext) {
+          return NotificationListener<DartBlockNotification>(
+            onNotification: (notification) {
+              notification.dispatch(context);
+              return true;
+            },
+            child: SingleChildScrollView(
+              child: Padding(
+                padding:
+                    sheetPadding ??
+                    EdgeInsets.only(
+                      top: 8,
+                      left: 8,
+                      right: 8,
+                      bottom:
+                          16 + MediaQuery.of(modalContext).viewInsets.bottom,
+                    ),
+                child: child,
+              ),
             ),
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
+    } else {
+      showModalBottomSheet(
+        isScrollControlled: true,
+        clipBehavior: Clip.hardEdge,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        context: context,
+        builder: (modalContext) {
+          return NotificationListener<DartBlockNotification>(
+            onNotification: (notification) {
+              notification.dispatch(context);
+              return true;
+            },
+            child: SingleChildScrollView(
+              child: Padding(
+                padding:
+                    sheetPadding ??
+                    EdgeInsets.only(
+                      top: 8,
+                      left: 8,
+                      right: 8,
+                      bottom:
+                          16 + MediaQuery.of(modalContext).viewInsets.bottom,
+                    ),
+                child: child,
+              ),
+            ),
+          );
+        },
+      );
+    }
   }
 }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:dartblock_code/widgets/helpers/adaptive_display.dart';
+import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:code_text_field/code_text_field.dart';
 import 'package:collection/collection.dart';
@@ -698,14 +699,13 @@ class _DartBlockEditorState extends State<DartBlockEditor>
   }
 
   void _showConsole() {
-    showModalBottomSheet(
+    context.showProviderAwareBottomSheet(
       isScrollControlled: true,
       showDragHandle: true,
       clipBehavior: Clip.hardEdge,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
       ),
-      context: context,
       builder: (sheetContext) {
         /// Due to the modal sheet having a separate context and thus having no relation
         /// to the main context of DartBlockEditor, we capture DartBlockNotifications
@@ -747,14 +747,13 @@ class _DartBlockEditorState extends State<DartBlockEditor>
   }
 
   void _showHelpCenter() {
-    showModalBottomSheet(
+    context.showProviderAwareBottomSheet(
       showDragHandle: true,
       isScrollControlled: true,
       clipBehavior: Clip.hardEdge,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
       ),
-      context: context,
       builder: (sheetContext) {
         /// Due to the modal sheet having a separate context and thus having no relation
         /// to the main context of DartBlockEditor, we capture DartBlockNotifications
@@ -820,6 +819,7 @@ void showNewFunctionSheet(
     sheetPadding: EdgeInsets.all(8),
     dialogPadding: EdgeInsets.all(16),
     onReceiveDartBlockNotification: onReceiveDartBlockNotification,
+    useProviderAwareModal: true,
     child: CustomFunctionBasicEditor(
       existingCustomFunctionNames: existingCustomFunctionNames,
       canDelete: false,

@@ -178,6 +178,7 @@ class CustomFunctionWidget extends ConsumerWidget {
       context,
       sheetPadding: EdgeInsets.all(8),
       dialogPadding: EdgeInsets.all(16),
+      useProviderAwareModal: true,
       child: CustomFunctionBasicEditor(
         customFunctionName: customFunction.name,
         returnType: customFunction.returnType,
@@ -239,6 +240,7 @@ class CustomFunctionWidget extends ConsumerWidget {
       context,
       // sheetPadding: EdgeInsets.all(8),
       dialogPadding: EdgeInsets.all(16),
+      useProviderAwareModal: true,
       child: VariableDefinitionEditor(
         functionDefinition: customFunction.getAsFunctionDefinition(),
         variableDefinition: variableDefinition,

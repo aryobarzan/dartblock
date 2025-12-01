@@ -11,6 +11,7 @@ import 'package:dartblock_code/widgets/editors/return.dart';
 import 'package:dartblock_code/widgets/editors/variable_assignment.dart';
 import 'package:dartblock_code/widgets/editors/variable_declaration.dart';
 import 'package:dartblock_code/widgets/editors/while_loop.dart';
+import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
 
 class StatementEditor extends StatelessWidget {
   final StatementType statementType;
@@ -137,7 +138,7 @@ class StatementEditor extends StatelessWidget {
   }
 
   void showAsModalBottomSheet(BuildContext sheetContext) {
-    showModalBottomSheet(
+    sheetContext.showProviderAwareBottomSheet(
       isScrollControlled: true,
       clipBehavior: Clip.hardEdge,
 
@@ -148,7 +149,6 @@ class StatementEditor extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(18.0)),
       ),
-      context: sheetContext,
       builder: (context) {
         /// Due to the modal sheet having a separate context and thus no relation
         /// to the main context of the NeoTechWidget, we capture DartBlockNotifications

@@ -68,6 +68,7 @@ class ToolboxDragTarget extends ConsumerWidget {
                   context,
                   sheetPadding: EdgeInsets.all(8),
                   dialogPadding: EdgeInsets.all(16),
+                  useProviderAwareModal: true,
                   dialogTitle: Text(
                     "Add Statement",
                     style: Theme.of(context).textTheme.titleLarge,

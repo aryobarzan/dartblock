@@ -8,6 +8,7 @@ import 'package:dartblock_code/widgets/editors/function_call.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:dartblock_code/widgets/views/other/dartblock_colors.dart';
 import 'package:dartblock_code/widgets/views/variable_definition.dart';
+import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
 
 class FunctionVariableSplitButton extends StatelessWidget {
   final DartBlockFunctionCallValue? functionCallValue;
@@ -122,14 +123,13 @@ class FunctionVariableSplitButton extends StatelessWidget {
   }
 
   void _showModalBottomSheet(BuildContext context, String title, Widget body) {
-    showModalBottomSheet(
+    context.showProviderAwareBottomSheet(
       isScrollControlled: true,
       showDragHandle: true,
       clipBehavior: Clip.hardEdge,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
       ),
-      context: context,
       builder: (sheetContext) {
         /// Due to the modal sheet having a separate context and thus no relation
         /// to the main context of the NeoTechWidget, we capture DartBlockNotifications

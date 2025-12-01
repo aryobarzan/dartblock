@@ -1,3 +1,4 @@
+import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dartblock_code/models/function.dart';
@@ -289,14 +290,13 @@ class _IfElseStatementEditorState extends State<IfElseStatementEditor> {
   }
 
   void _showModalBottomSheet(String title, Widget body, {Color? titleColor}) {
-    showModalBottomSheet(
+    context.showProviderAwareBottomSheet(
       isScrollControlled: true,
       showDragHandle: true,
       clipBehavior: Clip.hardEdge,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
       ),
-      context: context,
       builder: (sheetContext) {
         /// Due to the modal sheet having a separate context and thus no relation
         /// to the main context of the NeoTechWidget, we capture DartBlockNotifications

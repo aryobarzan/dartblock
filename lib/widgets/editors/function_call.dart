@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dartblock_code/models/function.dart';
@@ -13,8 +14,9 @@ import 'package:dartblock_code/widgets/editors/composers/number_value.dart';
 import 'package:dartblock_code/widgets/editors/composers/value_concatenation.dart';
 import 'package:dartblock_code/widgets/views/symbols.dart';
 import 'package:dartblock_code/widgets/views/variable_definition.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class FunctionCallComposer extends StatefulWidget {
+class FunctionCallComposer extends ConsumerStatefulWidget {
   final List<DartBlockVariableDefinition> existingVariableDefinitions;
   final List<DartBlockCustomFunction> customFunctions;
   final List<DartBlockFunction> availableFunctions;
@@ -55,10 +57,11 @@ class FunctionCallComposer extends StatefulWidget {
            : [...customFunctions, ...DartBlockBuiltinFunctions.all];
 
   @override
-  State<FunctionCallComposer> createState() => _FunctionCallComposerState();
+  ConsumerState<FunctionCallComposer> createState() =>
+      _FunctionCallComposerState();
 }
 
-class _FunctionCallComposerState extends State<FunctionCallComposer> {
+class _FunctionCallComposerState extends ConsumerState<FunctionCallComposer> {
   DartBlockFunction? selectedFunction;
   List<DartBlockValue?> indicatedArguments = [];
   int? selectedParameterIndex;
@@ -84,7 +87,6 @@ class _FunctionCallComposerState extends State<FunctionCallComposer> {
   @override
   Widget build(BuildContext context) {
     final selectedParameter = _getSelectedParameter();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -423,87 +425,89 @@ class _FunctionCallComposerState extends State<FunctionCallComposer> {
   void _showArgumentEditorModalBottomSheet() {
     final selectedParameter = _getSelectedParameter();
     if (selectedParameter != null && selectedFunction != null) {
-      showModalBottomSheet(
-        isScrollControlled: true,
-        clipBehavior: Clip.hardEdge,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
-        ),
-        context: context,
-        builder: (sheetContext) {
-          /// Due to the modal sheet having a separate context and thus no relation
-          /// to the main context of the NeoTechWidget, we capture DartBlockNotifications
-          /// from the sheet's context and manually re-dispatch them using the parent context.
-          /// The parent context may not necessarily be the NeoTechWidget's context,
-          /// as certain sheets open additional nested sheets with their own contexts,
-          /// hence this process needs to be repeated for every sheet until the NeoTechWidget's
-          /// context is reached.
-          return NotificationListener<DartBlockNotification>(
-            onNotification: (notification) {
-              notification.dispatch(context);
-              return true;
-            },
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.only(
-                  left: 8,
-                  right: 8,
-                  top: 8,
-                  bottom: 16 + MediaQuery.of(sheetContext).viewInsets.bottom,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    RichText(
-                      text: TextSpan(
-                        children: [
-                          WidgetSpan(
-                            child: FunctionNameSymbol(
-                              name: selectedFunction!.name,
-                            ),
-                            alignment: PlaceholderAlignment.middle,
-                          ),
-                          const WidgetSpan(
-                            child: Icon(Icons.keyboard_arrow_right),
-                            alignment: PlaceholderAlignment.middle,
-                          ),
-                          WidgetSpan(
-                            child: VariableDefinitionWidget(
-                              variableDefinition: selectedParameter,
-                              circularRightSide: true,
-                            ),
-                            alignment: PlaceholderAlignment.middle,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Divider(),
-                    Flexible(child: _buildParameterEditor()),
-                  ],
-                ),
-              ),
+      context
+          .showProviderAwareBottomSheet(
+            isScrollControlled: true,
+            clipBehavior: Clip.hardEdge,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
             ),
-          );
-          // return DraggableScrollableSheet(
-          //   initialChildSize: 0.75,
-          //   minChildSize: 0.13,
-          //   maxChildSize: 0.9,
-          //   expand: false,
-          //   builder: (context, scrollController) => SingleChildScrollView(
-          //     controller: scrollController,
-          //     child: Padding(
-          //       padding: const EdgeInsets.all(8),
-          //       child: this,
-          //     ),
-          //   ),
-          // );
-        },
-      ).then((result) {
-        setState(() {
-          selectedParameterIndex = null;
-        });
-      });
+            builder: (sheetContext) {
+              /// Due to the modal sheet having a separate context and thus no relation
+              /// to the main context of the NeoTechWidget, we capture DartBlockNotifications
+              /// from the sheet's context and manually re-dispatch them using the parent context.
+              /// The parent context may not necessarily be the NeoTechWidget's context,
+              /// as certain sheets open additional nested sheets with their own contexts,
+              /// hence this process needs to be repeated for every sheet until the NeoTechWidget's
+              /// context is reached.
+              return NotificationListener<DartBlockNotification>(
+                onNotification: (notification) {
+                  notification.dispatch(context);
+                  return true;
+                },
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      left: 8,
+                      right: 8,
+                      top: 8,
+                      bottom:
+                          16 + MediaQuery.of(sheetContext).viewInsets.bottom,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              WidgetSpan(
+                                child: FunctionNameSymbol(
+                                  name: selectedFunction!.name,
+                                ),
+                                alignment: PlaceholderAlignment.middle,
+                              ),
+                              const WidgetSpan(
+                                child: Icon(Icons.keyboard_arrow_right),
+                                alignment: PlaceholderAlignment.middle,
+                              ),
+                              WidgetSpan(
+                                child: VariableDefinitionWidget(
+                                  variableDefinition: selectedParameter,
+                                  circularRightSide: true,
+                                ),
+                                alignment: PlaceholderAlignment.middle,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Divider(),
+                        Flexible(child: _buildParameterEditor()),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+              // return DraggableScrollableSheet(
+              //   initialChildSize: 0.75,
+              //   minChildSize: 0.13,
+              //   maxChildSize: 0.9,
+              //   expand: false,
+              //   builder: (context, scrollController) => SingleChildScrollView(
+              //     controller: scrollController,
+              //     child: Padding(
+              //       padding: const EdgeInsets.all(8),
+              //       child: this,
+              //     ),
+              //   ),
+              // );
+            },
+          )
+          .then((result) {
+            setState(() {
+              selectedParameterIndex = null;
+            });
+          });
     }
   }
 }
