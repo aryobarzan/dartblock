@@ -151,7 +151,123 @@ class DartBlockNativeFunctions {
     description: 'Get the maximum of two numbers.',
   );
 
-  /// List of all available built-in functions.
+  static final lowercase = DartBlockNativeFunction(
+    name: 'lowercase',
+    returnType: DartBlockDataType.stringType,
+    parameters: [
+      DartBlockVariableDefinition('text', DartBlockDataType.stringType),
+    ],
+    implementation: (arbiter, args) {
+      final text = args[0].getValue(arbiter) as String;
+      return DartBlockConcatenationValue.fromConstant(text.toLowerCase());
+    },
+    category: DartBlockNativeFunctionCategory.string,
+    type: DartBlockNativeFunctionType.lowercase,
+    description: 'Convert text to lowercase.',
+  );
+
+  static final uppercase = DartBlockNativeFunction(
+    name: 'uppercase',
+    returnType: DartBlockDataType.stringType,
+    parameters: [
+      DartBlockVariableDefinition('text', DartBlockDataType.stringType),
+    ],
+    implementation: (arbiter, args) {
+      final text = args[0].getValue(arbiter) as String;
+      return DartBlockConcatenationValue.fromConstant(text.toUpperCase());
+    },
+    category: DartBlockNativeFunctionCategory.string,
+    type: DartBlockNativeFunctionType.uppercase,
+    description: 'Convert text to uppercase.',
+  );
+
+  static final startsWith = DartBlockNativeFunction(
+    name: 'startsWith',
+    returnType: DartBlockDataType.booleanType,
+    parameters: [
+      DartBlockVariableDefinition('text', DartBlockDataType.stringType),
+      DartBlockVariableDefinition('pattern', DartBlockDataType.stringType),
+    ],
+    implementation: (arbiter, args) {
+      final text = args[0].getValue(arbiter) as String;
+      final pattern = args[1].getValue(arbiter) as String;
+      return DartBlockBooleanExpression.fromConstant(text.startsWith(pattern));
+    },
+    category: DartBlockNativeFunctionCategory.string,
+    type: DartBlockNativeFunctionType.startsWith,
+    description: 'Check if text starts with a given pattern.',
+  );
+
+  static final endsWith = DartBlockNativeFunction(
+    name: 'endsWith',
+    returnType: DartBlockDataType.booleanType,
+    parameters: [
+      DartBlockVariableDefinition('text', DartBlockDataType.stringType),
+      DartBlockVariableDefinition('pattern', DartBlockDataType.stringType),
+    ],
+    implementation: (arbiter, args) {
+      final text = args[0].getValue(arbiter) as String;
+      final pattern = args[1].getValue(arbiter) as String;
+      return DartBlockBooleanExpression.fromConstant(text.endsWith(pattern));
+    },
+    category: DartBlockNativeFunctionCategory.string,
+    type: DartBlockNativeFunctionType.endsWith,
+    description: 'Check if text ends with a given pattern.',
+  );
+
+  static final contains = DartBlockNativeFunction(
+    name: 'contains',
+    returnType: DartBlockDataType.booleanType,
+    parameters: [
+      DartBlockVariableDefinition('text', DartBlockDataType.stringType),
+      DartBlockVariableDefinition('pattern', DartBlockDataType.stringType),
+    ],
+    implementation: (arbiter, args) {
+      final text = args[0].getValue(arbiter) as String;
+      final pattern = args[1].getValue(arbiter) as String;
+      return DartBlockBooleanExpression.fromConstant(text.contains(pattern));
+    },
+    category: DartBlockNativeFunctionCategory.string,
+    type: DartBlockNativeFunctionType.contains,
+    description: 'Check if text contains a given pattern.',
+  );
+
+  static final substring = DartBlockNativeFunction(
+    name: 'substring',
+    returnType: DartBlockDataType.stringType,
+    parameters: [
+      DartBlockVariableDefinition('text', DartBlockDataType.stringType),
+      DartBlockVariableDefinition('start', DartBlockDataType.integerType),
+      DartBlockVariableDefinition('end', DartBlockDataType.integerType),
+    ],
+    implementation: (arbiter, args) {
+      final text = args[0].getValue(arbiter) as String;
+      final start = args[1].getValue(arbiter) as int;
+      final end = args[2].getValue(arbiter) as int;
+      if (start < 0 || end < 0) {
+        throw DartBlockException(
+          title: 'Invalid Indices',
+          message: 'Start and end indices cannot be negative.',
+        );
+      }
+      if (start > end || end > text.length) {
+        throw DartBlockException(
+          title: 'Invalid Indices',
+          message:
+              'Start index cannot be greater than end index, and end index cannot exceed text length.',
+        );
+      }
+      return DartBlockConcatenationValue.fromConstant(
+        text.substring(start, end),
+      );
+    },
+    category: DartBlockNativeFunctionCategory.string,
+    type: DartBlockNativeFunctionType.substring,
+    description:
+        'Get a substring of the text, from start index (inclusive) to end index (exclusive).',
+  );
+
+  /// List of all available native functions.
   ///
   /// These are automatically available in all DartBlock programs without
   /// needing to be declared by the user.
@@ -163,13 +279,20 @@ class DartBlockNativeFunctions {
     round,
     min,
     max,
+    lowercase,
+    uppercase,
+    startsWith,
+    endsWith,
+    contains,
+    substring,
   ];
 
-  /// Lookup a built-in function by name.
+  /// Lookup a native function by name.
   static DartBlockNativeFunction? getByName(String name) {
     return all.firstWhereOrNull((f) => f.name == name);
   }
 
+  /// Filter native functions by category and type.
   static List<DartBlockNativeFunction> filter(
     List<DartBlockNativeFunctionCategory> categories,
     List<DartBlockNativeFunctionType> types,

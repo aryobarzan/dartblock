@@ -1,5 +1,5 @@
 import 'package:dartblock_code/models/dartblock_value.dart';
-import 'package:dartblock_code/models/function_builtin.dart';
+import 'package:dartblock_code/models/function_native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dartblock_code/core/dartblock_executor.dart';
 import 'package:dartblock_code/core/dartblock_program.dart';
@@ -117,7 +117,9 @@ class EditorStateNotifier extends StateNotifier<DartBlockEditorState> {
 /// Provider for broadcasting user interactions throughout the editor.
 /// This replaces the Notification bubbling system and works across all contexts,
 /// including modals and overlays, without manual re-dispatching.
-final interactionEventProvider = StateProvider<DartBlockInteraction?>((ref) => null);
+final interactionEventProvider = StateProvider<DartBlockInteraction?>(
+  (ref) => null,
+);
 
 /// Helper extension to easily broadcast interactions from any widget with WidgetRef.
 extension InteractionBroadcaster on WidgetRef {

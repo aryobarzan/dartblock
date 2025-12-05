@@ -36,9 +36,23 @@ sealed class DartBlockFunction {
   });
 }
 
-enum DartBlockNativeFunctionType { randomInt, sqrt, abs, pow, round, min, max }
+enum DartBlockNativeFunctionType {
+  randomInt,
+  sqrt,
+  abs,
+  pow,
+  round,
+  min,
+  max,
+  lowercase,
+  uppercase,
+  startsWith,
+  endsWith,
+  contains,
+  substring,
+}
 
-enum DartBlockNativeFunctionCategory { random, math }
+enum DartBlockNativeFunctionCategory { random, math, string }
 
 /// Built-in function with native Dart implementation.
 ///

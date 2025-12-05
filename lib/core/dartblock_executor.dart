@@ -6,7 +6,7 @@ import 'package:dartblock_code/core/dartblock_execution_result.dart';
 import 'package:flutter/foundation.dart';
 import 'package:dartblock_code/core/dartblock_program.dart';
 import 'package:dartblock_code/models/function.dart';
-import 'package:dartblock_code/models/function_builtin.dart';
+import 'package:dartblock_code/models/function_native.dart';
 import 'package:dartblock_code/models/environment.dart';
 import 'package:dartblock_code/models/exception.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
