@@ -13,11 +13,40 @@ import 'package:dartblock_code/models/statement.dart';
 
 /// Global provider for the DartBlock program.
 /// Must be overridden per DartBlockEditor instance.
-final programProvider = StateProvider<DartBlockProgram>((ref) {
-  throw UnimplementedError(
+class ProgramNotifier extends Notifier<DartBlockProgram> {
+  /// Factory method to create a notifier with an initial program.
+  /// Useful for overriding the provider with a specific program instance.
+  static ProgramNotifier withProgram(DartBlockProgram program) {
+    return _ProgramNotifierWithInitialState(program);
+  }
+
+  @override
+  DartBlockProgram build() => throw UnimplementedError(
     'programProvider must be overridden with actual program',
   );
-});
+
+  @override
+  set state(DartBlockProgram newState) => super.state = newState;
+
+  DartBlockProgram update(
+    DartBlockProgram Function(DartBlockProgram state) cb,
+  ) => state = cb(state);
+}
+
+/// Private implementation of ProgramNotifier with an initial state.
+class _ProgramNotifierWithInitialState extends ProgramNotifier {
+  final DartBlockProgram _program;
+
+  _ProgramNotifierWithInitialState(this._program);
+
+  @override
+  DartBlockProgram build() => _program;
+}
+
+// New approach for riverpod 3.0.0: from StateProvider to NotifierProvider
+final programProvider = NotifierProvider<ProgramNotifier, DartBlockProgram>(
+  ProgramNotifier.new,
+);
 
 /// Derived provider that exposes the list of custom functions.
 final customFunctionsProvider = Provider<List<DartBlockCustomFunction>>((ref) {
@@ -63,14 +92,21 @@ class DartBlockSettings {
 // Editor State Providers
 // ============================================================================
 
-/// Provider for editor UI state (clipboard, dragging, etc.)
-final editorStateProvider =
-    StateNotifierProvider<EditorStateNotifier, DartBlockEditorState>((ref) {
-      return EditorStateNotifier();
-    });
-
 /// Provider for tracking whether a toolbox item is being dragged.
-final isDraggingToolboxItemProvider = StateProvider<bool>((ref) => false);
+class IsDraggingToolboxItemNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  @override
+  set state(bool newState) => super.state = newState;
+
+  bool update(bool Function(bool state) cb) => state = cb(state);
+}
+
+final isDraggingToolboxItemProvider =
+    NotifierProvider<IsDraggingToolboxItemNotifier, bool>(
+      IsDraggingToolboxItemNotifier.new,
+    );
 
 /// Immutable state for the DartBlock editor clipboard.
 class DartBlockEditorState {
@@ -84,14 +120,19 @@ class DartBlockEditorState {
 }
 
 /// State notifier for managing editor clipboard operations.
-class EditorStateNotifier extends StateNotifier<DartBlockEditorState> {
-  EditorStateNotifier()
-    : super(
-        const DartBlockEditorState(
-          copiedStatement: null,
-          isCopiedStatementCut: false,
-        ),
-      );
+class EditorStateNotifier extends Notifier<DartBlockEditorState> {
+  @override
+  DartBlockEditorState build() => const DartBlockEditorState(
+    copiedStatement: null,
+    isCopiedStatementCut: false,
+  );
+
+  @override
+  set state(DartBlockEditorState newState) => super.state = newState;
+
+  DartBlockEditorState update(
+    DartBlockEditorState Function(DartBlockEditorState state) cb,
+  ) => state = cb(state);
 
   /// Copy or cut a statement to the clipboard.
   void copyStatement(Statement statement, {bool cut = false}) {
@@ -110,6 +151,12 @@ class EditorStateNotifier extends StateNotifier<DartBlockEditorState> {
   }
 }
 
+/// Provider for editor UI state (clipboard, dragging, etc.)
+final editorStateProvider =
+    NotifierProvider<EditorStateNotifier, DartBlockEditorState>(
+      EditorStateNotifier.new,
+    );
+
 // ============================================================================
 // Interaction Event Provider
 // ============================================================================
@@ -117,15 +164,33 @@ class EditorStateNotifier extends StateNotifier<DartBlockEditorState> {
 /// Provider for broadcasting user interactions throughout the editor.
 /// This replaces the Notification bubbling system and works across all contexts,
 /// including modals and overlays, without manual re-dispatching.
-final interactionEventProvider = StateProvider<DartBlockInteraction?>(
-  (ref) => null,
-);
+class InteractionEventNotifier extends Notifier<DartBlockInteraction?> {
+  @override
+  DartBlockInteraction? build() => null;
+
+  @override
+  set state(DartBlockInteraction? newState) => super.state = newState;
+
+  DartBlockInteraction? update(
+    DartBlockInteraction? Function(DartBlockInteraction? state) cb,
+  ) => state = cb(state);
+
+  /// Broadcast an interaction event
+  void broadcast(DartBlockInteraction interaction) {
+    state = interaction;
+  }
+}
+
+final interactionEventProvider =
+    NotifierProvider<InteractionEventNotifier, DartBlockInteraction?>(
+      InteractionEventNotifier.new,
+    );
 
 /// Helper extension to easily broadcast interactions from any widget with WidgetRef.
 extension InteractionBroadcaster on WidgetRef {
   /// Broadcast a user interaction event to all listeners.
   void broadcastInteraction(DartBlockInteraction interaction) {
-    read(interactionEventProvider.notifier).state = interaction;
+    read(interactionEventProvider.notifier).broadcast(interaction);
   }
 }
 

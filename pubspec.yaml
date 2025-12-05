@@ -5,7 +5,7 @@ repository: https://github.com/aryobarzan/dartblock
 
 environment:
   sdk: ^3.9.2
-  flutter: ">=1.17.0"
+  flutter: ^3.0.0
 
 dependencies:
   flutter:
@@ -15,19 +15,19 @@ dependencies:
   collection: ^1.17.1
   file_picker: ^10.3.7
   flutter_highlight: ^0.7.0
-  google_fonts: ^6.3.2
+  google_fonts: ^6.3.3
   highlight: ^0.7.0
   json_annotation: ^4.9.0
   reorderables: ^0.6.0
   uuid: ^4.5.2
-  flutter_riverpod: ^2.6.1
+  flutter_riverpod: ^3.0.3
 
 dev_dependencies:
-  analyzer: ^9.0.0
+  analyzer: ^8.0.0
   flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
-  json_serializable: ^6.11.3
+  json_serializable: ^6.11.2
 flutter:
   assets:
     - assets/icons/

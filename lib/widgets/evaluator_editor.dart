@@ -415,7 +415,9 @@ class DartBlockFunctionOutputEvaluationSchemaEditor extends StatelessWidget {
                           // to DartBlockEditor, and it works on a different DartBlockProgram instance (sampleSolution).
                           child: ProviderScope(
                             overrides: [
-                              programProvider.overrideWith((ref) => program),
+                              programProvider.overrideWith(
+                                () => ProgramNotifier.withProgram(program),
+                              ),
                               settingsProvider.overrideWith(
                                 (ref) => const DartBlockSettings(),
                               ),
@@ -462,7 +464,9 @@ class DartBlockFunctionOutputEvaluationSchemaEditor extends StatelessWidget {
                 // to DartBlockEditor, and it works on a different DartBlockProgram instance (sampleSolution).
                 child: ProviderScope(
                   overrides: [
-                    programProvider.overrideWith((ref) => program),
+                    programProvider.overrideWith(
+                      () => ProgramNotifier.withProgram(program),
+                    ),
                     settingsProvider.overrideWith(
                       (ref) => const DartBlockSettings(),
                     ),

@@ -161,7 +161,9 @@ class _DartBlockEditorState extends State<DartBlockEditor>
   Widget build(BuildContext context) {
     return ProviderScope(
       overrides: [
-        programProvider.overrideWith((ref) => program),
+        programProvider.overrideWith(
+          () => ProgramNotifier.withProgram(program),
+        ),
         settingsProvider.overrideWith(
           (ref) => DartBlockSettings(
             canChange: widget.canChange,
@@ -642,9 +644,8 @@ class _DartBlockEditorState extends State<DartBlockEditor>
                     program.customFunctions[index - 1] = value;
                   }
                 });
-                ref.read(programProvider.notifier).state = ref.read(
-                  programProvider,
-                );
+                // Notify provider listeners of the change
+                ref.read(programProvider.notifier).state = program;
                 if (widget.onChanged != null) {
                   widget.onChanged!(program);
                 }
