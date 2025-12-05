@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:dartblock_code/widgets/helpers/adaptive_display.dart';
+import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:code_text_field/code_text_field.dart';
 import 'package:collection/collection.dart';
@@ -61,6 +62,10 @@ class DartBlockEditor extends StatefulWidget {
   /// For more information, see [DartBlockExecutor.execute].
   final Duration? maximumExecutionDuration;
 
+  final List<DartBlockNativeFunctionCategory> allowedNativeFunctionCategories;
+
+  final List<DartBlockNativeFunctionType> allowedNativeFunctionTypes;
+
   /// Whether the visualization should be dense, i.e., non-scrollable.
   ///
   /// By default, this property is `false`, meaning [DartBlockEditor] is a scrollable widget.
@@ -95,12 +100,18 @@ class DartBlockEditor extends StatefulWidget {
     required this.canReorder,
     required this.canRun,
     this.maximumExecutionDuration,
+    List<DartBlockNativeFunctionCategory>? allowedNativeFunctionCategories,
+    List<DartBlockNativeFunctionType>? allowedNativeFunctionTypes,
     this.isDense = false,
     this.scrollController,
     this.onChanged,
     this.onInteraction,
     this.padding,
-  });
+  }) : allowedNativeFunctionCategories =
+           allowedNativeFunctionCategories ??
+           DartBlockNativeFunctionCategory.values,
+       allowedNativeFunctionTypes =
+           allowedNativeFunctionTypes ?? DartBlockNativeFunctionType.values;
 
   @override
   State<DartBlockEditor> createState() => _DartBlockEditorState();
@@ -156,124 +167,128 @@ class _DartBlockEditorState extends State<DartBlockEditor>
             canChange: widget.canChange,
             canDelete: widget.canDelete,
             canReorder: widget.canReorder,
+            allowedNativeFunctionCategories:
+                widget.allowedNativeFunctionCategories,
+            allowedNativeFunctionTypes: widget.allowedNativeFunctionTypes,
           ),
         ),
       ],
-      child: NotificationListener<DartBlockNotification>(
-        onNotification: (notification) {
-          _onReceiveDartBlockNotification(notification);
-          return true;
-        },
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            if (_toolboxY == -1) {
-              _toolboxY = max(
-                0,
-                constraints.maxHeight -
-                    (widget.canChange
-                        ? ToolboxConfig.toolboxHeight
-                        : ToolboxConfig.toolboxMinimalHeight),
-              );
-            }
-            // Render it as a non-scrollable widget.
-            if (widget.isDense) {
-              return _buildDenseBody(constraints);
-            }
+      child: Consumer(
+        builder: (context, ref, child) {
+          // Listen to interaction events and forward to callback (new approach - disabled for now)
+          // ref.listen<DartBlockInteraction?>(interactionEventProvider, (
+          //   previous,
+          //   next,
+          // ) {
+          //   // print(next);
+          //   // if (next != null && widget.onInteraction != null) {
+          //   //   widget.onInteraction!(next);
+          //   // }
+          // });
 
-            /// Use a Stack widget such that the toolbox can potentially float over the program (canvas).
-            return Stack(
-              fit: StackFit.expand,
-              children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (_isToolboxDocked) _buildToolbox(),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        padding: widget.padding,
-                        controller: widget.scrollController,
-                        child: (viewOption == DartBlockViewOption.script)
-                            ? Padding(
-                                padding: const EdgeInsets.only(top: 8),
-                                child: CodeTheme(
-                                  data: CodeThemeData(
-                                    styles:
-                                        Theme.of(context).brightness ==
-                                            Brightness.dark
-                                        ? themeMap['monokai-sublime']!
-                                        : themeMap["github-gist"]!,
+          return child!;
+        },
+        child: NotificationListener<DartBlockNotification>(
+          onNotification: (notification) {
+            _onReceiveDartBlockNotification(notification);
+            return true;
+          },
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              if (_toolboxY == -1) {
+                _toolboxY = max(
+                  0,
+                  constraints.maxHeight -
+                      (widget.canChange
+                          ? ToolboxConfig.toolboxHeight
+                          : ToolboxConfig.toolboxMinimalHeight),
+                );
+              }
+              // Render it as a non-scrollable widget.
+              if (widget.isDense) {
+                return _buildDenseBody(constraints);
+              }
+
+              /// Use a Stack widget such that the toolbox can potentially float over the program (canvas).
+              return Stack(
+                fit: StackFit.expand,
+                children: [
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (_isToolboxDocked) _buildToolbox(),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: widget.padding,
+                          controller: widget.scrollController,
+                          child: (viewOption == DartBlockViewOption.script)
+                              ? Padding(
+                                  padding: const EdgeInsets.only(top: 8),
+                                  child: CodeTheme(
+                                    data: CodeThemeData(
+                                      styles:
+                                          Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? themeMap['monokai-sublime']!
+                                          : themeMap["github-gist"]!,
+                                    ),
+                                    child: CodeField(
+                                      lineNumberStyle: const LineNumberStyle(
+                                        margin: 8,
+                                        width: 34, // 34
+                                      ),
+                                      readOnly: true,
+                                      isDense: true,
+                                      horizontalScroll: true,
+                                      wrap: false,
+                                      enabled: true,
+                                      controller: CodeController(
+                                        text: widget.program
+                                            .toScript(language: language)
+                                            .trim(),
+                                        language: allLanguages[language.name],
+                                      ),
+                                      textStyle: GoogleFonts.sourceCodePro(
+                                        fontSize:
+                                            Theme.of(
+                                              context,
+                                            ).textTheme.bodyMedium?.fontSize ??
+                                            12,
+                                      ),
+                                    ),
                                   ),
-                                  child: CodeField(
-                                    lineNumberStyle: const LineNumberStyle(
-                                      margin: 8,
-                                      width: 34, // 34
-                                    ),
-                                    readOnly: true,
-                                    isDense: true,
-                                    horizontalScroll: true,
-                                    wrap: false,
-                                    enabled: true,
-                                    controller: CodeController(
-                                      text: widget.program
-                                          .toScript(language: language)
-                                          .trim(),
-                                      language: allLanguages[language.name],
-                                    ),
-                                    textStyle: GoogleFonts.sourceCodePro(
-                                      fontSize:
-                                          Theme.of(
-                                            context,
-                                          ).textTheme.bodyMedium?.fontSize ??
-                                          12,
-                                    ),
-                                  ),
+                                )
+                              : Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: _buildFunctionWidgets(),
                                 ),
-                              )
-                            : Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: _buildFunctionWidgets(),
-                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (!_isToolboxDocked)
+                    Positioned(
+                      left: 5,
+                      right: 5,
+                      top: _toolboxY,
+                      // IMPORTANT: do not conditionally include the toolbox here.
+                      // Otherwise, if the toolbox is hidden, it is no longer part of the widget tree.
+                      // Subsequently, when the user stops dragging a statement from the toolbox,
+                      // onToolboxItemDragEnd will not be triggered, resulting in the toolbox never being shown again.
+                      child: Opacity(
+                        opacity: _isToolboxHidden ? 0.0 : 1.0,
+                        child: IgnorePointer(
+                          ignoring: _isToolboxHidden,
+                          child: _buildToolbox(),
+                        ),
                       ),
                     ),
-                  ],
-                ),
-                if (!_isToolboxDocked && !_isToolboxHidden)
-                  Positioned(
-                    left: 5,
-                    right: 5,
-                    top: _toolboxY,
-                    child: GestureDetector(
-                      child: _buildToolbox(),
-                      onVerticalDragStart: (details) {
-                        DartBlockInteraction.create(
-                          dartBlockInteractionType: DartBlockInteractionType
-                              .startDraggingUndockedToolbox,
-                          content: 'yCoordinate-$_toolboxY',
-                        ).dispatch(context);
-                        _isDraggingToolbox = true;
-                      },
-                      onVerticalDragEnd: (details) {
-                        DartBlockInteraction.create(
-                          dartBlockInteractionType: DartBlockInteractionType
-                              .finishDraggingUndockedToolbox,
-                          content: 'yCoordinate-$_toolboxY',
-                        ).dispatch(context);
-                        setState(() {
-                          _isDraggingToolbox = false;
-                        });
-                      },
-                      onVerticalDragUpdate: (details) {
-                        setState(() {
-                          _toolboxY += details.delta.dy;
-                          _constrainToolboxY(constraints.maxHeight);
-                        });
-                      },
-                    ),
-                  ),
-              ],
-            );
-          },
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -345,27 +360,17 @@ class _DartBlockEditorState extends State<DartBlockEditor>
             ],
           ),
         ),
-        if (!_isToolboxDocked && !_isToolboxHidden)
+        if (!_isToolboxDocked)
           Positioned(
             left: 5,
             right: 5,
             top: _toolboxY,
-            child: GestureDetector(
-              child: _buildToolbox(),
-              onVerticalDragStart: (details) {
-                _isDraggingToolbox = true;
-              },
-              onVerticalDragEnd: (details) {
-                setState(() {
-                  _isDraggingToolbox = false;
-                });
-              },
-              onVerticalDragUpdate: (details) {
-                setState(() {
-                  _toolboxY += details.delta.dy;
-                  _constrainToolboxY(constraints.maxHeight);
-                });
-              },
+            child: Opacity(
+              opacity: _isToolboxHidden ? 0.0 : 1.0,
+              child: IgnorePointer(
+                ignoring: _isToolboxHidden,
+                child: _buildToolbox(),
+              ),
             ),
           ),
       ],
@@ -379,124 +384,164 @@ class _DartBlockEditorState extends State<DartBlockEditor>
 
   Widget _buildToolbox() {
     return Consumer(
-      builder: (context, ref, child) => DartBlockToolbox(
-        isTransparent: _isDraggingToolbox,
-        isDocked: _isToolboxDocked,
-        canUndock: widget.isDense ? false : true,
-        isShowingCode: viewOption == DartBlockViewOption.script,
-        isExecuting: _isExecuting,
-        showActions: widget.canChange,
-        onToolboxItemDragStart: () {
-          /// Do not try dispatching the notification further up the widget tree, as we are at the same context level
-          /// as the NotificationListener itself, meaning the notification would not be captured.
-          _onReceiveDartBlockNotification(
-            DartBlockInteractionNotification(
-              DartBlockInteraction.create(
-                dartBlockInteractionType: DartBlockInteractionType
-                    .startedDraggingStatementFromToolbox,
-              ),
-            ),
-          );
-          setState(() {
-            _isToolboxHidden = true;
-
-            ref.read(isDraggingToolboxItemProvider.notifier).state = true;
-          });
-          HapticFeedback.lightImpact();
-        },
-        onToolboxItemDragEnd: () {
-          setState(() {
-            _isToolboxHidden = false;
-            ref.read(isDraggingToolboxItemProvider.notifier).state = false;
-          });
-        },
-        existingFunctionNames: program.customFunctions
-            .map((e) => e.name)
-            .toList(),
-        canAddFunction: widget.canChange,
-        onAction: (extraAction) {
-          switch (extraAction) {
-            case ToolboxExtraAction.console:
-              _showConsole();
-              break;
-            case ToolboxExtraAction.code:
-              setState(() {
-                if (viewOption == DartBlockViewOption.blocks) {
-                  viewOption = DartBlockViewOption.script;
-                  _wasToolboxPreviouslyDocked = _isToolboxDocked;
-                  _isToolboxDocked = true;
-                } else {
-                  viewOption = DartBlockViewOption.blocks;
-                  _isToolboxDocked = _wasToolboxPreviouslyDocked;
-                }
-              });
-              break;
-            case ToolboxExtraAction.help:
-              _showHelpCenter();
-              break;
-            case ToolboxExtraAction.dock:
-              setState(() {
-                _isToolboxDocked = !_isToolboxDocked;
-              });
-              if (_isToolboxDocked) {
-                _toolboxY = 25;
-              }
-              break;
-          }
-        },
-        onCodeViewAction: (action) {
-          switch (action) {
-            case CodeViewAction.copy:
-              _onCopyScript();
-              break;
-            case CodeViewAction.save:
-              _onDownloadScript();
-              break;
-          }
-        },
-        onCreateFunction: (newFunction) {
-          _onCreateFunction(newFunction);
-        },
-
-        onRun: widget.canRun
-            ? () async {
-                if (!_isExecuting) {
+      builder: (context, ref, child) {
+        final isDraggingStatement = ref.watch(isDraggingToolboxItemProvider);
+        final availableFunctions = ref.watch(availableFunctionsProvider([]));
+        return DartBlockToolbox(
+          isTransparent: _isDraggingToolbox,
+          isDocked: _isToolboxDocked,
+          canUndock: widget.isDense ? false : true,
+          isShowingCode: viewOption == DartBlockViewOption.script,
+          isExecuting: _isExecuting,
+          showActions: widget.canChange,
+          onToolboxDragStart: !_isToolboxDocked && !isDraggingStatement
+              ? (details) {
+                  // The user has started dragging the undocked toolbox around (vertically).
+                  DartBlockInteraction.create(
+                    dartBlockInteractionType:
+                        DartBlockInteractionType.startDraggingUndockedToolbox,
+                    content: 'yCoordinate-$_toolboxY',
+                  ).dispatch(context);
                   setState(() {
-                    _isExecuting = true;
+                    _isDraggingToolbox = true;
                   });
-                  if (widget.maximumExecutionDuration != null) {
-                    await executor.execute(
-                      duration: widget.maximumExecutionDuration!,
-                    );
+                }
+              : null,
+          onToolboxDragEnd: !_isToolboxDocked && !isDraggingStatement
+              ? (details) {
+                  // The user has finished dragging the undocked toolbox around (vertically).
+                  DartBlockInteraction.create(
+                    dartBlockInteractionType:
+                        DartBlockInteractionType.finishDraggingUndockedToolbox,
+                    content: 'yCoordinate-$_toolboxY',
+                  ).dispatch(context);
+                  setState(() {
+                    _isDraggingToolbox = false;
+                  });
+                }
+              : null,
+          onToolboxDragUpdate: !_isToolboxDocked && !isDraggingStatement
+              ? (details) {
+                  setState(() {
+                    _toolboxY += details.delta.dy;
+                    _constrainToolboxY(MediaQuery.of(context).size.height);
+                  });
+                }
+              : null,
+          onToolboxItemDragStart: () {
+            // The user has started dragging a statement type from the toolbox. (docked/undocked)
+
+            /// Do not try dispatching the notification further up the widget tree, as we are at the same context level
+            /// as the NotificationListener itself, meaning the notification would not be captured.
+            _onReceiveDartBlockNotification(
+              DartBlockInteractionNotification(
+                DartBlockInteraction.create(
+                  dartBlockInteractionType: DartBlockInteractionType
+                      .startedDraggingStatementFromToolbox,
+                ),
+              ),
+            );
+            setState(() {
+              _isToolboxHidden = true;
+
+              ref.read(isDraggingToolboxItemProvider.notifier).state = true;
+            });
+            HapticFeedback.lightImpact();
+          },
+          onToolboxItemDragEnd: () {
+            // The user has finished dragging a statement type from the toolbox. (docked/undocked)
+            setState(() {
+              _isToolboxHidden = false;
+              ref.read(isDraggingToolboxItemProvider.notifier).state = false;
+            });
+          },
+          existingFunctionNames: availableFunctions.map((e) => e.name).toList(),
+          canAddFunction: widget.canChange,
+          onAction: (extraAction) {
+            switch (extraAction) {
+              case ToolboxExtraAction.console:
+                _showConsole(context);
+                break;
+              case ToolboxExtraAction.code:
+                setState(() {
+                  if (viewOption == DartBlockViewOption.blocks) {
+                    viewOption = DartBlockViewOption.script;
+                    _wasToolboxPreviouslyDocked = _isToolboxDocked;
+                    _isToolboxDocked = true;
                   } else {
-                    await executor.execute();
+                    viewOption = DartBlockViewOption.blocks;
+                    _isToolboxDocked = _wasToolboxPreviouslyDocked;
                   }
-                  if (executor.thrownException != null) {
-                    /// In case the execution is interrupted by an exception,
-                    /// additionally log this as a pseudo user interaction to best
-                    /// keep track of the user's context.
-                    _onReceiveDartBlockNotification(
-                      DartBlockInteractionNotification(
-                        DartBlockInteraction.create(
-                          dartBlockInteractionType: DartBlockInteractionType
-                              .executedProgramInterruptedByException,
+                });
+                break;
+              case ToolboxExtraAction.help:
+                _showHelpCenter(context);
+                break;
+              case ToolboxExtraAction.dock:
+                setState(() {
+                  _isToolboxDocked = !_isToolboxDocked;
+                });
+                if (_isToolboxDocked) {
+                  _toolboxY = 25;
+                }
+                break;
+            }
+          },
+          onCodeViewAction: (action) {
+            switch (action) {
+              case CodeViewAction.copy:
+                _onCopyScript();
+                break;
+              case CodeViewAction.save:
+                _onDownloadScript();
+                break;
+            }
+          },
+          onCreateFunction: (newFunction) {
+            _onCreateFunction(newFunction);
+          },
+          onRun: widget.canRun
+              ? () async {
+                  if (!_isExecuting) {
+                    setState(() {
+                      _isExecuting = true;
+                    });
+                    if (widget.maximumExecutionDuration != null) {
+                      await executor.execute(
+                        duration: widget.maximumExecutionDuration!,
+                      );
+                    } else {
+                      await executor.execute();
+                    }
+                    if (executor.thrownException != null) {
+                      /// In case the execution is interrupted by an exception,
+                      /// additionally log this as a pseudo user interaction to best
+                      /// keep track of the user's context.
+                      _onReceiveDartBlockNotification(
+                        DartBlockInteractionNotification(
+                          DartBlockInteraction.create(
+                            dartBlockInteractionType: DartBlockInteractionType
+                                .executedProgramInterruptedByException,
+                          ),
                         ),
+                      );
+                    }
+                    _isExecuting = false;
+                    if (context.mounted) {
+                      _showConsole(context);
+                    }
+                    setState(() {});
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Your program is already executing..."),
                       ),
                     );
                   }
-                  _isExecuting = false;
-                  _showConsole();
-                  setState(() {});
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Your program is already executing..."),
-                    ),
-                  );
                 }
-              }
-            : null,
-      ),
+              : null,
+        );
+      },
     );
   }
 
@@ -664,44 +709,48 @@ class _DartBlockEditorState extends State<DartBlockEditor>
       if (widget.canChange)
         Row(
           children: [
-            TextButton.icon(
-              onPressed: () {
-                _onReceiveDartBlockNotification(
-                  DartBlockInteractionNotification(
-                    DartBlockInteraction.create(
-                      dartBlockInteractionType: DartBlockInteractionType
-                          .openNewFunctionEditorFromCanvas,
+            Consumer(
+              builder: (context, ref, child) => TextButton.icon(
+                onPressed: () {
+                  _onReceiveDartBlockNotification(
+                    DartBlockInteractionNotification(
+                      DartBlockInteraction.create(
+                        dartBlockInteractionType: DartBlockInteractionType
+                            .openNewFunctionEditorFromCanvas,
+                      ),
                     ),
-                  ),
-                );
-                showNewFunctionSheet(
-                  context,
-                  existingCustomFunctionNames: program.customFunctions
-                      .map((e) => e.name)
-                      .toList(),
-                  onReceiveDartBlockNotification: (notification) {
-                    _onReceiveDartBlockNotification(notification);
-                  },
-                  onSaved: (newName, newReturnType) {
-                    _onCreateFunction(
-                      DartBlockCustomFunction(newName, newReturnType, [], []),
-                    );
-                  },
-                );
-              },
-              label: const Text("New Function"),
-              icon: const NewFunctionSymbol(),
+                  );
+                  final availableFunctions = ref.watch(
+                    availableFunctionsProvider([]),
+                  );
+                  showNewFunctionSheet(
+                    context,
+                    existingFunctionNames: availableFunctions
+                        .map((e) => e.name)
+                        .toList(),
+                    onReceiveDartBlockNotification: (notification) {
+                      _onReceiveDartBlockNotification(notification);
+                    },
+                    onSaved: (newName, newReturnType) {
+                      _onCreateFunction(
+                        DartBlockCustomFunction(newName, newReturnType, [], []),
+                      );
+                    },
+                  );
+                },
+                label: const Text("New Function"),
+                icon: const NewFunctionSymbol(),
+              ),
             ),
           ],
         ),
     ];
   }
 
-  void _showConsole() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
+  void _showConsole(BuildContext context) {
+    context.showProviderAwareBottomSheet(
       showDragHandle: true,
+      isScrollControlled: true,
       clipBehavior: Clip.hardEdge,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
@@ -746,15 +795,15 @@ class _DartBlockEditorState extends State<DartBlockEditor>
     );
   }
 
-  void _showHelpCenter() {
-    showModalBottomSheet(
-      context: context,
+  void _showHelpCenter(BuildContext context) {
+    context.showProviderAwareBottomSheet(
       showDragHandle: true,
       isScrollControlled: true,
       clipBehavior: Clip.hardEdge,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
       ),
+
       builder: (sheetContext) {
         /// Due to the modal sheet having a separate context and thus having no relation
         /// to the main context of DartBlockEditor, we capture DartBlockNotifications
@@ -780,7 +829,7 @@ class _DartBlockEditorState extends State<DartBlockEditor>
             expand: false,
             builder: (context, scrollController) => SingleChildScrollView(
               controller: scrollController,
-              child: const NeoTechHelpCenter(),
+              child: const DartBlockHelpCenter(),
             ),
           ),
         );
@@ -804,7 +853,7 @@ enum DartBlockViewOption {
 
 void showNewFunctionSheet(
   BuildContext context, {
-  required List<String> existingCustomFunctionNames,
+  required List<String> existingFunctionNames,
   required Function(String newName, DartBlockDataType? newReturnType) onSaved,
 
   /// If the context is the same as the main DartBlockEditor's context, indicate
@@ -822,7 +871,7 @@ void showNewFunctionSheet(
     onReceiveDartBlockNotification: onReceiveDartBlockNotification,
     useProviderAwareModal: true,
     child: CustomFunctionBasicEditor(
-      existingCustomFunctionNames: existingCustomFunctionNames,
+      existingCustomFunctionNames: existingFunctionNames,
       canDelete: false,
       canChange: true,
       onDelete: () {},

@@ -1,8 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dartblock_code/core/dartblock_program.dart';
 import 'package:dartblock_code/models/function.dart';
 import 'package:dartblock_code/models/evaluator.dart';
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:dartblock_code/widgets/editors/function_call.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:dartblock_code/widgets/views/function_call.dart';
@@ -173,9 +175,9 @@ class _DartBlockEvaluatorEditorState extends State<DartBlockEvaluatorEditor> {
                 //   ),
                 // ),
                 title: Text(element.schemaType.toString()),
-                subtitle: NeoTechEvaluationSchemaEditor(
+                subtitle: DartBlockEvaluationSchemaEditor(
                   evaluationSchema: element,
-                  neoTechCore: widget.sampleSolution,
+                  program: widget.sampleSolution,
                   onChange: (newSchema) {
                     setState(() {
                       schemas[index] = newSchema;
@@ -216,14 +218,14 @@ class _DartBlockEvaluatorEditorState extends State<DartBlockEvaluatorEditor> {
   }
 }
 
-class NeoTechEvaluationSchemaEditor extends StatelessWidget {
+class DartBlockEvaluationSchemaEditor extends StatelessWidget {
   final DartBlockEvaluationSchema evaluationSchema;
-  final DartBlockProgram neoTechCore;
+  final DartBlockProgram program;
   final Function(DartBlockEvaluationSchema) onChange;
-  const NeoTechEvaluationSchemaEditor({
+  const DartBlockEvaluationSchemaEditor({
     super.key,
     required this.evaluationSchema,
-    required this.neoTechCore,
+    required this.program,
     required this.onChange,
   });
 
@@ -231,42 +233,42 @@ class NeoTechEvaluationSchemaEditor extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (evaluationSchema) {
       case DartBlockFunctionDefinitionEvaluationSchema():
-        return NeoTechFunctionDefinitionEvaluationSchemaEditor(
-          neoTechCore: neoTechCore,
+        return DartBlockFunctionDefinitionEvaluationSchemaEditor(
+          program: program,
           evaluationSchema:
               evaluationSchema as DartBlockFunctionDefinitionEvaluationSchema,
           onChange: onChange,
         );
       case DartBlockFunctionOutputEvaluationSchema():
-        return NeoTechFunctionOutputEvaluationSchemaEditor(
-          neoTechCore: neoTechCore,
+        return DartBlockFunctionOutputEvaluationSchemaEditor(
+          program: program,
           evaluationSchema:
               evaluationSchema as DartBlockFunctionOutputEvaluationSchema,
           onChange: onChange,
         );
       case DartBlockScriptEvaluationSchema():
-        return NeoTechScriptEvaluationSchemaEditor(
-          neoTechCore: neoTechCore,
+        return DartBlockScriptEvaluationSchemaEditor(
+          program: program,
           evaluationSchema: evaluationSchema as DartBlockScriptEvaluationSchema,
           onChange: onChange,
         );
       case DartBlockVariableCountEvaluationSchema():
-        return NeoTechVariableCountEvaluationSchemaEditor(
-          neoTechCore: neoTechCore,
+        return DartBlockVariableCountEvaluationSchemaEditor(
+          program: program,
           evaluationSchema:
               evaluationSchema as DartBlockVariableCountEvaluationSchema,
           onChange: onChange,
         );
       case DartBlockEnvironmentEvaluationSchema():
-        return NeoTechEnvironmentEvaluationSchemaEditor(
-          neoTechCore: neoTechCore,
+        return DartBlockEnvironmentEvaluationSchemaEditor(
+          program: program,
           evaluationSchema:
               evaluationSchema as DartBlockEnvironmentEvaluationSchema,
           onChange: onChange,
         );
       case DartBlockPrintEvaluationSchema():
-        return NeoTechPrintEvaluationSchemaEditor(
-          neoTechCore: neoTechCore,
+        return DartBlockPrintEvaluationSchemaEditor(
+          program: program,
           evaluationSchema: evaluationSchema as DartBlockPrintEvaluationSchema,
           onChange: onChange,
         );
@@ -274,20 +276,21 @@ class NeoTechEvaluationSchemaEditor extends StatelessWidget {
   }
 }
 
-class NeoTechFunctionDefinitionEvaluationSchemaEditor extends StatelessWidget {
+class DartBlockFunctionDefinitionEvaluationSchemaEditor
+    extends StatelessWidget {
   final DartBlockFunctionDefinitionEvaluationSchema evaluationSchema;
-  final DartBlockProgram neoTechCore;
+  final DartBlockProgram program;
   final Function(DartBlockFunctionDefinitionEvaluationSchema) onChange;
-  const NeoTechFunctionDefinitionEvaluationSchemaEditor({
+  const DartBlockFunctionDefinitionEvaluationSchemaEditor({
     super.key,
     required this.evaluationSchema,
-    required this.neoTechCore,
+    required this.program,
     required this.onChange,
   });
 
   @override
   Widget build(BuildContext context) {
-    final List<FunctionDefinition> availableFunctionDefinitions = neoTechCore
+    final List<FunctionDefinition> availableFunctionDefinitions = program
         .customFunctions
         .map((e) => e.getAsFunctionDefinition())
         .whereNot(
@@ -367,14 +370,14 @@ class NeoTechFunctionDefinitionEvaluationSchemaEditor extends StatelessWidget {
   }
 }
 
-class NeoTechFunctionOutputEvaluationSchemaEditor extends StatelessWidget {
+class DartBlockFunctionOutputEvaluationSchemaEditor extends StatelessWidget {
   final DartBlockFunctionOutputEvaluationSchema evaluationSchema;
-  final DartBlockProgram neoTechCore;
+  final DartBlockProgram program;
   final Function(DartBlockFunctionOutputEvaluationSchema) onChange;
-  const NeoTechFunctionOutputEvaluationSchemaEditor({
+  const DartBlockFunctionOutputEvaluationSchemaEditor({
     super.key,
     required this.evaluationSchema,
-    required this.neoTechCore,
+    required this.program,
     required this.onChange,
   });
 
@@ -407,22 +410,32 @@ class NeoTechFunctionOutputEvaluationSchemaEditor extends StatelessWidget {
                         tooltip: "Edit sample function call",
                         widget: Padding(
                           padding: const EdgeInsets.all(4),
-                          child: FunctionCallComposer(
-                            statement: element,
-                            customFunctions: neoTechCore.customFunctions,
-                            existingVariableDefinitions: const [],
-                            onSaved: (customFunction, savedFunctionCall) {
-                              Navigator.of(context).pop();
-                              evaluationSchema.sampleFunctionCalls[index] =
-                                  savedFunctionCall;
-                              onChange(evaluationSchema);
-                            },
-                            restrictToDataTypes: const [],
+                          // Similar to DartBlockEditor, we need to provide the necessary providers here.
+                          // The reason being that the DartBlockEvaluationEditor has no direct relation
+                          // to DartBlockEditor, and it works on a different DartBlockProgram instance (sampleSolution).
+                          child: ProviderScope(
+                            overrides: [
+                              programProvider.overrideWith((ref) => program),
+                              settingsProvider.overrideWith(
+                                (ref) => const DartBlockSettings(),
+                              ),
+                            ],
+                            child: FunctionCallComposer(
+                              statement: element,
+                              existingVariableDefinitions: const [],
+                              onSaved: (customFunction, savedFunctionCall) {
+                                Navigator.of(context).pop();
+                                evaluationSchema.sampleFunctionCalls[index] =
+                                    savedFunctionCall;
+                                onChange(evaluationSchema);
+                              },
+                              restrictToDataTypes: const [],
+                            ),
                           ),
                         ),
                         child: FunctionCallStatementWidget(
                           statement: element,
-                          customFunction: neoTechCore.customFunctions
+                          dartBlockFunction: program.customFunctions
                               .firstWhereOrNull(
                                 (customFunction) =>
                                     customFunction.name == element.functionName,
@@ -444,15 +457,27 @@ class NeoTechFunctionOutputEvaluationSchemaEditor extends StatelessWidget {
               tooltip: "Add a sample function call",
               widget: Padding(
                 padding: const EdgeInsets.all(4),
-                child: FunctionCallComposer(
-                  customFunctions: neoTechCore.customFunctions,
-                  existingVariableDefinitions: const [],
-                  onSaved: (customFunction, savedFunctionCall) {
-                    Navigator.of(context).pop();
-                    evaluationSchema.sampleFunctionCalls.add(savedFunctionCall);
-                    onChange(evaluationSchema);
-                  },
-                  restrictToDataTypes: const [],
+                // Similar to DartBlockEditor, we need to provide the necessary providers here.
+                // The reason being that the DartBlockEvaluationEditor has no direct relation
+                // to DartBlockEditor, and it works on a different DartBlockProgram instance (sampleSolution).
+                child: ProviderScope(
+                  overrides: [
+                    programProvider.overrideWith((ref) => program),
+                    settingsProvider.overrideWith(
+                      (ref) => const DartBlockSettings(),
+                    ),
+                  ],
+                  child: FunctionCallComposer(
+                    existingVariableDefinitions: const [],
+                    onSaved: (customFunction, savedFunctionCall) {
+                      Navigator.of(context).pop();
+                      evaluationSchema.sampleFunctionCalls.add(
+                        savedFunctionCall,
+                      );
+                      onChange(evaluationSchema);
+                    },
+                    restrictToDataTypes: const [],
+                  ),
                 ),
               ),
               child: IgnorePointer(
@@ -470,14 +495,14 @@ class NeoTechFunctionOutputEvaluationSchemaEditor extends StatelessWidget {
   }
 }
 
-class NeoTechScriptEvaluationSchemaEditor extends StatelessWidget {
+class DartBlockScriptEvaluationSchemaEditor extends StatelessWidget {
   final DartBlockScriptEvaluationSchema evaluationSchema;
-  final DartBlockProgram neoTechCore;
+  final DartBlockProgram program;
   final Function(DartBlockScriptEvaluationSchema) onChange;
-  const NeoTechScriptEvaluationSchemaEditor({
+  const DartBlockScriptEvaluationSchemaEditor({
     super.key,
     required this.evaluationSchema,
-    required this.neoTechCore,
+    required this.program,
     required this.onChange,
   });
 
@@ -509,14 +534,14 @@ class NeoTechScriptEvaluationSchemaEditor extends StatelessWidget {
   }
 }
 
-class NeoTechVariableCountEvaluationSchemaEditor extends StatelessWidget {
+class DartBlockVariableCountEvaluationSchemaEditor extends StatelessWidget {
   final DartBlockVariableCountEvaluationSchema evaluationSchema;
-  final DartBlockProgram neoTechCore;
+  final DartBlockProgram program;
   final Function(DartBlockVariableCountEvaluationSchema) onChange;
-  const NeoTechVariableCountEvaluationSchemaEditor({
+  const DartBlockVariableCountEvaluationSchemaEditor({
     super.key,
     required this.evaluationSchema,
-    required this.neoTechCore,
+    required this.program,
     required this.onChange,
   });
 
@@ -549,9 +574,7 @@ class NeoTechVariableCountEvaluationSchemaEditor extends StatelessWidget {
   }
 
   int getMaximumVariableCount() {
-    var variableDefinitions = neoTechCore
-        .buildTree()
-        .findAllVariableDefinitions();
+    var variableDefinitions = program.buildTree().findAllVariableDefinitions();
     if (evaluationSchema.ignoreVariablesStartingWithUnderscore) {
       return variableDefinitions
           .where((element) => !element.name.startsWith('_'))
@@ -562,14 +585,14 @@ class NeoTechVariableCountEvaluationSchemaEditor extends StatelessWidget {
   }
 }
 
-class NeoTechEnvironmentEvaluationSchemaEditor extends StatelessWidget {
+class DartBlockEnvironmentEvaluationSchemaEditor extends StatelessWidget {
   final DartBlockEnvironmentEvaluationSchema evaluationSchema;
-  final DartBlockProgram neoTechCore;
+  final DartBlockProgram program;
   final Function(DartBlockEnvironmentEvaluationSchema) onChange;
-  const NeoTechEnvironmentEvaluationSchemaEditor({
+  const DartBlockEnvironmentEvaluationSchemaEditor({
     super.key,
     required this.evaluationSchema,
-    required this.neoTechCore,
+    required this.program,
     required this.onChange,
   });
 
@@ -601,14 +624,14 @@ class NeoTechEnvironmentEvaluationSchemaEditor extends StatelessWidget {
   }
 }
 
-class NeoTechPrintEvaluationSchemaEditor extends StatelessWidget {
+class DartBlockPrintEvaluationSchemaEditor extends StatelessWidget {
   final DartBlockPrintEvaluationSchema evaluationSchema;
-  final DartBlockProgram neoTechCore;
+  final DartBlockProgram program;
   final Function(DartBlockPrintEvaluationSchema) onChange;
-  const NeoTechPrintEvaluationSchemaEditor({
+  const DartBlockPrintEvaluationSchemaEditor({
     super.key,
     required this.evaluationSchema,
-    required this.neoTechCore,
+    required this.program,
     required this.onChange,
   });
 

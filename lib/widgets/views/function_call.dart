@@ -10,13 +10,13 @@ import 'package:dartblock_code/widgets/views/symbols.dart';
 class FunctionCallStatementWidget extends StatelessWidget {
   final FunctionCallStatement statement;
 
-  /// If the custom function being called by this statement cannot be found, this field is null.
+  /// If the DartBlockFunction being called by this statement cannot be found, this field is null.
   /// A warning should be shown in that case to tell the user to update this statement to fix the issue.
-  final DartBlockCustomFunction? customFunction;
+  final DartBlockFunction? dartBlockFunction;
   const FunctionCallStatementWidget({
     super.key,
     required this.statement,
-    this.customFunction,
+    this.dartBlockFunction,
   });
 
   @override
@@ -25,18 +25,18 @@ class FunctionCallStatementWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (customFunction == null && statement.functionName != 'main')
+        if (dartBlockFunction == null && statement.functionName != 'main')
           WarningIconButton(
             title: "Function not found",
             message:
                 "The function '${statement.functionName}' does not exist, which may happen when you've changed a function's name.\nEdit this function call to fix the issue!",
           ),
-        if (customFunction != null &&
-            statement.arguments.length < customFunction!.parameters.length)
+        if (dartBlockFunction != null &&
+            statement.arguments.length < dartBlockFunction!.parameters.length)
           WarningIconButton(
             title: "Missing arguments",
             message:
-                "The function '${customFunction!.name}' expects ${customFunction!.parameters.length} argument${customFunction!.parameters.length == 1 ? '' : 's'}, but you have only indicated ${statement.arguments.length}.\nEdit this function call to fix the issue!",
+                "The function '${dartBlockFunction!.name}' expects ${dartBlockFunction!.parameters.length} argument${dartBlockFunction!.parameters.length == 1 ? '' : 's'}, but you have only indicated ${statement.arguments.length}.\nEdit this function call to fix the issue!",
           ),
         ColoredTitleChip(
           title: statement.functionName,
@@ -50,14 +50,14 @@ class FunctionCallStatementWidget extends StatelessWidget {
             bottomLeft: Radius.circular(12),
           ),
         ),
-        if (customFunction != null &&
-            customFunction!.parameters.isNotEmpty) ...[
+        if (dartBlockFunction != null &&
+            dartBlockFunction!.parameters.isNotEmpty) ...[
           Container(
             width: 8,
             height: 2,
             color: Theme.of(context).colorScheme.outline,
           ),
-          ...customFunction!.parameters.mapIndexed(
+          ...dartBlockFunction!.parameters.mapIndexed(
             (index, element) => Row(
               children: [
                 Container(
@@ -96,7 +96,7 @@ class FunctionCallStatementWidget extends StatelessWidget {
                             builder: (context) => AlertDialog(
                               title: const Text("Missing argument"),
                               content: Text(
-                                "The function '${customFunction!.name}' expects an argument of type ${element.dataType.toString()} at index $index.\nEdit this function call to fix the issue!",
+                                "The function '${dartBlockFunction!.name}' expects an argument of type ${element.dataType.toString()} at index $index.\nEdit this function call to fix the issue!",
                               ),
                               actions: [
                                 TextButton(
@@ -131,7 +131,7 @@ class FunctionCallStatementWidget extends StatelessWidget {
                           ),
                         ),
                       ),
-                if (index < customFunction!.parameters.length - 1)
+                if (index < dartBlockFunction!.parameters.length - 1)
                   Container(
                     width: 8,
                     height: 1,
@@ -141,14 +141,14 @@ class FunctionCallStatementWidget extends StatelessWidget {
             ),
           ),
         ],
-        if (customFunction != null) ...[
+        if (dartBlockFunction != null) ...[
           const SizedBox(width: 4),
           const NeoTechReturnSymbol(),
           const SizedBox(width: 4),
-          customFunction!.returnType != null
+          dartBlockFunction!.returnType != null
               ? NeoTechDataTypeSymbol(
                   includeLabel: true,
-                  dataType: customFunction!.returnType!,
+                  dataType: dartBlockFunction!.returnType!,
                   borderRadius: const BorderRadius.only(
                     topRight: Radius.circular(12),
                     bottomRight: Radius.circular(12),

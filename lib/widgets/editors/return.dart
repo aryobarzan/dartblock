@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:dartblock_code/models/function.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/editors/composers/dartblock_value.dart';
@@ -11,13 +10,11 @@ class ReturnStatementEditor extends StatefulWidget {
   final Function(ReturnStatement) onSaved;
 
   final List<DartBlockVariableDefinition> existingVariableDefinitions;
-  final List<DartBlockCustomFunction> customFunctions;
   const ReturnStatementEditor({
     super.key,
     this.statement,
     required this.onSaved,
     required this.existingVariableDefinitions,
-    required this.customFunctions,
   });
 
   @override
@@ -105,7 +102,6 @@ class _ReturnStatementEditorState extends State<ReturnStatementEditor> {
           dataType: dataType,
           value: valuesByType[dataType],
           variableDefinitions: widget.existingVariableDefinitions,
-          customFunctions: widget.customFunctions,
           onChange: (newValue) {
             setState(() {
               _updateValue(newValue);

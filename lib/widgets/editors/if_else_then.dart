@@ -1,7 +1,6 @@
 import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:dartblock_code/models/function.dart';
 import 'package:dartblock_code/models/dartblock_interaction.dart';
 import 'package:dartblock_code/models/dartblock_notification.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
@@ -15,13 +14,11 @@ class IfElseStatementEditor extends StatefulWidget {
   final Function(IfElseStatement) onSaved;
 
   final List<DartBlockVariableDefinition> existingVariableDefinitions;
-  final List<DartBlockCustomFunction> customFunctions;
   const IfElseStatementEditor({
     super.key,
     this.statement,
     required this.onSaved,
     required this.existingVariableDefinitions,
-    required this.customFunctions,
   });
 
   @override
@@ -365,7 +362,6 @@ class _IfElseStatementEditorState extends State<IfElseStatementEditor> {
       BooleanValueComposer(
         value: ifCondition?.compositionNode,
         variableDefinitions: widget.existingVariableDefinitions,
-        customFunctions: widget.customFunctions,
         onChange: (newValue) {
           setState(() {
             ifCondition = newValue != null
@@ -384,7 +380,6 @@ class _IfElseStatementEditorState extends State<IfElseStatementEditor> {
       BooleanValueComposer(
         value: elseIfStatementBlocks[index].$1?.compositionNode,
         variableDefinitions: widget.existingVariableDefinitions,
-        customFunctions: widget.customFunctions,
         onChange: (newValue) {
           setState(() {
             elseIfStatementBlocks[index] = newValue != null

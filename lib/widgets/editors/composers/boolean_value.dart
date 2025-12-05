@@ -12,13 +12,11 @@ import 'package:dartblock_code/widgets/views/other/dartblock_colors.dart';
 class BooleanValueComposer extends StatefulWidget {
   final DartBlockValueTreeBooleanNode? value;
   final List<DartBlockVariableDefinition> variableDefinitions;
-  final List<DartBlockCustomFunction> customFunctions;
   final Function(DartBlockValueTreeBooleanNode?) onChange;
   const BooleanValueComposer({
     super.key,
     this.value,
     required this.variableDefinitions,
-    required this.customFunctions,
     required this.onChange,
   });
 
@@ -215,7 +213,6 @@ class _BooleanValueComposerState extends State<BooleanValueComposer> {
           ),
           value: _getCurrentAlgebraicNode(),
           variableDefinitions: widget.variableDefinitions,
-          customFunctions: widget.customFunctions,
           showValue: false,
           showBackspaceButton: false,
           showFunctionVariableButton: false,
@@ -368,7 +365,6 @@ class _BooleanValueComposerState extends State<BooleanValueComposer> {
 
     return FunctionVariableSplitButton(
       functionCallValue: currentFunctionCallValue,
-      customFunctions: widget.customFunctions,
       variableDefinitions: widget.variableDefinitions,
       // .where((element) => element.dataType == NeoTechDataType.booleanType)
       // .toList(),

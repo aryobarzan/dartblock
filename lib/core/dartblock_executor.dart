@@ -127,7 +127,7 @@ abstract class DartBlockArbiter {
 
   /// Retrieve a function based on its unique name.
   ///
-  /// Searches first in custom functions (including main), then in built-in functions.
+  /// Searches first in custom functions (including main), then in native functions.
   DartBlockFunction? retrieveFunction(String name) {
     // Search custom functions (including main)
     final allCustomFunctions = <DartBlockCustomFunction>[
@@ -142,8 +142,8 @@ abstract class DartBlockArbiter {
       return customFunction;
     }
 
-    // Search built-in functions
-    return DartBlockBuiltinFunctions.getByName(name);
+    // Search native functions
+    return DartBlockNativeFunctions.getByName(name);
   }
 
   DartBlockEnvironment _getCurrentEnvironment() {

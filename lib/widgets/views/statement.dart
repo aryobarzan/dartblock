@@ -173,9 +173,10 @@ class StatementWidget extends ConsumerWidget {
       case FunctionCallStatement():
         label = "Call";
         final customFunctionCallStatement = statement as FunctionCallStatement;
+        final availableFunctions = ref.watch(availableFunctionsProvider([]));
         widget = FunctionCallStatementWidget(
           statement: customFunctionCallStatement,
-          customFunction: program.customFunctions.firstWhereOrNull(
+          dartBlockFunction: availableFunctions.firstWhereOrNull(
             (element) =>
                 element.name == customFunctionCallStatement.functionName,
           ),

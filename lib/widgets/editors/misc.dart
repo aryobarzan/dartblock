@@ -1,3 +1,4 @@
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dartblock_code/models/function.dart';
@@ -9,10 +10,10 @@ import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:dartblock_code/widgets/views/other/dartblock_colors.dart';
 import 'package:dartblock_code/widgets/views/variable_definition.dart';
 import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class FunctionVariableSplitButton extends StatelessWidget {
+class FunctionVariableSplitButton extends ConsumerWidget {
   final DartBlockFunctionCallValue? functionCallValue;
-  final List<DartBlockCustomFunction> customFunctions;
   final List<DartBlockVariableDefinition> variableDefinitions;
   final Function(
     DartBlockFunction function,
@@ -24,7 +25,6 @@ class FunctionVariableSplitButton extends StatelessWidget {
   const FunctionVariableSplitButton({
     super.key,
     this.functionCallValue,
-    required this.customFunctions,
     required this.variableDefinitions,
     required this.onSavedFunctionCallStatement,
     required this.onPickedVariableDefinition,
@@ -32,24 +32,19 @@ class FunctionVariableSplitButton extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final List<DartBlockCustomFunction> filteredCustomFunctions =
-        restrictFunctionCallReturnTypes == null
-        ? customFunctions
-        : customFunctions
-              .where(
-                (element) => restrictFunctionCallReturnTypes!.contains(
-                  element.returnType,
-                ),
-              )
-              .toList();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final availableFunctions = ref
+        .watch(
+          availableFunctionsProvider(restrictFunctionCallReturnTypes ?? []),
+        )
+        .toList();
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
           child: FilledButton(
-            onPressed: filteredCustomFunctions.isNotEmpty
+            onPressed: availableFunctions.isNotEmpty
                 ? () {
                     _showFunctionCallComposerModalBottomSheet(context);
                   }
@@ -74,7 +69,7 @@ class FunctionVariableSplitButton extends StatelessWidget {
               package: 'dartblock_code',
               width: 20,
               height: 20,
-              color: filteredCustomFunctions.isNotEmpty
+              color: availableFunctions.isNotEmpty
                   ? Colors.white
                   : Theme.of(
                       context,
@@ -178,7 +173,6 @@ class FunctionVariableSplitButton extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 4),
         child: FunctionCallComposer(
           statement: functionCallValue?.functionCall,
-          customFunctions: customFunctions,
           existingVariableDefinitions: variableDefinitions,
           onSaved: (customFunction, savedFunctionCall) {
             Navigator.of(context).pop();

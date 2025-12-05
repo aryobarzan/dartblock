@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:dartblock_code/models/function.dart';
 import 'package:dartblock_code/models/dartblock_interaction.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/models/statement.dart';
@@ -9,11 +8,11 @@ import 'package:dartblock_code/widgets/editors/composers/components/algebraic_do
 import 'package:dartblock_code/widgets/editors/composers/components/algebraic_operator_button.dart';
 import 'package:dartblock_code/widgets/editors/misc.dart';
 import 'package:dartblock_code/widgets/dartblock_value_widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class NumberValueComposer extends StatefulWidget {
+class NumberValueComposer extends ConsumerStatefulWidget {
   final DartBlockValueTreeAlgebraicNode? value;
   final List<DartBlockVariableDefinition> variableDefinitions;
-  final List<DartBlockCustomFunction> customFunctions;
   final Function(DartBlockValueTreeAlgebraicNode?) onChange;
   final bool showFunctionVariableButton;
   final bool showUndoRedoButton;
@@ -23,7 +22,6 @@ class NumberValueComposer extends StatefulWidget {
     super.key,
     this.value,
     required List<DartBlockVariableDefinition> variableDefinitions,
-    required this.customFunctions,
     required this.onChange,
     this.showFunctionVariableButton = true,
     this.showUndoRedoButton = true,
@@ -38,10 +36,11 @@ class NumberValueComposer extends StatefulWidget {
            .toList();
 
   @override
-  State<NumberValueComposer> createState() => _NumberValueComposerState();
+  ConsumerState<NumberValueComposer> createState() =>
+      _NumberValueComposerState();
 }
 
-class _NumberValueComposerState extends State<NumberValueComposer> {
+class _NumberValueComposerState extends ConsumerState<NumberValueComposer> {
   DartBlockValueTreeAlgebraicNode? value;
   final List<DartBlockValueTreeAlgebraicNode?> undoHistory = [];
   final List<DartBlockValueTreeAlgebraicNode?> redoHistory = [];
@@ -252,7 +251,6 @@ class _NumberValueComposerState extends State<NumberValueComposer> {
 
     return FunctionVariableSplitButton(
       functionCallValue: currentFunctionCallValue,
-      customFunctions: widget.customFunctions,
       variableDefinitions: widget.variableDefinitions,
       restrictFunctionCallReturnTypes: const [
         DartBlockDataType.integerType,
@@ -461,6 +459,14 @@ class _NumberValueComposerState extends State<NumberValueComposer> {
     return AlgebraicDigitButton(
       digit: digit,
       onTap: (digit) {
+        // new approach - disabled for now
+        // ref.broadcastInteraction(
+        //   DartBlockInteraction.create(
+        //     dartBlockInteractionType:
+        //         DartBlockInteractionType.tapNumberComposerConstant,
+        //     content: 'Digit-$digit',
+        //   ),
+        // );
         DartBlockInteraction.create(
           dartBlockInteractionType:
               DartBlockInteractionType.tapNumberComposerConstant,

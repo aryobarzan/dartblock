@@ -59,6 +59,7 @@ class CustomFunctionWidget extends ConsumerWidget {
                     ).dispatch(context);
                     _showCustomFunctionBasicEditorBottomSheet(
                       context,
+                      ref,
                       settings,
                       program,
                     );
@@ -171,9 +172,11 @@ class CustomFunctionWidget extends ConsumerWidget {
 
   void _showCustomFunctionBasicEditorBottomSheet(
     BuildContext context,
+    WidgetRef ref,
     DartBlockSettings settings,
     DartBlockProgram program,
   ) {
+    final availableFunctions = ref.watch(availableFunctionsProvider([]));
     showAdaptiveBottomSheetOrDialog(
       context,
       sheetPadding: EdgeInsets.all(8),
@@ -182,7 +185,7 @@ class CustomFunctionWidget extends ConsumerWidget {
       child: CustomFunctionBasicEditor(
         customFunctionName: customFunction.name,
         returnType: customFunction.returnType,
-        existingCustomFunctionNames: program.customFunctions
+        existingCustomFunctionNames: availableFunctions
             .map((e) => e.name)
             .whereNot((element) => element == customFunction.name)
             .toList(),

@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/dartblock_interaction.dart';
 import 'package:dartblock_code/models/help.dart';
 
-class NeoTechHelpCenter extends StatefulWidget {
-  const NeoTechHelpCenter({super.key});
+class DartBlockHelpCenter extends StatefulWidget {
+  const DartBlockHelpCenter({super.key});
 
   @override
-  State<NeoTechHelpCenter> createState() => _NeoTechHelpCenterState();
+  State<DartBlockHelpCenter> createState() => _DartBlockHelpCenterState();
 }
 
-class _NeoTechHelpCenterState extends State<NeoTechHelpCenter> {
+class _DartBlockHelpCenterState extends State<DartBlockHelpCenter> {
   DartBlockHelpItem? selectedHelpItem;
   @override
   Widget build(BuildContext context) {

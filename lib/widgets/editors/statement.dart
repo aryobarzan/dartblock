@@ -43,7 +43,6 @@ class StatementEditor extends StatelessWidget {
             onSaved(savedStatement);
           },
           existingVariableDefinitions: existingVariableDefinitions,
-          customFunctions: customFunctions,
           statement:
               statement != null && statement is VariableDeclarationStatement
               ? statement as VariableDeclarationStatement
@@ -86,7 +85,6 @@ class StatementEditor extends StatelessWidget {
       case StatementType.ifElseStatement:
         return IfElseStatementEditor(
           existingVariableDefinitions: existingVariableDefinitions,
-          customFunctions: customFunctions,
           onSaved: onSaved,
           statement: statement != null && statement is IfElseStatement
               ? statement as IfElseStatement
@@ -97,7 +95,6 @@ class StatementEditor extends StatelessWidget {
           statement: statement != null && statement is FunctionCallStatement
               ? statement as FunctionCallStatement
               : null,
-          customFunctions: customFunctions,
           restrictToDataTypes: const [],
           existingVariableDefinitions: existingVariableDefinitions,
           onSaved: (customFunction, savedStatement) {
@@ -110,7 +107,6 @@ class StatementEditor extends StatelessWidget {
             onSaved(savedStatement);
           },
           existingVariableDefinitions: existingVariableDefinitions,
-          customFunctions: customFunctions,
           statement: statement != null && statement is PrintStatement
               ? statement as PrintStatement
               : null,
@@ -121,7 +117,6 @@ class StatementEditor extends StatelessWidget {
             onSaved(savedStatement);
           },
           existingVariableDefinitions: existingVariableDefinitions,
-          customFunctions: customFunctions,
           statement: statement != null && statement is ReturnStatement
               ? statement as ReturnStatement
               : null,

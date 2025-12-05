@@ -404,7 +404,6 @@ class _ForLoopStatementEditorState extends State<ForLoopStatementEditor> {
       BooleanValueComposer(
         value: condition?.compositionNode,
         variableDefinitions: conditionAvailableVariableDefinitions,
-        customFunctions: widget.customFunctions,
         onChange: (newValue) {
           setState(() {
             condition = newValue != null
@@ -425,7 +424,6 @@ class _ForLoopStatementEditorState extends State<ForLoopStatementEditor> {
             ? initStatement as VariableDeclarationStatement
             : null,
         existingVariableDefinitions: widget.existingVariableDefinitions,
-        customFunctions: widget.customFunctions,
         onSaved: (newValue) {
           Navigator.of(context).pop();
           setState(() {

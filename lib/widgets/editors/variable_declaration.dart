@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dartblock_code/core/dartblock_program.dart';
-import 'package:dartblock_code/models/function.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/models/dartblock_validator.dart';
 import 'package:dartblock_code/models/statement.dart';
@@ -15,13 +14,11 @@ class VariableDeclarationEditor extends StatefulWidget {
   final Function(VariableDeclarationStatement) onSaved;
 
   final List<DartBlockVariableDefinition> existingVariableDefinitions;
-  final List<DartBlockCustomFunction> customFunctions;
   const VariableDeclarationEditor({
     super.key,
     this.statement,
     required this.onSaved,
     required this.existingVariableDefinitions,
-    required this.customFunctions,
   });
 
   @override
@@ -151,7 +148,6 @@ class _VariableDeclarationEditorState extends State<VariableDeclarationEditor> {
             NumberValueComposer(
               value: _getIntegerDoubleValue()?.compositionNode,
               variableDefinitions: widget.existingVariableDefinitions,
-              customFunctions: widget.customFunctions,
               onChange: (newValue) {
                 valuesByType[DartBlockDataType.integerType] = newValue != null
                     ? DartBlockAlgebraicExpression.init(newValue)
@@ -165,7 +161,6 @@ class _VariableDeclarationEditorState extends State<VariableDeclarationEditor> {
             BooleanValueComposer(
               value: _getBooleanValue()?.compositionNode,
               variableDefinitions: widget.existingVariableDefinitions,
-              customFunctions: widget.customFunctions,
               onChange: (newValue) {
                 valuesByType[DartBlockDataType.booleanType] = newValue != null
                     ? DartBlockBooleanExpression.init(newValue)
@@ -176,7 +171,6 @@ class _VariableDeclarationEditorState extends State<VariableDeclarationEditor> {
             ConcatenationValueComposer(
               value: _getStringValue(),
               variableDefinitions: widget.existingVariableDefinitions,
-              customFunctions: widget.customFunctions,
               onInteract: () {
                 variableNameTECFocusNode.unfocus();
               },

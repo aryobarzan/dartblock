@@ -4,7 +4,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:dartblock_code/models/function.dart';
 import 'package:dartblock_code/models/dartblock_interaction.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/widgets/editors/composers/boolean_value.dart';
@@ -19,14 +18,12 @@ import 'package:reorderables/reorderables.dart';
 class ConcatenationValueComposer extends StatefulWidget {
   final DartBlockConcatenationValue? value;
   final List<DartBlockVariableDefinition> variableDefinitions;
-  final List<DartBlockCustomFunction> customFunctions;
   final Function(DartBlockConcatenationValue?) onChange;
   final Function() onInteract;
   const ConcatenationValueComposer({
     super.key,
     this.value,
     required this.variableDefinitions,
-    required this.customFunctions,
     required this.onChange,
     required this.onInteract,
   });
@@ -45,6 +42,8 @@ class _ConcatenationValueComposerState extends State<ConcatenationValueComposer>
   _ConcatenationValueType? _concatenationValueType;
   int? _selectedIndex;
   bool _isEditingLastDeletedIndex = false;
+  // Track if we're adding a new value or rather editing an existing one.
+  bool _isAddingNewValue = false;
   late AnimationController _animationController;
   late Animation _colorTween;
 
@@ -251,6 +250,8 @@ class _ConcatenationValueComposerState extends State<ConcatenationValueComposer>
                               if (!_isEditingLastDeletedIndex) {
                                 _selectedIndex = null;
                               }
+                              _isAddingNewValue =
+                                  false; // Reset when hiding editor
                             } else {
                               dartBlockInteractionType = switch (elem) {
                                 _ConcatenationValueType.constantString =>
@@ -270,6 +271,8 @@ class _ConcatenationValueComposerState extends State<ConcatenationValueComposer>
                                       .tapConcatenationValueComposerBooleanToggleToShow,
                               };
                               _concatenationValueType = elem;
+                              _isAddingNewValue =
+                                  false; // Reset when switching types
                             }
                             DartBlockInteraction.create(
                               dartBlockInteractionType:
@@ -393,7 +396,7 @@ class _ConcatenationValueComposerState extends State<ConcatenationValueComposer>
       return ReorderableWrap(
         needsLongPressDraggable: false,
         onReorder: (oldIndex, newIndex) {
-          // If the user is trying to reorderf the 'cursor' tile, ignore.
+          // If the user is trying to reorder the 'cursor' tile, ignore.
           if (_selectedIndex != null &&
               _isEditingLastDeletedIndex &&
               oldIndex == _selectedIndex) {
@@ -592,6 +595,7 @@ class _ConcatenationValueComposerState extends State<ConcatenationValueComposer>
             _concatenationValueType = concatenationValueType;
           }
           _isEditingLastDeletedIndex = false;
+          _isAddingNewValue = false; // Reset when switching selection
         });
       },
       child: child,
@@ -677,14 +681,13 @@ class _ConcatenationValueComposerState extends State<ConcatenationValueComposer>
                 ? selectedValue.functionCall
                 : null,
             autoSelectDefaultFunction: false,
-            customFunctions: widget.customFunctions,
             existingVariableDefinitions: widget.variableDefinitions,
             onChange: (customFunction, newFunctionCallStatement) {
               _onChangeValue(
                 DartBlockFunctionCallValue.init(newFunctionCallStatement),
               );
             },
-            showArgumentEditorAsModalBottomSheet: true,
+            showArgumentEditorAsModalBottomSheet: false,
             // Allow all function return types, except for void!
             restrictToDataTypes: DartBlockDataType.values,
           );
@@ -714,7 +717,6 @@ class _ConcatenationValueComposerState extends State<ConcatenationValueComposer>
                 ? selectedValue.compositionNode
                 : null,
             variableDefinitions: widget.variableDefinitions,
-            customFunctions: widget.customFunctions,
             onChange: (newAlgebraicNode) {
               _onChangeValue(
                 newAlgebraicNode != null
@@ -733,7 +735,6 @@ class _ConcatenationValueComposerState extends State<ConcatenationValueComposer>
                 ? selectedValue.compositionNode
                 : null,
             variableDefinitions: widget.variableDefinitions,
-            customFunctions: widget.customFunctions,
             onChange: (newBooleanNode) {
               _onChangeValue(
                 newBooleanNode != null
@@ -788,9 +789,31 @@ class _ConcatenationValueComposerState extends State<ConcatenationValueComposer>
           _updateValue();
         }
       } else if (newValue != null) {
-        undoHistory.add(value.copy());
-        value.values.add(newValue.copy());
-        _selectedIndex = value.values.length - 1;
+        // User is adding a new value and no index is currently selected.
+        if (_isAddingNewValue) {
+          undoHistory.add(value.copy());
+          if (value.values.isNotEmpty) {
+            // Update the last added value instead of adding another
+            value.values[value.values.length - 1] = newValue.copy();
+          } else {
+            value.values.add(newValue.copy());
+          }
+        } else {
+          // This case corresponds to the user adding a new value for the first time.
+          // Here, we add the new value and set the _isAddingNewValue flag to true.
+          // The latter ensures that subsequent edits to this new value update it instead of adding more values.
+          // Specifically, if for example the function call tab is active because the first added value is a function call,
+          // then if the user continues modifying the function call, i.e., they do not actively select a specific index (value) or a specific editor tab (variable, number, ...),
+          // we want to update the existing value instead of adding more function calls.
+          // This flag is used to ensure the current editor does not close after adding the very first value,
+          // as we avoid setting the _selectedIndex which would cause a reset of the editor.
+          // Example: if the user adds the function call "triple(5)" as the first value, but they continue adding the digit 5, i.e., to make it "triple(55)",
+          // we would instead of end up with two function calls "triple(5)" and "triple(55)", in the case of the flag not being used and instead the selected index being set automatically.
+          // This flag instead ensures that the existing value is updated to "triple(55)".
+          undoHistory.add(value.copy());
+          value.values.add(newValue.copy());
+          _isAddingNewValue = true;
+        }
         _updateValue();
       }
     });

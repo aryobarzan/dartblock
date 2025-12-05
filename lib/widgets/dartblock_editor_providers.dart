@@ -1,6 +1,9 @@
+import 'package:dartblock_code/models/dartblock_value.dart';
+import 'package:dartblock_code/models/function_builtin.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dartblock_code/core/dartblock_executor.dart';
 import 'package:dartblock_code/core/dartblock_program.dart';
+import 'package:dartblock_code/models/dartblock_interaction.dart';
 import 'package:dartblock_code/models/function.dart';
 import 'package:dartblock_code/models/statement.dart';
 
@@ -43,11 +46,16 @@ class DartBlockSettings {
   final bool canChange;
   final bool canDelete;
   final bool canReorder;
+  final List<DartBlockNativeFunctionCategory> allowedNativeFunctionCategories;
+  final List<DartBlockNativeFunctionType> allowedNativeFunctionTypes;
 
   const DartBlockSettings({
     this.canChange = true,
     this.canDelete = true,
     this.canReorder = true,
+    this.allowedNativeFunctionCategories =
+        DartBlockNativeFunctionCategory.values,
+    this.allowedNativeFunctionTypes = DartBlockNativeFunctionType.values,
   });
 }
 
@@ -101,3 +109,70 @@ class EditorStateNotifier extends StateNotifier<DartBlockEditorState> {
     );
   }
 }
+
+// ============================================================================
+// Interaction Event Provider
+// ============================================================================
+
+/// Provider for broadcasting user interactions throughout the editor.
+/// This replaces the Notification bubbling system and works across all contexts,
+/// including modals and overlays, without manual re-dispatching.
+final interactionEventProvider = StateProvider<DartBlockInteraction?>((ref) => null);
+
+/// Helper extension to easily broadcast interactions from any widget with WidgetRef.
+extension InteractionBroadcaster on WidgetRef {
+  /// Broadcast a user interaction event to all listeners.
+  void broadcastInteraction(DartBlockInteraction interaction) {
+    read(interactionEventProvider.notifier).state = interaction;
+  }
+}
+
+/// Available custom functions filtered by return type restrictions
+final availableCustomFunctionsProvider =
+    Provider.family<List<DartBlockCustomFunction>, List<DartBlockDataType>>((
+      ref,
+      restrictToDataTypes,
+    ) {
+      return ref
+          .watch(programProvider)
+          .customFunctions
+          .where(
+            (f) =>
+                restrictToDataTypes.isEmpty ||
+                restrictToDataTypes.contains(f.returnType),
+          )
+          .toList();
+    });
+
+/// Available native functions filtered by settings and return type
+final availableNativeFunctionsProvider =
+    Provider.family<List<DartBlockNativeFunction>, List<DartBlockDataType>>((
+      ref,
+      restrictToDataTypes,
+    ) {
+      final settings = ref.watch(settingsProvider);
+      return DartBlockNativeFunctions.filter(
+            settings.allowedNativeFunctionCategories,
+            settings.allowedNativeFunctionTypes,
+          )
+          .where(
+            (f) =>
+                restrictToDataTypes.isEmpty ||
+                restrictToDataTypes.contains(f.returnType),
+          )
+          .toList();
+    });
+
+final availableFunctionsProvider =
+    Provider.family<List<DartBlockFunction>, List<DartBlockDataType>>((
+      ref,
+      restrictToDataTypes,
+    ) {
+      final customFunctions = ref.watch(
+        availableCustomFunctionsProvider(restrictToDataTypes),
+      );
+      final nativeFunctions = ref.watch(
+        availableNativeFunctionsProvider(restrictToDataTypes),
+      );
+      return [...customFunctions, ...nativeFunctions];
+    });

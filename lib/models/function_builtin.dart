@@ -1,12 +1,13 @@
 import 'dart:math' as math;
+import 'package:collection/collection.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/models/exception.dart';
 import 'package:dartblock_code/models/function.dart';
 
-/// Registry of all built-in functions available in DartBlock programs.
-class DartBlockBuiltinFunctions {
+/// Registry of all native functions available in DartBlock programs.
+class DartBlockNativeFunctions {
   /// Generate a random integer between min (inclusive) and max (inclusive).
-  static final randomInt = DartBlockBuiltinFunction(
+  static final randomInt = DartBlockNativeFunction(
     name: 'randomInt',
     returnType: DartBlockDataType.integerType,
     parameters: [
@@ -25,13 +26,17 @@ class DartBlockBuiltinFunctions {
       }
 
       final random = math.Random();
-      final value = min + random.nextInt(max - min + 1);
+      final value = min + random.nextInt(max - min);
       return DartBlockAlgebraicExpression.fromConstant(value);
     },
+    category: DartBlockNativeFunctionCategory.random,
+    type: DartBlockNativeFunctionType.randomInt,
+    description:
+        'Generate a random integer between min (inclusive) and max (exclusive).',
   );
 
   /// Calculate the square root of a number.
-  static final sqrt = DartBlockBuiltinFunction(
+  static final sqrt = DartBlockNativeFunction(
     name: 'sqrt',
     returnType: DartBlockDataType.doubleType,
     parameters: [
@@ -49,10 +54,13 @@ class DartBlockBuiltinFunctions {
         math.sqrt(value.toDouble()),
       );
     },
+    category: DartBlockNativeFunctionCategory.math,
+    type: DartBlockNativeFunctionType.sqrt,
+    description: 'Calculate the square root of a number.',
   );
 
   /// Calculate the absolute value of a number.
-  static final abs = DartBlockBuiltinFunction(
+  static final abs = DartBlockNativeFunction(
     name: 'abs',
     returnType: DartBlockDataType.doubleType,
     parameters: [
@@ -62,10 +70,13 @@ class DartBlockBuiltinFunctions {
       final value = args[0].getValue(arbiter) as num;
       return DartBlockAlgebraicExpression.fromConstant(value.abs().toDouble());
     },
+    category: DartBlockNativeFunctionCategory.math,
+    type: DartBlockNativeFunctionType.abs,
+    description: 'Calculate the absolute value of a number.',
   );
 
   /// Raise a number to a power.
-  static final pow = DartBlockBuiltinFunction(
+  static final pow = DartBlockNativeFunction(
     name: 'pow',
     returnType: DartBlockDataType.doubleType,
     parameters: [
@@ -79,10 +90,13 @@ class DartBlockBuiltinFunctions {
         math.pow(base, exponent).toDouble(),
       );
     },
+    category: DartBlockNativeFunctionCategory.math,
+    type: DartBlockNativeFunctionType.pow,
+    description: 'Raise a number to a power.',
   );
 
   /// Round a number to the nearest integer.
-  static final round = DartBlockBuiltinFunction(
+  static final round = DartBlockNativeFunction(
     name: 'round',
     returnType: DartBlockDataType.integerType,
     parameters: [
@@ -92,10 +106,13 @@ class DartBlockBuiltinFunctions {
       final value = args[0].getValue(arbiter) as num;
       return DartBlockAlgebraicExpression.fromConstant(value.round());
     },
+    category: DartBlockNativeFunctionCategory.math,
+    type: DartBlockNativeFunctionType.round,
+    description: 'Round a number to the nearest integer.',
   );
 
   /// Get the minimum of two numbers.
-  static final min = DartBlockBuiltinFunction(
+  static final min = DartBlockNativeFunction(
     name: 'min',
     returnType: DartBlockDataType.doubleType,
     parameters: [
@@ -109,10 +126,13 @@ class DartBlockBuiltinFunctions {
         a < b ? a.toDouble() : b.toDouble(),
       );
     },
+    category: DartBlockNativeFunctionCategory.math,
+    type: DartBlockNativeFunctionType.min,
+    description: 'Get the minimum of two numbers.',
   );
 
   /// Get the maximum of two numbers.
-  static final max = DartBlockBuiltinFunction(
+  static final max = DartBlockNativeFunction(
     name: 'max',
     returnType: DartBlockDataType.doubleType,
     parameters: [
@@ -126,13 +146,16 @@ class DartBlockBuiltinFunctions {
         a > b ? a.toDouble() : b.toDouble(),
       );
     },
+    category: DartBlockNativeFunctionCategory.math,
+    type: DartBlockNativeFunctionType.max,
+    description: 'Get the maximum of two numbers.',
   );
 
   /// List of all available built-in functions.
   ///
   /// These are automatically available in all DartBlock programs without
   /// needing to be declared by the user.
-  static final List<DartBlockBuiltinFunction> all = [
+  static final List<DartBlockNativeFunction> all = [
     randomInt,
     sqrt,
     abs,
@@ -143,10 +166,16 @@ class DartBlockBuiltinFunctions {
   ];
 
   /// Lookup a built-in function by name.
-  static DartBlockBuiltinFunction? getByName(String name) {
-    return all.cast<DartBlockBuiltinFunction?>().firstWhere(
-      (f) => f?.name == name,
-      orElse: () => null,
-    );
+  static DartBlockNativeFunction? getByName(String name) {
+    return all.firstWhereOrNull((f) => f.name == name);
+  }
+
+  static List<DartBlockNativeFunction> filter(
+    List<DartBlockNativeFunctionCategory> categories,
+    List<DartBlockNativeFunctionType> types,
+  ) {
+    return all
+        .where((f) => categories.contains(f.category) && types.contains(f.type))
+        .toList(growable: false);
   }
 }

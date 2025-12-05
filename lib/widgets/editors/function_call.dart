@@ -1,25 +1,20 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
+import 'package:dartblock_code/widgets/editors/composers/dartblock_value.dart';
 import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dartblock_code/models/function.dart';
-import 'package:dartblock_code/models/function_builtin.dart';
-import 'package:dartblock_code/models/dartblock_notification.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/models/statement.dart';
-import 'package:dartblock_code/widgets/editors/composers/boolean_value.dart';
-import 'package:dartblock_code/widgets/editors/composers/number_value.dart';
-import 'package:dartblock_code/widgets/editors/composers/value_concatenation.dart';
 import 'package:dartblock_code/widgets/views/symbols.dart';
 import 'package:dartblock_code/widgets/views/variable_definition.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FunctionCallComposer extends ConsumerStatefulWidget {
   final List<DartBlockVariableDefinition> existingVariableDefinitions;
-  final List<DartBlockCustomFunction> customFunctions;
-  final List<DartBlockFunction> availableFunctions;
   final FunctionCallStatement? statement;
   final Function(
     DartBlockFunction function,
@@ -34,9 +29,8 @@ class FunctionCallComposer extends ConsumerStatefulWidget {
   final List<DartBlockDataType> restrictToDataTypes;
   final bool showArgumentEditorAsModalBottomSheet;
   final bool autoSelectDefaultFunction;
-  FunctionCallComposer({
+  const FunctionCallComposer({
     super.key,
-    required List<DartBlockCustomFunction> customFunctions,
     required this.existingVariableDefinitions,
     this.statement,
     this.onSaved,
@@ -44,17 +38,7 @@ class FunctionCallComposer extends ConsumerStatefulWidget {
     required this.restrictToDataTypes,
     this.showArgumentEditorAsModalBottomSheet = false,
     this.autoSelectDefaultFunction = true,
-  }) : customFunctions = customFunctions,
-       availableFunctions = restrictToDataTypes.isNotEmpty
-           ? [
-               ...customFunctions.where(
-                 (element) => restrictToDataTypes.contains(element.returnType),
-               ),
-               ...DartBlockBuiltinFunctions.all.where(
-                 (element) => restrictToDataTypes.contains(element.returnType),
-               ),
-             ]
-           : [...customFunctions, ...DartBlockBuiltinFunctions.all];
+  });
 
   @override
   ConsumerState<FunctionCallComposer> createState() =>
@@ -65,28 +49,37 @@ class _FunctionCallComposerState extends ConsumerState<FunctionCallComposer> {
   DartBlockFunction? selectedFunction;
   List<DartBlockValue?> indicatedArguments = [];
   int? selectedParameterIndex;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.statement != null) {
-      selectedFunction = widget.availableFunctions.firstWhereOrNull(
-        (element) => element.name == widget.statement!.functionName,
-      );
-      _updateIndicatedParameters(widget.statement!.arguments);
-    } else {
-      if (widget.autoSelectDefaultFunction) {
-        selectedFunction = widget.availableFunctions.firstOrNull;
-      } else {
-        selectedFunction = null;
-      }
-      _updateIndicatedParameters([]);
-    }
-  }
+  bool isInitialized = false;
 
   @override
   Widget build(BuildContext context) {
+    final availableCustomFunctions = ref.watch(
+      availableCustomFunctionsProvider(widget.restrictToDataTypes),
+    );
+    final availableFunctions = ref.watch(
+      availableFunctionsProvider(widget.restrictToDataTypes),
+    );
+
+    // Initialize selectedFunction on first build when availableFunctions is ready
+    if (!isInitialized) {
+      isInitialized = true;
+      if (widget.statement != null) {
+        selectedFunction = availableFunctions.firstWhereOrNull(
+          (element) => element.name == widget.statement!.functionName,
+        );
+        _updateIndicatedParameters(widget.statement!.arguments);
+      } else {
+        if (widget.autoSelectDefaultFunction) {
+          selectedFunction = availableFunctions.firstOrNull;
+        } else {
+          selectedFunction = null;
+        }
+        _updateIndicatedParameters([]);
+      }
+    }
+
     final selectedParameter = _getSelectedParameter();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -106,7 +99,7 @@ class _FunctionCallComposerState extends ConsumerState<FunctionCallComposer> {
                   value: selectedFunction,
                   hint: const Text("Select a function..."),
                   underline: const SizedBox(),
-                  items: widget.availableFunctions
+                  items: availableFunctions
                       .map(
                         (e) => DropdownMenuItem(
                           value: e,
@@ -116,7 +109,7 @@ class _FunctionCallComposerState extends ConsumerState<FunctionCallComposer> {
                               Row(
                                 children: [
                                   Text(e.name),
-                                  if (e is DartBlockBuiltinFunction) ...[
+                                  if (e is DartBlockNativeFunction) ...[
                                     const SizedBox(width: 4),
                                     Icon(
                                       Icons.star,
@@ -186,7 +179,7 @@ class _FunctionCallComposerState extends ConsumerState<FunctionCallComposer> {
           ],
         ),
         const SizedBox(height: 4),
-        if (widget.availableFunctions.isEmpty)
+        if (availableFunctions.isEmpty)
           RichText(
             textAlign: TextAlign.center,
             text: TextSpan(
@@ -231,7 +224,9 @@ class _FunctionCallComposerState extends ConsumerState<FunctionCallComposer> {
                               selectedParameterIndex = parameterIndex;
                             });
                             if (widget.showArgumentEditorAsModalBottomSheet) {
-                              _showArgumentEditorModalBottomSheet();
+                              _showArgumentEditorModalBottomSheet(
+                                availableCustomFunctions,
+                              );
                             }
                           }
                         },
@@ -364,67 +359,31 @@ class _FunctionCallComposerState extends ConsumerState<FunctionCallComposer> {
       final currentValue = selectedParameterIndex! < indicatedArguments.length
           ? indicatedArguments[selectedParameterIndex!]
           : null;
-      switch (selectedParameter.dataType) {
-        case DartBlockDataType.integerType:
-        case DartBlockDataType.doubleType:
-          return NumberValueComposer(
-            key: ValueKey("Parameter-${selectedParameterIndex!}-Number"),
-            value: currentValue is DartBlockAlgebraicExpression
-                ? currentValue.compositionNode
-                : null,
-            variableDefinitions: widget.existingVariableDefinitions,
-            customFunctions: widget.customFunctions,
-            onChange: (newValue) {
-              setState(() {
-                indicatedArguments[selectedParameterIndex!] = newValue != null
-                    ? DartBlockAlgebraicExpression.init(newValue)
-                    : null;
-              });
-              _onChange();
-            },
-          );
-        case DartBlockDataType.booleanType:
-          return BooleanValueComposer(
-            key: ValueKey("Parameter-${selectedParameterIndex!}-Boolean"),
-            value: currentValue is DartBlockBooleanExpression
-                ? currentValue.compositionNode
-                : null,
-            variableDefinitions: widget.existingVariableDefinitions,
-            customFunctions: widget.customFunctions,
-            onChange: (newValue) {
-              setState(() {
-                indicatedArguments[selectedParameterIndex!] = newValue != null
-                    ? DartBlockBooleanExpression.init(newValue)
-                    : null;
-              });
-              _onChange();
-            },
-          );
-        case DartBlockDataType.stringType:
-          return ConcatenationValueComposer(
-            key: ValueKey("Parameter-${selectedParameterIndex!}-String"),
-            value: currentValue is DartBlockConcatenationValue
-                ? currentValue
-                : null,
-            variableDefinitions: widget.existingVariableDefinitions,
-            customFunctions: widget.customFunctions,
-            onInteract: () {},
-            onChange: (newValue) {
-              setState(() {
-                indicatedArguments[selectedParameterIndex!] = newValue;
-              });
-              _onChange();
-            },
-          );
-      }
+      return DartBlockValueEditor(
+        key: ValueKey("FunctionCall-Param-$selectedParameterIndex"),
+        dataType: selectedParameter.dataType,
+        value: currentValue,
+        variableDefinitions: widget.existingVariableDefinitions,
+        onChange: (newValue) {
+          setState(() {
+            indicatedArguments[selectedParameterIndex!] = newValue;
+          });
+          _onChange();
+        },
+      );
     } else {
       return const SizedBox();
     }
   }
 
-  void _showArgumentEditorModalBottomSheet() {
+  void _showArgumentEditorModalBottomSheet(
+    List<DartBlockCustomFunction> customFunctions,
+  ) {
     final selectedParameter = _getSelectedParameter();
     if (selectedParameter != null && selectedFunction != null) {
+      final currentValue = selectedParameterIndex! < indicatedArguments.length
+          ? indicatedArguments[selectedParameterIndex!]
+          : null;
       context
           .showProviderAwareBottomSheet(
             isScrollControlled: true,
@@ -433,80 +392,70 @@ class _FunctionCallComposerState extends ConsumerState<FunctionCallComposer> {
               borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
             ),
             builder: (sheetContext) {
-              /// Due to the modal sheet having a separate context and thus no relation
-              /// to the main context of the NeoTechWidget, we capture DartBlockNotifications
-              /// from the sheet's context and manually re-dispatch them using the parent context.
-              /// The parent context may not necessarily be the NeoTechWidget's context,
-              /// as certain sheets open additional nested sheets with their own contexts,
-              /// hence this process needs to be repeated for every sheet until the NeoTechWidget's
-              /// context is reached.
-              return NotificationListener<DartBlockNotification>(
-                onNotification: (notification) {
-                  notification.dispatch(context);
-                  return true;
-                },
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      left: 8,
-                      right: 8,
-                      top: 8,
-                      bottom:
-                          16 + MediaQuery.of(sheetContext).viewInsets.bottom,
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        RichText(
-                          text: TextSpan(
-                            children: [
-                              WidgetSpan(
-                                child: FunctionNameSymbol(
-                                  name: selectedFunction!.name,
-                                ),
-                                alignment: PlaceholderAlignment.middle,
+              /// Due to the modal sheet having a separate overlay context,
+              /// we capture DartBlockNotifications and manually re-dispatch them
+              /// to the parent widget tree so they can bubble up properly.
+              return SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left: 8,
+                    right: 8,
+                    top: 8,
+                    bottom: 16 + MediaQuery.of(sheetContext).viewInsets.bottom,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            WidgetSpan(
+                              child: FunctionNameSymbol(
+                                name: selectedFunction!.name,
                               ),
-                              const WidgetSpan(
-                                child: Icon(Icons.keyboard_arrow_right),
-                                alignment: PlaceholderAlignment.middle,
+                              alignment: PlaceholderAlignment.middle,
+                            ),
+                            const WidgetSpan(
+                              child: Icon(Icons.keyboard_arrow_right),
+                              alignment: PlaceholderAlignment.middle,
+                            ),
+                            WidgetSpan(
+                              child: VariableDefinitionWidget(
+                                variableDefinition: selectedParameter,
+                                circularRightSide: true,
                               ),
-                              WidgetSpan(
-                                child: VariableDefinitionWidget(
-                                  variableDefinition: selectedParameter,
-                                  circularRightSide: true,
-                                ),
-                                alignment: PlaceholderAlignment.middle,
-                              ),
-                            ],
-                          ),
+                              alignment: PlaceholderAlignment.middle,
+                            ),
+                          ],
                         ),
-                        const Divider(),
-                        Flexible(child: _buildParameterEditor()),
-                      ],
-                    ),
+                      ),
+                      const Divider(),
+                      Flexible(
+                        child: DartBlockValueEditor(
+                          dataType: selectedParameter.dataType,
+                          value: currentValue,
+                          variableDefinitions:
+                              widget.existingVariableDefinitions,
+                          onChange: (newValue) {
+                            indicatedArguments[selectedParameterIndex!] =
+                                newValue;
+                            _onChange();
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               );
-              // return DraggableScrollableSheet(
-              //   initialChildSize: 0.75,
-              //   minChildSize: 0.13,
-              //   maxChildSize: 0.9,
-              //   expand: false,
-              //   builder: (context, scrollController) => SingleChildScrollView(
-              //     controller: scrollController,
-              //     child: Padding(
-              //       padding: const EdgeInsets.all(8),
-              //       child: this,
-              //     ),
-              //   ),
-              // );
             },
           )
           .then((result) {
-            setState(() {
-              selectedParameterIndex = null;
-            });
+            if (mounted) {
+              setState(() {
+                selectedParameterIndex = null;
+              });
+            }
           });
     }
   }

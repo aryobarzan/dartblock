@@ -10,7 +10,7 @@ part 'function.g.dart';
 ///
 /// Functions can be either:
 /// - [DartBlockCustomFunction]: User-defined functions with [Statement]s
-/// - [DartBlockBuiltinFunction]: Built-in functions with native Dart implementations
+/// - [DartBlockNativeFunction]: Built-in functions with native Dart implementations
 sealed class DartBlockFunction {
   String name;
   DartBlockDataType? returnType;
@@ -36,13 +36,17 @@ sealed class DartBlockFunction {
   });
 }
 
+enum DartBlockNativeFunctionType { randomInt, sqrt, abs, pow, round, min, max }
+
+enum DartBlockNativeFunctionCategory { random, math }
+
 /// Built-in function with native Dart implementation.
 ///
 /// Unlike [DartBlockCustomFunction] which executes a list of [Statement]s,
 /// built-in functions execute native Dart code to provide functionality
 /// that cannot be expressed in DartBlock statements (e.g., random
 /// number generation).
-class DartBlockBuiltinFunction extends DartBlockFunction {
+class DartBlockNativeFunction extends DartBlockFunction {
   /// Native Dart implementation of the function.
   final DartBlockValue? Function(
     DartBlockArbiter arbiter,
@@ -50,11 +54,18 @@ class DartBlockBuiltinFunction extends DartBlockFunction {
   )
   implementation;
 
-  DartBlockBuiltinFunction({
+  final DartBlockNativeFunctionCategory category;
+  final DartBlockNativeFunctionType type;
+  final String description;
+
+  DartBlockNativeFunction({
     required String name,
     required DartBlockDataType? returnType,
     required List<DartBlockVariableDefinition> parameters,
     required this.implementation,
+    required this.category,
+    required this.type,
+    required this.description,
   }) : super(name, returnType, parameters);
 
   /// Execute the built-in function with the provided arguments.
@@ -67,12 +78,15 @@ class DartBlockBuiltinFunction extends DartBlockFunction {
   }
 
   @override
-  DartBlockBuiltinFunction copy() {
-    return DartBlockBuiltinFunction(
+  DartBlockNativeFunction copy() {
+    return DartBlockNativeFunction(
       name: name,
       returnType: returnType,
       parameters: List.from(parameters.map((e) => e.copy())),
       implementation: implementation,
+      category: category,
+      type: type,
+      description: description,
     );
   }
 
@@ -84,7 +98,7 @@ class DartBlockBuiltinFunction extends DartBlockFunction {
 
   @override
   bool operator ==(Object other) {
-    return other is DartBlockBuiltinFunction &&
+    return other is DartBlockNativeFunction &&
         name == other.name &&
         returnType == other.returnType &&
         parameters.length == other.parameters.length &&

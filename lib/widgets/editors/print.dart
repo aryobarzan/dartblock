@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:dartblock_code/models/function.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/editors/composers/value_concatenation.dart';
@@ -10,13 +9,11 @@ class PrintStatementEditor extends StatefulWidget {
   final Function(PrintStatement) onSaved;
 
   final List<DartBlockVariableDefinition> existingVariableDefinitions;
-  final List<DartBlockCustomFunction> customFunctions;
   const PrintStatementEditor({
     super.key,
     this.statement,
     required this.onSaved,
     required this.existingVariableDefinitions,
-    required this.customFunctions,
   });
 
   @override
@@ -67,7 +64,6 @@ class _PrintStatementEditorState extends State<PrintStatementEditor> {
         ConcatenationValueComposer(
           value: concatenationValue,
           variableDefinitions: widget.existingVariableDefinitions,
-          customFunctions: widget.customFunctions,
           onInteract: () {},
           onChange: (newValue) {
             setState(() {

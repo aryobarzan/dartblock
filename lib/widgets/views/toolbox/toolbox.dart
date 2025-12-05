@@ -19,6 +19,9 @@ class DartBlockToolbox extends StatefulWidget {
   final bool isExecuting;
   final Function()? onToolboxItemDragStart;
   final Function()? onToolboxItemDragEnd;
+  final Function(DragStartDetails)? onToolboxDragStart;
+  final Function(DragEndDetails)? onToolboxDragEnd;
+  final Function(DragUpdateDetails)? onToolboxDragUpdate;
   final Function()? onRun;
   final List<String> existingFunctionNames;
   final bool canAddFunction;
@@ -37,6 +40,9 @@ class DartBlockToolbox extends StatefulWidget {
     required this.existingFunctionNames,
     this.onToolboxItemDragStart,
     this.onToolboxItemDragEnd,
+    this.onToolboxDragStart,
+    this.onToolboxDragEnd,
+    this.onToolboxDragUpdate,
     this.onRun,
     this.canAddFunction = false,
     required this.onCreateFunction,
@@ -169,55 +175,30 @@ class _DartBlockToolboxState extends State<DartBlockToolbox> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ToolboxActionBar(
-                                  isExecuting: widget.isExecuting,
-                                  isToolboxDocked: widget.isDocked,
-                                  onRun: widget.onRun,
-                                  onAddFunction: widget.canAddFunction
-                                      ? () {
-                                          DartBlockInteraction.create(
-                                            dartBlockInteractionType:
-                                                DartBlockInteractionType
-                                                    .openNewFunctionEditorFromToolbox,
-                                          ).dispatch(context);
-                                          showNewFunctionSheet(
-                                            context,
-                                            existingCustomFunctionNames:
-                                                widget.existingFunctionNames,
-                                            onReceiveDartBlockNotification:
-                                                null,
-                                            onSaved: (newName, newReturnType) {
-                                              widget.onCreateFunction(
-                                                DartBlockCustomFunction(
-                                                  newName,
-                                                  newReturnType,
-                                                  [],
-                                                  [],
-                                                ),
-                                              );
-                                            },
-                                          );
-                                        }
-                                      : null,
-                                  onTapExtraAction: (action) {
-                                    widget.onAction(action);
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
+                          // Conditionally wrap with GestureDetector only when drag handlers are provided
+                          widget.onToolboxDragStart != null ||
+                                  widget.onToolboxDragEnd != null ||
+                                  widget.onToolboxDragUpdate != null
+                              ? GestureDetector(
+                                  behavior: HitTestBehavior.translucent,
+                                  onVerticalDragStart:
+                                      widget.onToolboxDragStart,
+                                  onVerticalDragEnd: widget.onToolboxDragEnd,
+                                  onVerticalDragUpdate:
+                                      widget.onToolboxDragUpdate,
+                                  child: Container(
+                                    color: Colors.transparent,
+                                    child: _buildActionBar(),
+                                  ),
+                                )
+                              : _buildActionBar(),
                           if (widget.showActions) ...[
                             const Divider(height: 1),
                             const SizedBox(height: 8),
                             Expanded(
                               child: ToolboxStatementTypeBar(
                                 scrollController: _scrollController,
-                                onDragStart: () {
-                                  widget.onToolboxItemDragStart?.call();
-                                },
+                                onDragStart: widget.onToolboxItemDragStart,
                                 onDragEnd: widget.onToolboxItemDragEnd,
                               ),
                             ),
@@ -229,6 +210,46 @@ class _DartBlockToolboxState extends State<DartBlockToolbox> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildActionBar() {
+    return Row(
+      children: [
+        Expanded(
+          child: ToolboxActionBar(
+            isExecuting: widget.isExecuting,
+            isToolboxDocked: widget.isDocked,
+            onRun: widget.onRun,
+            onAddFunction: widget.canAddFunction
+                ? () {
+                    DartBlockInteraction.create(
+                      dartBlockInteractionType: DartBlockInteractionType
+                          .openNewFunctionEditorFromToolbox,
+                    ).dispatch(context);
+                    showNewFunctionSheet(
+                      context,
+                      existingFunctionNames: widget.existingFunctionNames,
+                      onReceiveDartBlockNotification: null,
+                      onSaved: (newName, newReturnType) {
+                        widget.onCreateFunction(
+                          DartBlockCustomFunction(
+                            newName,
+                            newReturnType,
+                            [],
+                            [],
+                          ),
+                        );
+                      },
+                    );
+                  }
+                : null,
+            onTapExtraAction: (action) {
+              widget.onAction(action);
+            },
+          ),
+        ),
+      ],
     );
   }
 }

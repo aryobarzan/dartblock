@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:dartblock_code/models/function.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/widgets/editors/composers/boolean_value.dart';
 import 'package:dartblock_code/widgets/editors/composers/number_value.dart';
@@ -9,14 +8,12 @@ class DartBlockValueEditor extends StatelessWidget {
   final DartBlockDataType dataType;
   final DartBlockValue? value;
   final List<DartBlockVariableDefinition> variableDefinitions;
-  final List<DartBlockCustomFunction> customFunctions;
   final Function(DartBlockValue?) onChange;
   const DartBlockValueEditor({
     super.key,
     required this.dataType,
     this.value,
     required this.variableDefinitions,
-    required this.customFunctions,
     required this.onChange,
   });
 
@@ -32,7 +29,6 @@ class DartBlockValueEditor extends StatelessWidget {
         return NumberValueComposer(
           value: algebraicExpression?.compositionNode,
           variableDefinitions: variableDefinitions,
-          customFunctions: customFunctions,
           onChange: (newValue) {
             onChange(
               newValue != null
@@ -49,7 +45,6 @@ class DartBlockValueEditor extends StatelessWidget {
         return BooleanValueComposer(
           value: booleanExpression?.compositionNode,
           variableDefinitions: variableDefinitions,
-          customFunctions: customFunctions,
           onChange: (newValue) {
             onChange(
               newValue != null
@@ -66,7 +61,6 @@ class DartBlockValueEditor extends StatelessWidget {
         return ConcatenationValueComposer(
           value: concatenationValue,
           variableDefinitions: variableDefinitions,
-          customFunctions: customFunctions,
           onChange: (newValue) {
             onChange(newValue);
           },

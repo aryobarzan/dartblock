@@ -276,7 +276,6 @@ class _WhileLoopStatementEditorState extends State<WhileLoopStatementEditor> {
                     child: BooleanValueComposer(
                       value: condition?.compositionNode,
                       variableDefinitions: widget.existingVariableDefinitions,
-                      customFunctions: widget.customFunctions,
                       onChange: (newValue) {
                         setState(() {
                           condition = newValue != null

@@ -154,7 +154,6 @@ class _VariableAssignmentEditorState extends State<VariableAssignmentEditor> {
           return NumberValueComposer(
             value: _getIntegerDoubleValue()?.compositionNode,
             variableDefinitions: widget.existingVariableDefinitions,
-            customFunctions: widget.customFunctions,
             onChange: (newValue) {
               valuesByType[DartBlockDataType.integerType] = newValue != null
                   ? DartBlockAlgebraicExpression.init(newValue)
@@ -168,7 +167,6 @@ class _VariableAssignmentEditorState extends State<VariableAssignmentEditor> {
           return BooleanValueComposer(
             value: _getBooleanValue()?.compositionNode,
             variableDefinitions: widget.existingVariableDefinitions,
-            customFunctions: widget.customFunctions,
             onChange: (newValue) {
               valuesByType[DartBlockDataType.booleanType] = newValue != null
                   ? DartBlockBooleanExpression.init(newValue)
@@ -179,7 +177,6 @@ class _VariableAssignmentEditorState extends State<VariableAssignmentEditor> {
           return ConcatenationValueComposer(
             value: _getStringValue(),
             variableDefinitions: widget.existingVariableDefinitions,
-            customFunctions: widget.customFunctions,
             onInteract: () {},
             onChange: (newValue) {
               valuesByType[DartBlockDataType.stringType] = newValue;
