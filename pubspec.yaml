@@ -5,7 +5,7 @@ repository: https://github.com/aryobarzan/dartblock
 
 environment:
   sdk: ^3.9.2
-  flutter: ^3.0.0
+  flutter: ">=3.0.0"
 
 dependencies:
   flutter:
