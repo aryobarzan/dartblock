@@ -1,6 +1,6 @@
 name: dartblock_code
 description: "Block-based programming framework 'DartBlock' primarily designed for mobile devices. Supports automatic evaluation, on-device execution and exception-throwing."
-version: 1.2.0
+version: 2.0.0
 repository: https://github.com/aryobarzan/dartblock
 
 environment:

@@ -1,3 +1,19 @@
+## 2.0.0
+
+Introducing native functions (min, max, startsWith, ...)!
+
+- New: native DartBlock functions.
+  - In contrast to custom functions, which can be defined by the user, DartBlock comes with a set of built-in (native) functions.
+  - The initial set of native functions includes: randomInt, sqrt, abs, pow, round, min, max, lowercase, uppercase, startsWith, endsWith, contains, substring
+  - Native functions can also be selectively enabled by providing arguments to `DartBlockEditor` for the parameters `allowedNativeFunctionCategories` and `allowedNativeFunctionTypes`.
+  - When defining a custom function, its name cannot conflict with that of native functions.
+- Fixed: DartBlock exceptions would not interrupt the program execution.
+- Changed: the function call composer in the String composer no longer opens as an additional modal bottom sheet, but it is integrated directly within the String composer.
+- Fixed: the function call composer no longer automatically closes while the user is editing a parameter. (in the context of the String composer)
+- Fixed: when undocked, the toolbox would remain hidden after the user ended dragging a statement type.
+- Improved: replaced usage of InheritedWidget with riverpod Providers.
+  - Several issues related to faulty BuildContext accesses in relation to modal sheets have been addressed in the process.
+
 ## 1.2.0
 
 - Fixed: DartBlockExecutor now kills the spawned isolate if there is an execution timeout.
