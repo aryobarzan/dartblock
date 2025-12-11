@@ -96,7 +96,8 @@ class _VariableAssignmentEditorState extends State<VariableAssignmentEditor> {
             ),
           ],
         ),
-        const SizedBox(height: 4),
+        const Divider(),
+        const SizedBox(height: 12),
         if (variableToEditDoesNotExistByName &&
             selectedVariableDefinition == null)
           Text(

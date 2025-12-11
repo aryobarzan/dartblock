@@ -60,7 +60,8 @@ class _PrintStatementEditorState extends State<PrintStatementEditor> {
             ),
           ],
         ),
-        const SizedBox(height: 4),
+        const Divider(),
+        const SizedBox(height: 12),
         ConcatenationValueComposer(
           value: concatenationValue,
           variableDefinitions: widget.existingVariableDefinitions,

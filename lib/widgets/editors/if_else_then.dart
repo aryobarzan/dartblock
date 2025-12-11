@@ -94,7 +94,8 @@ class _IfElseStatementEditorState extends ConsumerState<IfElseStatementEditor> {
             ),
           ],
         ),
-        const SizedBox(height: 4),
+        const Divider(),
+        const SizedBox(height: 12),
         RichText(
           text: TextSpan(
             children: [

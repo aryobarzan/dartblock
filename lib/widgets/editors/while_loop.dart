@@ -78,7 +78,8 @@ class _WhileLoopStatementEditorState
             ),
           ],
         ),
-        const SizedBox(height: 4),
+        const Divider(),
+        const SizedBox(height: 12),
         Row(
           children: [
             SegmentedButton(

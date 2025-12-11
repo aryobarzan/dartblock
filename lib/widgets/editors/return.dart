@@ -69,7 +69,8 @@ class _ReturnStatementEditorState extends State<ReturnStatementEditor> {
             ),
           ],
         ),
-        const SizedBox(height: 4),
+        const Divider(),
+        const SizedBox(height: 12),
         Text("Value type", style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 4),
         SingleChildScrollView(

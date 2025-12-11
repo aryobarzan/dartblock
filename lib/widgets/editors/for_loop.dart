@@ -127,7 +127,8 @@ class _ForLoopStatementEditorState
             ),
           ],
         ),
-        const SizedBox(height: 4),
+        const Divider(),
+        const SizedBox(height: 12),
         _buildHeader('Pre-Step', 1),
         Text(
           'Variable initialization',
