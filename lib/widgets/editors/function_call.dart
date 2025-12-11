@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:dartblock_code/widgets/editors/composers/dartblock_value.dart';
+import 'package:dartblock_code/widgets/helpers/provider_aware_dropdown.dart';
 import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -94,7 +95,7 @@ class _FunctionCallComposerState extends ConsumerState<FunctionCallComposer> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: DropdownButton(
+                child: ProviderAwareDropdownButton(
                   isExpanded: true,
                   value: selectedFunction,
                   hint: const Text("Select a function..."),

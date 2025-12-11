@@ -10,9 +10,12 @@ class AlgebraicDigitButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton(
-      style: OutlinedButton.styleFrom(
+    return FilledButton(
+      style: FilledButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 1),
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       onPressed: () {
         onTap(digit);
@@ -20,8 +23,8 @@ class AlgebraicDigitButton extends StatelessWidget {
       child: Text(
         digit.toString(),
         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: Theme.of(context).colorScheme.primary,
           fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
       ),
     );

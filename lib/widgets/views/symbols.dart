@@ -1,9 +1,10 @@
 import 'dart:math';
 
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
-import 'package:dartblock_code/widgets/views/other/dartblock_colors.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class VoidSymbol extends StatelessWidget {
   final bool includeLabel;
@@ -90,7 +91,7 @@ class NeoTechDataTypeIcon extends StatelessWidget {
   }
 }
 
-class NeoTechDataTypeSymbol extends StatelessWidget {
+class NeoTechDataTypeSymbol extends ConsumerWidget {
   final DartBlockDataType dataType;
   final double width;
   final double height;
@@ -106,7 +107,8 @@ class NeoTechDataTypeSymbol extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     if (includeLabel) {
       return TwoTonedChip(
         height: 25,
@@ -114,7 +116,7 @@ class NeoTechDataTypeSymbol extends StatelessWidget {
           dataType: dataType,
           width: width,
           height: height,
-          color: Colors.white,
+          color: settings.colorFamily.getNeoTechDataTypeColor(dataType).onColor,
         ),
         right: Text(
           dataType.toString(),
@@ -122,7 +124,7 @@ class NeoTechDataTypeSymbol extends StatelessWidget {
             context,
           ).textTheme.bodyMedium?.apply(color: Colors.white),
         ),
-        leftColor: DartBlockColors.getNeoTechDataTypeColor(dataType),
+        leftColor: settings.colorFamily.getNeoTechDataTypeColor(dataType).color,
         rightColor: const Color.fromARGB(255, 42, 42, 42),
       );
     } else {
@@ -141,20 +143,20 @@ class NeoTechDataTypeSymbol extends StatelessWidget {
                     ? const Radius.circular(4)
                     : Radius.zero,
               ),
-          color: DartBlockColors.getNeoTechDataTypeColor(dataType),
+          color: settings.colorFamily.getNeoTechDataTypeColor(dataType).color,
         ),
         child: NeoTechDataTypeIcon(
           dataType: dataType,
           width: width,
           height: height,
-          color: Colors.white,
+          color: settings.colorFamily.getNeoTechDataTypeColor(dataType).onColor,
         ),
       );
     }
   }
 }
 
-class NeoTechFunctionSymbol extends StatelessWidget {
+class NeoTechFunctionSymbol extends ConsumerWidget {
   final double width;
   final double height;
   final Color? color;
@@ -170,18 +172,19 @@ class NeoTechFunctionSymbol extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     if (includeLabel) {
       return TwoTonedChip(
         height: 25,
-        left: _buildAsset(),
+        left: _buildAsset(ref),
         right: Text(
           'Function',
           style: Theme.of(context).textTheme.bodyMedium?.apply(
             color: Theme.of(context).colorScheme.onInverseSurface,
           ),
         ),
-        leftColor: DartBlockColors.function,
+        leftColor: settings.colorFamily.function.color,
         rightColor: Theme.of(context).colorScheme.shadow,
       );
     } else {
@@ -200,25 +203,26 @@ class NeoTechFunctionSymbol extends StatelessWidget {
                     ? const Radius.circular(4)
                     : Radius.zero,
               ),
-          color: DartBlockColors.function,
+          color: settings.colorFamily.function.color,
         ),
-        child: _buildAsset(),
+        child: _buildAsset(ref),
       );
     }
   }
 
-  Widget _buildAsset() {
+  Widget _buildAsset(WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     return Image.asset(
       'assets/icons/neotech_function.png',
       package: 'dartblock_code',
       width: width,
       height: height,
-      color: color ?? Colors.white,
+      color: color ?? settings.colorFamily.function.onColor,
     );
   }
 }
 
-class FunctionNameSymbol extends StatelessWidget {
+class FunctionNameSymbol extends ConsumerWidget {
   final String name;
   final double width;
   final double height;
@@ -234,10 +238,11 @@ class FunctionNameSymbol extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     return TwoTonedChip(
       height: 25,
-      left: _buildAsset(),
+      left: _buildAsset(ref),
       right: Text(
         name,
         maxLines: 1,
@@ -246,23 +251,24 @@ class FunctionNameSymbol extends StatelessWidget {
           context,
         ).textTheme.bodyMedium?.apply(color: Colors.white),
       ),
-      leftColor: DartBlockColors.function,
+      leftColor: settings.colorFamily.function.color,
       rightColor: Colors.white12,
     );
   }
 
-  Widget _buildAsset() {
+  Widget _buildAsset(WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     return Image.asset(
       'assets/icons/neotech_function.png',
       package: 'dartblock_code',
       width: width,
       height: height,
-      color: color ?? Colors.white,
+      color: color ?? settings.colorFamily.function.onColor,
     );
   }
 }
 
-class NeoTechReturnSymbol extends StatelessWidget {
+class NeoTechReturnSymbol extends ConsumerWidget {
   final double width;
   final double height;
   final Color? color;
@@ -278,7 +284,8 @@ class NeoTechReturnSymbol extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     if (includeLabel) {
       return TwoTonedChip(
         height: 25,
@@ -289,7 +296,7 @@ class NeoTechReturnSymbol extends StatelessWidget {
             color: Theme.of(context).colorScheme.onInverseSurface,
           ),
         ),
-        leftColor: DartBlockColors.function,
+        leftColor: settings.colorFamily.function.color,
         rightColor: Theme.of(context).colorScheme.shadow,
       );
     } else {

@@ -1,5 +1,7 @@
 import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/models/function_native.dart';
+import 'package:dartblock_code/widgets/dartblock_colors.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dartblock_code/core/dartblock_executor.dart';
 import 'package:dartblock_code/core/dartblock_program.dart';
@@ -77,15 +79,43 @@ class DartBlockSettings {
   final bool canReorder;
   final List<DartBlockNativeFunctionCategory> allowedNativeFunctionCategories;
   final List<DartBlockNativeFunctionType> allowedNativeFunctionTypes;
+  final DartBlockColors colors;
+  final DartBlockColorFamily colorFamily;
 
-  const DartBlockSettings({
+  DartBlockSettings({
     this.canChange = true,
     this.canDelete = true,
     this.canReorder = true,
     this.allowedNativeFunctionCategories =
         DartBlockNativeFunctionCategory.values,
     this.allowedNativeFunctionTypes = DartBlockNativeFunctionType.values,
-  });
+    DartBlockColors? colors,
+    required this.colorFamily,
+  }) : colors = colors ?? DartBlockColors.native();
+
+  /// Convenience factory that automatically resolves colors based on brightness.
+  factory DartBlockSettings.fromBrightness({
+    bool canChange = true,
+    bool canDelete = true,
+    bool canReorder = true,
+    List<DartBlockNativeFunctionCategory> allowedNativeFunctionCategories =
+        DartBlockNativeFunctionCategory.values,
+    List<DartBlockNativeFunctionType> allowedNativeFunctionTypes =
+        DartBlockNativeFunctionType.values,
+    DartBlockColors? colors,
+    required Brightness brightness,
+  }) {
+    final resolvedColors = colors ?? DartBlockColors.native();
+    return DartBlockSettings(
+      canChange: canChange,
+      canDelete: canDelete,
+      canReorder: canReorder,
+      allowedNativeFunctionCategories: allowedNativeFunctionCategories,
+      allowedNativeFunctionTypes: allowedNativeFunctionTypes,
+      colors: resolvedColors,
+      colorFamily: DartBlockColorFamily.fromColors(resolvedColors, brightness),
+    );
+  }
 }
 
 // ============================================================================

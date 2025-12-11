@@ -1,3 +1,4 @@
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dartblock_code/models/function.dart';
@@ -7,9 +8,9 @@ import 'package:dartblock_code/widgets/editors/composers/number_value.dart';
 import 'package:dartblock_code/widgets/editors/composers/string_value.dart';
 import 'package:dartblock_code/widgets/editors/misc.dart';
 import 'package:dartblock_code/widgets/dartblock_value_widgets.dart';
-import 'package:dartblock_code/widgets/views/other/dartblock_colors.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class BooleanValueComposer extends StatefulWidget {
+class BooleanValueComposer extends ConsumerStatefulWidget {
   final DartBlockValueTreeBooleanNode? value;
   final List<DartBlockVariableDefinition> variableDefinitions;
   final Function(DartBlockValueTreeBooleanNode?) onChange;
@@ -21,10 +22,11 @@ class BooleanValueComposer extends StatefulWidget {
   });
 
   @override
-  State<BooleanValueComposer> createState() => _BooleanValueComposerState();
+  ConsumerState<BooleanValueComposer> createState() =>
+      _BooleanValueComposerState();
 }
 
-class _BooleanValueComposerState extends State<BooleanValueComposer> {
+class _BooleanValueComposerState extends ConsumerState<BooleanValueComposer> {
   DartBlockValueTreeBooleanNode? value;
   final List<DartBlockValueTreeBooleanNode?> undoHistory = [];
   final List<DartBlockValueTreeBooleanNode?> redoHistory = [];
@@ -199,11 +201,15 @@ class _BooleanValueComposerState extends State<BooleanValueComposer> {
   }
 
   Widget _buildActiveComposer() {
+    final settings = ref.watch(settingsProvider);
     return switch (_booleanComposerActiveComposerType) {
       null => const SizedBox(height: 16),
       _BooleanComposerActiveComposerType.number => Container(
         decoration: BoxDecoration(
-          border: Border.all(color: DartBlockColors.number, width: 2),
+          border: Border.all(
+            color: settings.colorFamily.number.color,
+            width: 2,
+          ),
           borderRadius: BorderRadius.circular(12),
         ),
         padding: const EdgeInsets.all(4),
@@ -224,7 +230,10 @@ class _BooleanValueComposerState extends State<BooleanValueComposer> {
       ),
       _BooleanComposerActiveComposerType.text => Container(
         decoration: BoxDecoration(
-          border: Border.all(color: DartBlockColors.string, width: 2),
+          border: Border.all(
+            color: settings.colorFamily.string.color,
+            width: 2,
+          ),
           borderRadius: const BorderRadius.only(
             topRight: Radius.circular(12),
             bottomRight: Radius.circular(12),
@@ -252,6 +261,7 @@ class _BooleanValueComposerState extends State<BooleanValueComposer> {
     DartBlockNumberComparisonOperator leftOperator,
     DartBlockNumberComparisonOperator rightOperator,
   ) {
+    final settings = ref.watch(settingsProvider);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -264,7 +274,7 @@ class _BooleanValueComposerState extends State<BooleanValueComposer> {
                 _onTapNumberComparisonOperator(leftOperator);
               },
               style: FilledButton.styleFrom(
-                backgroundColor: DartBlockColors.number,
+                backgroundColor: settings.colorFamily.number.color,
                 padding: const EdgeInsets.only(left: 2),
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(
@@ -296,7 +306,7 @@ class _BooleanValueComposerState extends State<BooleanValueComposer> {
                 _onTapNumberComparisonOperator(rightOperator);
               },
               style: FilledButton.styleFrom(
-                backgroundColor: DartBlockColors.number,
+                backgroundColor: settings.colorFamily.number.color,
                 padding: const EdgeInsets.only(right: 2),
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(
@@ -879,7 +889,7 @@ class _BooleanValueComposerState extends State<BooleanValueComposer> {
     final bool isActive =
         _booleanComposerActiveComposerType ==
         _BooleanComposerActiveComposerType.text;
-
+    final settings = ref.watch(settingsProvider);
     return InkWell(
       borderRadius: const BorderRadius.only(
         topLeft: Radius.circular(24),
@@ -908,7 +918,7 @@ class _BooleanValueComposerState extends State<BooleanValueComposer> {
       child: Container(
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: isActive ? DartBlockColors.string : null,
+          color: isActive ? settings.colorFamily.string.color : null,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(24),
             topRight: Radius.circular(24),
@@ -923,7 +933,7 @@ class _BooleanValueComposerState extends State<BooleanValueComposer> {
                     color: Theme.of(context).colorScheme.outline,
                   ),
                 )
-              : Border.all(color: DartBlockColors.string, width: 2),
+              : Border.all(color: settings.colorFamily.string.color, width: 2),
         ),
         child: Stack(
           alignment: Alignment.center,
@@ -1012,7 +1022,7 @@ class _BooleanValueComposerState extends State<BooleanValueComposer> {
     final bool isActive =
         _booleanComposerActiveComposerType ==
         _BooleanComposerActiveComposerType.number;
-
+    final settings = ref.watch(settingsProvider);
     return InkWell(
       borderRadius: const BorderRadius.only(
         topLeft: Radius.circular(24),
@@ -1041,7 +1051,7 @@ class _BooleanValueComposerState extends State<BooleanValueComposer> {
       child: Container(
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: isActive ? DartBlockColors.number : null,
+          color: isActive ? settings.colorFamily.number.color : null,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(24),
             topRight: Radius.circular(24),
@@ -1056,7 +1066,7 @@ class _BooleanValueComposerState extends State<BooleanValueComposer> {
                     color: Theme.of(context).colorScheme.outline,
                   ),
                 )
-              : Border.all(color: DartBlockColors.number, width: 2),
+              : Border.all(color: settings.colorFamily.number.color, width: 2),
         ),
         child: Stack(
           alignment: Alignment.center,

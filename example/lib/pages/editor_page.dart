@@ -1,3 +1,5 @@
+import 'package:dartblock_code/widgets/dartblock_colors.dart';
+import 'package:example/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/core/dartblock_program.dart';
 import 'package:dartblock_code/widgets/dartblock_editor.dart';
@@ -39,6 +41,13 @@ class _EditorViewState extends State<EditorView> {
                 // Example interaction: user tapped on "Run" button.
                 // Can be useful for collecting usage statistics and general logging.
               },
+              colors: DartBlockColors(
+                number: MaterialTheme.function,
+                boolean: MaterialTheme.boolean,
+                variable: MaterialTheme.variable,
+                function: MaterialTheme.function,
+                string: MaterialTheme.string,
+              ),
             ),
           ),
         ],

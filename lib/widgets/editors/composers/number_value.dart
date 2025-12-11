@@ -1,3 +1,6 @@
+import 'package:dartblock_code/widgets/editors/composers/components/composer_common_button.dart';
+import 'package:dartblock_code/widgets/editors/composers/components/function_composer_button.dart';
+import 'package:dartblock_code/widgets/editors/composers/components/variable_picker_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dartblock_code/models/dartblock_interaction.dart';
@@ -6,7 +9,6 @@ import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/editors/composers/components/algebraic_digit_button.dart';
 import 'package:dartblock_code/widgets/editors/composers/components/algebraic_dot_button.dart';
 import 'package:dartblock_code/widgets/editors/composers/components/algebraic_operator_button.dart';
-import 'package:dartblock_code/widgets/editors/misc.dart';
 import 'package:dartblock_code/widgets/dartblock_value_widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -81,95 +83,109 @@ class _NumberValueComposerState extends ConsumerState<NumberValueComposer> {
                 // }
               }
             },
-            child: InkWell(
-              onTap: selectedNodeKey != null
-                  ? () {
-                      DartBlockInteraction.create(
-                        dartBlockInteractionType: DartBlockInteractionType
-                            .deselectNumberComposerValueNode,
-                        content: 'TappedOutsideValue',
-                      ).dispatch(context);
-                      setState(() {
-                        selectedNodeKey = null;
-                      });
-                    }
-                  : () {},
-              child: Center(
+            child: Material(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 12,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: selectedNodeKey != null
+                    ? () {
+                        DartBlockInteraction.create(
+                          dartBlockInteractionType: DartBlockInteractionType
+                              .deselectNumberComposerValueNode,
+                          content: 'TappedOutsideValue',
+                        ).dispatch(context);
+                        setState(() {
+                          selectedNodeKey = null;
+                        });
+                      }
+                    : () {},
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(
                     minHeight: 42,
                     maxHeight: 100,
                   ),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: (value != null)
-                        ? ValueCompositionNumberNodeWidget(
-                            node: value!,
-                            selectedNodeKey: selectedNodeKey,
-                            onTap: (tappedNode) {
-                              setState(() {
-                                if (selectedNodeKey == tappedNode.nodeKey) {
-                                  DartBlockInteraction.create(
-                                    dartBlockInteractionType:
-                                        DartBlockInteractionType
-                                            .deselectNumberComposerValueNode,
-                                  ).dispatch(context);
-                                  selectedNodeKey = null;
-                                } else {
-                                  DartBlockInteraction.create(
-                                    dartBlockInteractionType:
-                                        DartBlockInteractionType
-                                            .selectNumberComposerValueNode,
-                                  ).dispatch(context);
-                                  selectedNodeKey = tappedNode.nodeKey;
-                                }
-                              });
-                            },
-                            onChangeOperator:
-                                (arithmeticOperatorNode, newOperator) {
-                                  if (arithmeticOperatorNode.operator !=
-                                      newOperator) {
-                                    undoHistory.add(value?.copy());
-                                    setState(() {
-                                      DartBlockInteraction.create(
-                                        dartBlockInteractionType:
-                                            DartBlockInteractionType
-                                                .changeNumberComposerOperatorThroughNode,
-                                      ).dispatch(context);
-                                      arithmeticOperatorNode.operator =
-                                          newOperator;
-                                      _updateValue(value);
-                                    });
+                  child: Center(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: (value != null)
+                          ? ValueCompositionNumberNodeWidget(
+                              node: value!,
+                              selectedNodeKey: selectedNodeKey,
+                              onTap: (tappedNode) {
+                                setState(() {
+                                  if (selectedNodeKey == tappedNode.nodeKey) {
+                                    DartBlockInteraction.create(
+                                      dartBlockInteractionType:
+                                          DartBlockInteractionType
+                                              .deselectNumberComposerValueNode,
+                                    ).dispatch(context);
+                                    selectedNodeKey = null;
+                                  } else {
+                                    DartBlockInteraction.create(
+                                      dartBlockInteractionType:
+                                          DartBlockInteractionType
+                                              .selectNumberComposerValueNode,
+                                    ).dispatch(context);
+                                    selectedNodeKey = tappedNode.nodeKey;
                                   }
-                                },
-                          )
-                        : Text(
-                            'No value (null)',
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.apply(fontStyle: FontStyle.italic),
-                          ),
+                                });
+                              },
+                              onChangeOperator:
+                                  (arithmeticOperatorNode, newOperator) {
+                                    if (arithmeticOperatorNode.operator !=
+                                        newOperator) {
+                                      undoHistory.add(value?.copy());
+                                      setState(() {
+                                        DartBlockInteraction.create(
+                                          dartBlockInteractionType:
+                                              DartBlockInteractionType
+                                                  .changeNumberComposerOperatorThroughNode,
+                                        ).dispatch(context);
+                                        arithmeticOperatorNode.operator =
+                                            newOperator;
+                                        _updateValue(value);
+                                      });
+                                    }
+                                  },
+                            )
+                          : Text(
+                              'No value (null)',
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.apply(fontStyle: FontStyle.italic),
+                            ),
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 12),
         GridView.count(
           shrinkWrap: true,
           primary: false,
           padding: EdgeInsets.zero,
-          crossAxisSpacing: 2,
-          mainAxisSpacing: 2,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
           crossAxisCount: 4,
-          childAspectRatio: 2 / 1, // 70 / 35.0,
+          childAspectRatio: 4 / 2.25,
           children: [
             widget.showFunctionVariableButton
-                ? _buildFunctionVariableButton()
+                ? _buildFunctionComposerButton()
                 : const SizedBox(),
-            widget.showUndoRedoButton
-                ? _buildUndoRedoButton()
+            widget.showFunctionVariableButton
+                ? _buildVariablePickerButton()
                 : const SizedBox(),
-            _buildNegationButton(),
+            widget.showUndoRedoButton ? _buildUndoButton() : const SizedBox(),
+            widget.showUndoRedoButton ? _buildRedoButton() : const SizedBox(),
+            const SizedBox(),
+            _buildClearButton(),
+            widget.showBackspaceButton
+                ? _buildBackspaceButton()
+                : const SizedBox(),
             _buildOperatorButton(DartBlockAlgebraicOperator.modulo),
             _buildDigitButton(7),
             _buildDigitButton(8),
@@ -183,11 +199,9 @@ class _NumberValueComposerState extends ConsumerState<NumberValueComposer> {
             _buildDigitButton(2),
             _buildDigitButton(3),
             _buildOperatorButton(DartBlockAlgebraicOperator.subtract),
+            _buildNegationButton(),
             _buildDigitButton(0),
             _buildDotButton(),
-            widget.showBackspaceButton
-                ? _buildBackspaceButton()
-                : const SizedBox(),
             _buildOperatorButton(DartBlockAlgebraicOperator.add),
           ],
         ),
@@ -241,15 +255,14 @@ class _NumberValueComposerState extends ConsumerState<NumberValueComposer> {
     });
   }
 
-  Widget _buildFunctionVariableButton() {
+  Widget _buildFunctionComposerButton() {
     final rightLeaf = (getSelectedNode() ?? value)?.getRightLeaf();
     DartBlockFunctionCallValue? currentFunctionCallValue;
     if (rightLeaf is DartBlockValueTreeAlgebraicDynamicNode &&
         rightLeaf.value is DartBlockFunctionCallValue) {
       currentFunctionCallValue = rightLeaf.value as DartBlockFunctionCallValue;
     }
-
-    return FunctionVariableSplitButton(
+    return FunctionComposerButton(
       functionCallValue: currentFunctionCallValue,
       variableDefinitions: widget.variableDefinitions,
       restrictFunctionCallReturnTypes: const [
@@ -259,125 +272,98 @@ class _NumberValueComposerState extends ConsumerState<NumberValueComposer> {
       onSavedFunctionCallStatement: (customFunction, savedFunctionCall) {
         _onAddFunctionCall(savedFunctionCall);
       },
+    );
+  }
+
+  Widget _buildVariablePickerButton() {
+    return VariablePickerButton(
+      variableDefinitions: widget.variableDefinitions,
       onPickedVariableDefinition: (pickedVariableDefinition) {
         _onAddVariableDefinition(pickedVariableDefinition);
       },
     );
   }
 
-  Widget _buildUndoRedoButton() {
-    return Container(
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: Tooltip(
-              message: "Undo",
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outline,
-                  ),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(24),
-                    bottomLeft: Radius.circular(24),
-                  ),
-                ),
-                child: InkWell(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(24),
-                    bottomLeft: Radius.circular(24),
-                  ),
-                  onTap: undoHistory.isNotEmpty
-                      ? () {
-                          if (undoHistory.isNotEmpty) {
-                            DartBlockInteraction.create(
-                              dartBlockInteractionType: DartBlockInteractionType
-                                  .tapNumberComposerUndo,
-                            ).dispatch(context);
-                            HapticFeedback.mediumImpact();
-                            setState(() {
-                              redoHistory.add(value?.copy());
-                              _updateValue(undoHistory.removeLast());
-                            });
-                          }
-                        }
-                      : null,
-                  child: Icon(
-                    Icons.undo,
-                    color: undoHistory.isNotEmpty
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.outline,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Tooltip(
-              message: "Redo",
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outline,
-                  ),
-                  borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(24),
-                    bottomRight: Radius.circular(24),
-                  ),
-                ),
-                child: InkWell(
-                  borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(24),
-                    bottomRight: Radius.circular(24),
-                  ),
-                  onTap: redoHistory.isNotEmpty
-                      ? () {
-                          if (redoHistory.isNotEmpty) {
-                            DartBlockInteraction.create(
-                              dartBlockInteractionType: DartBlockInteractionType
-                                  .tapNumberComposerRedo,
-                            ).dispatch(context);
-                            HapticFeedback.mediumImpact();
-                            setState(() {
-                              undoHistory.add(value?.copy());
-                              _updateValue(redoHistory.removeLast());
-                            });
-                          }
-                        }
-                      : null,
-                  child: Icon(
-                    Icons.redo,
-                    color: redoHistory.isNotEmpty
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.outline,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+  Widget _buildUndoButton() {
+    return ComposerCommonButton(
+      tooltipMessage: "Undo",
+      onTap: undoHistory.isNotEmpty
+          ? () {
+              if (undoHistory.isNotEmpty) {
+                DartBlockInteraction.create(
+                  dartBlockInteractionType:
+                      DartBlockInteractionType.tapNumberComposerUndo,
+                ).dispatch(context);
+                HapticFeedback.mediumImpact();
+                setState(() {
+                  redoHistory.add(value?.copy());
+                  _updateValue(undoHistory.removeLast());
+                });
+              }
+            }
+          : null,
+      child: Icon(Icons.undo),
+    );
+  }
+
+  Widget _buildRedoButton() {
+    return ComposerCommonButton(
+      tooltipMessage: "Redo",
+      onTap: redoHistory.isNotEmpty
+          ? () {
+              if (redoHistory.isNotEmpty) {
+                DartBlockInteraction.create(
+                  dartBlockInteractionType:
+                      DartBlockInteractionType.tapNumberComposerRedo,
+                ).dispatch(context);
+                HapticFeedback.mediumImpact();
+                setState(() {
+                  undoHistory.add(value?.copy());
+                  _updateValue(redoHistory.removeLast());
+                });
+              }
+            }
+          : null,
+      child: Icon(Icons.redo),
+    );
+  }
+
+  Widget _buildClearButton() {
+    return ComposerCommonButton(
+      tooltipMessage: "Clear",
+      onTap: () {
+        DartBlockInteraction.create(
+          dartBlockInteractionType:
+              DartBlockInteractionType.tapNumberComposerClear,
+        ).dispatch(context);
+        HapticFeedback.mediumImpact();
+        undoHistory.add(value?.copy());
+        setState(() {
+          selectedNodeKey = null;
+          _updateValue(null);
+        });
+      },
+      child: Text(
+        "C",
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
     );
   }
 
   Widget _buildBackspaceButton() {
-    return Tooltip(
-      message: "Delete",
-      child: OutlinedButton(
-        style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 1),
-        ),
-        onPressed: () {
-          DartBlockInteraction.create(
-            dartBlockInteractionType:
-                DartBlockInteractionType.tapNumberComposerBackspace,
-          ).dispatch(context);
-          _onBackSpace();
-        },
-        child: const Icon(Icons.backspace),
-      ),
+    return ComposerCommonButton(
+      tooltipMessage: "Delete",
+      onTap: () {
+        DartBlockInteraction.create(
+          dartBlockInteractionType:
+              DartBlockInteractionType.tapNumberComposerBackspace,
+        ).dispatch(context);
+        _onBackSpace();
+      },
+      child: Icon(Icons.backspace_outlined),
     );
   }
 
@@ -417,6 +403,11 @@ class _NumberValueComposerState extends ConsumerState<NumberValueComposer> {
       child: FilledButton(
         style: FilledButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 1),
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
         onPressed: () {
           DartBlockInteraction.create(
@@ -445,7 +436,7 @@ class _NumberValueComposerState extends ConsumerState<NumberValueComposer> {
         child: Text(
           "+/-",
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: Theme.of(context).colorScheme.onPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ), // ±

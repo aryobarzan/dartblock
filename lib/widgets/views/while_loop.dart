@@ -1,12 +1,13 @@
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/function.dart';
 import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:dartblock_code/widgets/dartblock_value_widgets.dart';
-import 'package:dartblock_code/widgets/views/other/dartblock_colors.dart';
 import 'package:dartblock_code/widgets/views/statement_listview.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class WhileLoopStatementWidget extends StatelessWidget {
+class WhileLoopStatementWidget extends ConsumerWidget {
   final WhileLoopStatement statement;
   final bool canDelete;
   final bool canChange;
@@ -28,7 +29,8 @@ class WhileLoopStatementWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
@@ -56,7 +58,9 @@ class WhileLoopStatementWidget extends StatelessWidget {
                         scrollDirection: Axis.horizontal,
                         child: DartBlockValueWidget(
                           value: statement.condition,
-                          border: Border.all(color: DartBlockColors.boolean),
+                          border: Border.all(
+                            color: settings.colorFamily.boolean.color,
+                          ),
                           borderRadius: const BorderRadius.only(
                             topRight: Radius.circular(12),
                           ),
@@ -130,7 +134,9 @@ class WhileLoopStatementWidget extends StatelessWidget {
                         scrollDirection: Axis.horizontal,
                         child: DartBlockValueWidget(
                           value: statement.condition,
-                          border: Border.all(color: DartBlockColors.boolean),
+                          border: Border.all(
+                            color: settings.colorFamily.boolean.color,
+                          ),
                           borderRadius: const BorderRadius.only(
                             bottomRight: Radius.circular(12),
                           ),

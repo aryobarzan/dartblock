@@ -1,4 +1,5 @@
 import 'package:example/pages/root_page.dart';
+import 'package:example/theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,12 +27,12 @@ class DartBlockExample extends StatelessWidget {
       title: 'DartBlock',
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: lightColorScheme,
+        colorScheme: MaterialTheme.lightScheme(),
         textTheme: GoogleFonts.robotoTextTheme(),
       ),
       darkTheme: ThemeData(
         useMaterial3: true,
-        colorScheme: darkColorScheme,
+        colorScheme: MaterialTheme.darkScheme(),
         textTheme: GoogleFonts.robotoTextTheme(
           ThemeData(brightness: Brightness.dark).textTheme,
         ),

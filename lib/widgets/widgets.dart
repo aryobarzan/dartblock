@@ -1,10 +1,11 @@
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:dartblock_code/widgets/dartblock_value_widgets.dart';
-import 'package:dartblock_code/widgets/views/other/dartblock_colors.dart';
 import 'package:dartblock_code/widgets/views/symbols.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class NeoValueTextWidget extends StatelessWidget {
   final DartBlockValue? neoValue;
@@ -25,7 +26,7 @@ class NeoValueTextWidget extends StatelessWidget {
   }
 }
 
-class VariableTextWidget extends StatelessWidget {
+class VariableTextWidget extends ConsumerWidget {
   final DartBlockVariable variable;
   final BorderRadius? borderRadius;
   const VariableTextWidget({
@@ -35,7 +36,8 @@ class VariableTextWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     return Container(
       alignment: Alignment.center,
       height: 24,
@@ -43,12 +45,12 @@ class VariableTextWidget extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
       decoration: BoxDecoration(
         borderRadius: borderRadius ?? BorderRadius.circular(12),
-        color: DartBlockColors.variable,
+        color: settings.colorFamily.variable.color,
       ),
       child: Text(
         variable.name,
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: Colors.white,
+          color: settings.colorFamily.variable.onColor,
           fontWeight: FontWeight.bold,
         ),
       ),

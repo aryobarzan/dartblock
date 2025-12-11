@@ -1,13 +1,14 @@
 import 'package:collection/collection.dart';
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/function.dart';
 import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:dartblock_code/widgets/dartblock_value_widgets.dart';
-import 'package:dartblock_code/widgets/views/other/dartblock_colors.dart';
 import 'package:dartblock_code/widgets/views/statement_listview.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class IfElseStatementWidget extends StatelessWidget {
+class IfElseStatementWidget extends ConsumerWidget {
   final IfElseStatement statement;
   final bool canDelete;
   final bool canChange;
@@ -29,7 +30,8 @@ class IfElseStatementWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Column(
@@ -56,7 +58,9 @@ class IfElseStatementWidget extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       child: DartBlockValueWidget(
                         value: statement.ifCondition,
-                        border: Border.all(color: DartBlockColors.boolean),
+                        border: Border.all(
+                          color: settings.colorFamily.boolean.color,
+                        ),
                         borderRadius: const BorderRadius.only(
                           topRight: Radius.circular(12),
                         ),
@@ -126,7 +130,8 @@ class IfElseStatementWidget extends StatelessWidget {
                 ),
               ),
               ...statement.elseIfStatementBlocks.mapIndexed(
-                (index, element) => _buildElseIfStatementBlock(context, index),
+                (index, element) =>
+                    _buildElseIfStatementBlock(context, ref, index),
               ),
               if (statement.elseIfStatementBlocks.isEmpty)
                 _buildVerticalLine(context),
@@ -227,7 +232,12 @@ class IfElseStatementWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildElseIfStatementBlock(BuildContext context, int blockIndex) {
+  Widget _buildElseIfStatementBlock(
+    BuildContext context,
+    WidgetRef ref,
+    int blockIndex,
+  ) {
+    final settings = ref.watch(settingsProvider);
     final (condition, statementBlock) =
         statement.elseIfStatementBlocks[blockIndex];
     return Column(
@@ -249,7 +259,7 @@ class IfElseStatementWidget extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 child: DartBlockValueWidget(
                   value: condition,
-                  border: Border.all(color: DartBlockColors.boolean),
+                  border: Border.all(color: settings.colorFamily.boolean.color),
                   borderRadius: const BorderRadius.only(
                     topRight: Radius.circular(12),
                   ),

@@ -1,119 +1,52 @@
-import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:dartblock_code/models/function.dart';
 import 'package:dartblock_code/models/dartblock_notification.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
-import 'package:dartblock_code/models/statement.dart';
-import 'package:dartblock_code/widgets/editors/function_call.dart';
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:dartblock_code/widgets/views/variable_definition.dart';
 import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class FunctionVariableSplitButton extends ConsumerWidget {
-  final DartBlockFunctionCallValue? functionCallValue;
+class VariablePickerButton extends ConsumerWidget {
   final List<DartBlockVariableDefinition> variableDefinitions;
-  final Function(
-    DartBlockFunction function,
-    FunctionCallStatement functionCallStatement,
-  )
-  onSavedFunctionCallStatement;
   final Function(DartBlockVariableDefinition) onPickedVariableDefinition;
-  final List<DartBlockDataType>? restrictFunctionCallReturnTypes;
-  const FunctionVariableSplitButton({
+  const VariablePickerButton({
     super.key,
-    this.functionCallValue,
     required this.variableDefinitions,
-    required this.onSavedFunctionCallStatement,
     required this.onPickedVariableDefinition,
-    this.restrictFunctionCallReturnTypes,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final availableFunctions = ref
-        .watch(
-          availableFunctionsProvider(restrictFunctionCallReturnTypes ?? []),
-        )
-        .toList();
     final settings = ref.watch(settingsProvider);
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: FilledButton(
-            onPressed: availableFunctions.isNotEmpty
-                ? () {
-                    _showFunctionCallComposerModalBottomSheet(context);
-                  }
-                : null,
-            style: FilledButton.styleFrom(
-              backgroundColor: settings.colorFamily.function.color,
-              padding: const EdgeInsets.only(
-                top: 2,
-                bottom: 2,
-                right: 6,
-                left: 12,
-              ),
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  bottomLeft: Radius.circular(24),
-                ),
-              ),
-            ),
-            child: Image.asset(
-              'assets/icons/neotech_function.png',
-              package: 'dartblock_code',
-              width: 20,
-              height: 20,
-              color: availableFunctions.isNotEmpty
-                  ? Colors.white
-                  : Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.5),
-            ),
+    return Tooltip(
+      message: "Variable",
+      child: FilledButton(
+        style: FilledButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 1),
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
+          backgroundColor: Theme.of(
+            context,
+          ).colorScheme.surfaceContainerHighest,
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
         ),
-        const VerticalDivider(width: 1, thickness: 1),
-        Expanded(
-          child: FilledButton(
-            onPressed: variableDefinitions.isNotEmpty
-                ? () {
-                    _showVariablePickerComposerModalBottomSheet(context);
-                  }
-                : null,
-            style: FilledButton.styleFrom(
-              backgroundColor: settings.colorFamily.variable.color,
-              padding: const EdgeInsets.only(
-                top: 2,
-                bottom: 2,
-                left: 6,
-                right: 12,
-              ),
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(24),
-                  bottomRight: Radius.circular(24),
-                ),
-              ),
-            ),
-            child: Image.asset(
-              'assets/icons/neotech_variable.png',
-              package: 'dartblock_code',
-              width: 24,
-              height: 24,
-              color: variableDefinitions.isNotEmpty
-                  ? Colors.white
-                  : Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.5),
-            ),
+        onPressed: variableDefinitions.isNotEmpty
+            ? () {
+                _showVariablePickerComposerModalBottomSheet(context);
+              }
+            : null,
+        child: Text(
+          "(x)",
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: settings.colorFamily.variable.color,
           ),
         ),
-      ],
+      ),
     );
   }
 
@@ -162,25 +95,6 @@ class FunctionVariableSplitButton extends ConsumerWidget {
           ),
         );
       },
-    );
-  }
-
-  void _showFunctionCallComposerModalBottomSheet(BuildContext context) {
-    _showModalBottomSheet(
-      context,
-      "Function Call",
-      Padding(
-        padding: const EdgeInsets.only(bottom: 4),
-        child: FunctionCallComposer(
-          statement: functionCallValue?.functionCall,
-          existingVariableDefinitions: variableDefinitions,
-          onSaved: (customFunction, savedFunctionCall) {
-            Navigator.of(context).pop();
-            onSavedFunctionCallStatement(customFunction, savedFunctionCall);
-          },
-          restrictToDataTypes: restrictFunctionCallReturnTypes ?? [],
-        ),
-      ),
     );
   }
 
@@ -247,7 +161,7 @@ class VariableDefinitionPicker extends ConsumerWidget {
                 child: Text(
                   "(x)",
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.white,
+                    color: settings.colorFamily.variable.onColor,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

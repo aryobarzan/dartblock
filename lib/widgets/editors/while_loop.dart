@@ -1,3 +1,4 @@
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,9 +10,9 @@ import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/editors/composers/boolean_value.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:dartblock_code/widgets/dartblock_value_widgets.dart';
-import 'package:dartblock_code/widgets/views/other/dartblock_colors.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class WhileLoopStatementEditor extends StatefulWidget {
+class WhileLoopStatementEditor extends ConsumerStatefulWidget {
   final WhileLoopStatement? statement;
   final Function(WhileLoopStatement) onSaved;
 
@@ -26,11 +27,12 @@ class WhileLoopStatementEditor extends StatefulWidget {
   });
 
   @override
-  State<WhileLoopStatementEditor> createState() =>
+  ConsumerState<WhileLoopStatementEditor> createState() =>
       _WhileLoopStatementEditorState();
 }
 
-class _WhileLoopStatementEditorState extends State<WhileLoopStatementEditor> {
+class _WhileLoopStatementEditorState
+    extends ConsumerState<WhileLoopStatementEditor> {
   bool isDoWhile = false;
   DartBlockBooleanExpression? condition;
   @override
@@ -213,6 +215,7 @@ class _WhileLoopStatementEditorState extends State<WhileLoopStatementEditor> {
   }
 
   void _showConditionEditorModalBottomSheet() {
+    final settings = ref.watch(settingsProvider);
     context.showProviderAwareBottomSheet(
       isScrollControlled: true,
       showDragHandle: true,
@@ -265,7 +268,7 @@ class _WhileLoopStatementEditorState extends State<WhileLoopStatementEditor> {
                           style: Theme.of(sheetContext).textTheme.titleMedium
                               ?.copyWith(
                                 fontWeight: FontWeight.bold,
-                                color: DartBlockColors.boolean,
+                                color: settings.colorFamily.boolean.color,
                               ),
                         ),
                       ],

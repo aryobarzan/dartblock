@@ -1,3 +1,4 @@
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,11 +11,11 @@ import 'package:dartblock_code/widgets/editors/variable_assignment.dart';
 import 'package:dartblock_code/widgets/editors/variable_declaration.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:dartblock_code/widgets/dartblock_value_widgets.dart';
-import 'package:dartblock_code/widgets/views/other/dartblock_colors.dart';
 import 'package:dartblock_code/widgets/views/variable_assignment.dart';
 import 'package:dartblock_code/widgets/views/variable_declaration.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ForLoopStatementEditor extends StatefulWidget {
+class ForLoopStatementEditor extends ConsumerStatefulWidget {
   final ForLoopStatement? statement;
   final Function(ForLoopStatement) onSaved;
 
@@ -29,10 +30,12 @@ class ForLoopStatementEditor extends StatefulWidget {
   });
 
   @override
-  State<ForLoopStatementEditor> createState() => _ForLoopStatementEditorState();
+  ConsumerState<ForLoopStatementEditor> createState() =>
+      _ForLoopStatementEditorState();
 }
 
-class _ForLoopStatementEditorState extends State<ForLoopStatementEditor> {
+class _ForLoopStatementEditorState
+    extends ConsumerState<ForLoopStatementEditor> {
   Statement? initStatement;
   DartBlockBooleanExpression? condition;
   Statement? postStatement;
@@ -399,6 +402,7 @@ class _ForLoopStatementEditorState extends State<ForLoopStatementEditor> {
       conditionAvailableVariableDefinitions =
           conditionAvailableVariableDefinitions.toSet().toList();
     }
+    final settings = ref.watch(settingsProvider);
     _showModalBottomSheet(
       "Condition",
       BooleanValueComposer(
@@ -412,7 +416,7 @@ class _ForLoopStatementEditorState extends State<ForLoopStatementEditor> {
           });
         },
       ),
-      titleColor: DartBlockColors.boolean,
+      titleColor: settings.colorFamily.boolean.color,
     );
   }
 

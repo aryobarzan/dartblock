@@ -101,6 +101,7 @@ enum DartBlockInteractionType {
   tapNumberComposerOperator,
   tapNumberComposerNegate,
   tapNumberComposerBackspace,
+  tapNumberComposerClear, // added in 2.1.0
   tapNumberComposerUndo,
   tapNumberComposerRedo,
   tapNumberComposerFunctionCall,

@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/evaluator.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
@@ -6,9 +7,9 @@ import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:dartblock_code/widgets/dartblock_value_widgets.dart';
 import 'package:dartblock_code/widgets/views/function_definition.dart';
-import 'package:dartblock_code/widgets/views/other/dartblock_colors.dart';
 import 'package:dartblock_code/widgets/views/other/dartblock_exception.dart';
 import 'package:dartblock_code/widgets/views/variable_definition.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class _CustomExpansionTile extends StatefulWidget {
   final String title;
@@ -1190,12 +1191,13 @@ class DartBlockFunctionOutputEvaluationWidget extends StatelessWidget {
   }
 }
 
-class _FunctionCallWidget extends StatelessWidget {
+class _FunctionCallWidget extends ConsumerWidget {
   final FunctionCallStatement functionCallStatement;
   const _FunctionCallWidget({required this.functionCallStatement});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     return Row(
       children: [
         ColoredTitleChip(
@@ -1204,7 +1206,7 @@ class _FunctionCallWidget extends StatelessWidget {
             fontWeight: FontWeight.w500,
             color: Colors.white,
           ),
-          color: DartBlockColors.function,
+          color: settings.colorFamily.function.color,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(12),
             bottomLeft: Radius.circular(12),

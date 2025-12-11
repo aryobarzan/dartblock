@@ -88,8 +88,8 @@ class _VariableDeclarationEditorState extends State<VariableDeclarationEditor> {
               ),
             ],
           ),
-          // const Divider(),
-          const SizedBox(height: 4),
+          const Divider(),
+          const SizedBox(height: 12),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -140,7 +140,8 @@ class _VariableDeclarationEditorState extends State<VariableDeclarationEditor> {
               ),
             ],
           ),
-          const Divider(),
+          const SizedBox(height: 4),
+          // const Divider(),
           const Text("Initial value (optional):"),
           const SizedBox(height: 4),
           if (dataType == DartBlockDataType.integerType ||

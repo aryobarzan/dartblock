@@ -1,9 +1,10 @@
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
-import 'package:dartblock_code/widgets/views/other/dartblock_colors.dart';
 import 'package:dartblock_code/widgets/views/symbols.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class VariableDefinitionWidget extends StatelessWidget {
+class VariableDefinitionWidget extends ConsumerWidget {
   final DartBlockVariableDefinition variableDefinition;
   final bool circularRightSide;
   final bool useBodyMedium;
@@ -15,7 +16,8 @@ class VariableDefinitionWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
@@ -28,13 +30,15 @@ class VariableDefinitionWidget extends StatelessWidget {
               topLeft: Radius.circular(12),
               bottomLeft: Radius.circular(12),
             ),
-            color: DartBlockColors.getNeoTechDataTypeColor(
-              variableDefinition.dataType,
-            ),
+            color: settings.colorFamily
+                .getNeoTechDataTypeColor(variableDefinition.dataType)
+                .color,
           ),
           child: NeoTechDataTypeIcon(
             dataType: variableDefinition.dataType,
-            color: Colors.white,
+            color: settings.colorFamily
+                .getNeoTechDataTypeColor(variableDefinition.dataType)
+                .onColor,
           ),
         ),
         Container(
@@ -46,7 +50,7 @@ class VariableDefinitionWidget extends StatelessWidget {
                     bottomRight: Radius.circular(12),
                   )
                 : null,
-            color: DartBlockColors.variable,
+            color: settings.colorFamily.variable.color,
           ),
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
           alignment: Alignment.center,
@@ -54,11 +58,11 @@ class VariableDefinitionWidget extends StatelessWidget {
             variableDefinition.name,
             style: useBodyMedium
                 ? Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.white,
+                    color: settings.colorFamily.variable.onColor,
                     fontWeight: FontWeight.bold,
                   )
                 : Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white,
+                    color: settings.colorFamily.variable.onColor,
                     fontWeight: FontWeight.bold,
                   ),
           ),

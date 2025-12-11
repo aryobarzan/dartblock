@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TwoTonedChip extends StatelessWidget {
   final Widget left;
@@ -109,12 +110,15 @@ class PopupWidgetButton extends StatelessWidget {
             height: 100,
             // padding: EdgeInsets.zero,
             // enabled: true,
-            child: blurBackground
-                ? BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
-                    child: widget,
-                  )
-                : widget,
+            child: UncontrolledProviderScope(
+              container: ProviderScope.containerOf(context),
+              child: blurBackground
+                  ? BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
+                      child: widget,
+                    )
+                  : widget,
+            ),
           ),
         ];
       },

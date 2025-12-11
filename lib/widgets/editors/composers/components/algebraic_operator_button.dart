@@ -15,6 +15,9 @@ class AlgebraicOperatorButton extends StatelessWidget {
     return FilledButton(
       style: FilledButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 1),
+        backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+        foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       onPressed: () {
         onTap(algebraicOperator);
@@ -22,8 +25,8 @@ class AlgebraicOperatorButton extends StatelessWidget {
       child: Text(
         algebraicOperator.text,
         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: Theme.of(context).colorScheme.onPrimary,
           fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.onTertiaryContainer,
         ),
       ),
     );

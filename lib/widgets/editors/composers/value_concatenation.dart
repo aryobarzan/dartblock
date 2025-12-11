@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -12,10 +13,10 @@ import 'package:dartblock_code/widgets/editors/composers/string_value.dart';
 import 'package:dartblock_code/widgets/editors/function_call.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:dartblock_code/widgets/editors/misc.dart';
-import 'package:dartblock_code/widgets/views/other/dartblock_colors.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:reorderables/reorderables.dart';
 
-class ConcatenationValueComposer extends StatefulWidget {
+class ConcatenationValueComposer extends ConsumerStatefulWidget {
   final DartBlockConcatenationValue? value;
   final List<DartBlockVariableDefinition> variableDefinitions;
   final Function(DartBlockConcatenationValue?) onChange;
@@ -29,11 +30,12 @@ class ConcatenationValueComposer extends StatefulWidget {
   });
 
   @override
-  State<ConcatenationValueComposer> createState() =>
+  ConsumerState<ConcatenationValueComposer> createState() =>
       _ConcatenationValueComposerState();
 }
 
-class _ConcatenationValueComposerState extends State<ConcatenationValueComposer>
+class _ConcatenationValueComposerState
+    extends ConsumerState<ConcatenationValueComposer>
     with SingleTickerProviderStateMixin {
   late DartBlockConcatenationValue value;
   final List<DartBlockConcatenationValue> undoHistory = [];
@@ -523,12 +525,13 @@ class _ConcatenationValueComposerState extends State<ConcatenationValueComposer>
   Widget _buildItem(int index, DartBlockValue item) {
     final _ConcatenationValueType concatenationValueType;
     final Widget child;
+    final settings = ref.watch(settingsProvider);
     switch (item) {
       case DartBlockVariable():
         concatenationValueType = _ConcatenationValueType.variable;
         child = _buildChip(
           item.name,
-          DartBlockColors.variable,
+          settings.colorFamily.variable.color,
           Colors.white,
           index,
         );
@@ -537,7 +540,7 @@ class _ConcatenationValueComposerState extends State<ConcatenationValueComposer>
         concatenationValueType = _ConcatenationValueType.functionCall;
         child = _buildChip(
           item.toString(),
-          DartBlockColors.function,
+          settings.colorFamily.function.color,
           Colors.white,
           index,
         );
@@ -546,7 +549,7 @@ class _ConcatenationValueComposerState extends State<ConcatenationValueComposer>
         concatenationValueType = _ConcatenationValueType.constantString;
         child = _buildChip(
           item.value,
-          DartBlockColors.string,
+          settings.colorFamily.string.color,
           Colors.white,
           index,
         );
@@ -555,7 +558,7 @@ class _ConcatenationValueComposerState extends State<ConcatenationValueComposer>
         concatenationValueType = _ConcatenationValueType.numericExpression;
         child = _buildChip(
           item.toString(),
-          DartBlockColors.number,
+          settings.colorFamily.number.color,
           Colors.white,
           index,
         );
@@ -564,7 +567,7 @@ class _ConcatenationValueComposerState extends State<ConcatenationValueComposer>
         concatenationValueType = _ConcatenationValueType.booleanExpression;
         child = _buildChip(
           item.toString(),
-          DartBlockColors.boolean,
+          settings.colorFamily.boolean.color,
           Colors.white,
           index,
         );
@@ -855,7 +858,7 @@ enum _ConcatenationValueType {
   }
 }
 
-class _ConcatenationValueTypeButton extends StatelessWidget {
+class _ConcatenationValueTypeButton extends ConsumerWidget {
   final _ConcatenationValueType concatenationValueType;
   final bool isSelected;
   final bool isEnabled;
@@ -870,7 +873,7 @@ class _ConcatenationValueTypeButton extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -878,7 +881,7 @@ class _ConcatenationValueTypeButton extends StatelessWidget {
           borderRadius: borderRadius ?? BorderRadius.circular(24),
           color: isEnabled
               ? isSelected
-                    ? _getTypeColor(context)
+                    ? _getTypeColor(context, ref)
                     : Theme.of(context).colorScheme.primaryContainer
               : Colors.grey,
           child: InkWell(
@@ -991,16 +994,21 @@ class _ConcatenationValueTypeButton extends StatelessWidget {
     };
   }
 
-  Color _getTypeColor(BuildContext context) {
+  Color _getTypeColor(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     if (!isEnabled) {
       return Colors.white24;
     }
     return switch (concatenationValueType) {
-      _ConcatenationValueType.constantString => DartBlockColors.string,
-      _ConcatenationValueType.functionCall => DartBlockColors.function,
-      _ConcatenationValueType.variable => DartBlockColors.variable,
-      _ConcatenationValueType.numericExpression => DartBlockColors.number,
-      _ConcatenationValueType.booleanExpression => DartBlockColors.boolean,
+      _ConcatenationValueType.constantString =>
+        settings.colorFamily.string.color,
+      _ConcatenationValueType.functionCall =>
+        settings.colorFamily.function.color,
+      _ConcatenationValueType.variable => settings.colorFamily.variable.color,
+      _ConcatenationValueType.numericExpression =>
+        settings.colorFamily.number.color,
+      _ConcatenationValueType.booleanExpression =>
+        settings.colorFamily.boolean.color,
     };
   }
 }

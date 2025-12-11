@@ -1,13 +1,14 @@
 import 'package:collection/collection.dart';
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/function.dart';
 import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:dartblock_code/widgets/dartblock_value_widgets.dart';
-import 'package:dartblock_code/widgets/views/other/dartblock_colors.dart';
 import 'package:dartblock_code/widgets/views/symbols.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class FunctionCallStatementWidget extends StatelessWidget {
+class FunctionCallStatementWidget extends ConsumerWidget {
   final FunctionCallStatement statement;
 
   /// If the DartBlockFunction being called by this statement cannot be found, this field is null.
@@ -20,7 +21,8 @@ class FunctionCallStatementWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
@@ -44,7 +46,7 @@ class FunctionCallStatementWidget extends StatelessWidget {
             fontWeight: FontWeight.w500,
             color: Colors.white,
           ),
-          color: DartBlockColors.function,
+          color: settings.colorFamily.function.color,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(12),
             bottomLeft: Radius.circular(12),
@@ -61,8 +63,8 @@ class FunctionCallStatementWidget extends StatelessWidget {
             (index, element) => Row(
               children: [
                 Container(
-                  decoration: const BoxDecoration(
-                    color: DartBlockColors.variable,
+                  decoration: BoxDecoration(
+                    color: settings.colorFamily.variable.color,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(12),
                       bottomLeft: Radius.circular(12),

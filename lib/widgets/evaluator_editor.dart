@@ -419,7 +419,9 @@ class DartBlockFunctionOutputEvaluationSchemaEditor extends StatelessWidget {
                                 () => ProgramNotifier.withProgram(program),
                               ),
                               settingsProvider.overrideWith(
-                                (ref) => const DartBlockSettings(),
+                                (ref) => DartBlockSettings.fromBrightness(
+                                  brightness: Theme.of(context).brightness,
+                                ),
                               ),
                             ],
                             child: FunctionCallComposer(
@@ -468,7 +470,9 @@ class DartBlockFunctionOutputEvaluationSchemaEditor extends StatelessWidget {
                       () => ProgramNotifier.withProgram(program),
                     ),
                     settingsProvider.overrideWith(
-                      (ref) => const DartBlockSettings(),
+                      (ref) => DartBlockSettings.fromBrightness(
+                        brightness: Theme.of(context).brightness,
+                      ),
                     ),
                   ],
                   child: FunctionCallComposer(

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:dartblock_code/widgets/dartblock_colors.dart';
 import 'package:dartblock_code/widgets/helpers/adaptive_display.dart';
 import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
 import 'package:file_picker/file_picker.dart';
@@ -75,6 +76,8 @@ class DartBlockEditor extends StatefulWidget {
   /// Set this property to `true` if you wish to integrate [DartBlockEditor] in a non-scrollable context, e.g., inside a [Column] widget.
   final bool isDense;
 
+  final DartBlockColors? colors;
+
   /// The [ScrollController] to use for the widget.
   ///
   /// If null, the default [ScrollController] is used.
@@ -103,6 +106,7 @@ class DartBlockEditor extends StatefulWidget {
     List<DartBlockNativeFunctionCategory>? allowedNativeFunctionCategories,
     List<DartBlockNativeFunctionType>? allowedNativeFunctionTypes,
     this.isDense = false,
+    this.colors,
     this.scrollController,
     this.onChanged,
     this.onInteraction,
@@ -165,13 +169,15 @@ class _DartBlockEditorState extends State<DartBlockEditor>
           () => ProgramNotifier.withProgram(program),
         ),
         settingsProvider.overrideWith(
-          (ref) => DartBlockSettings(
+          (ref) => DartBlockSettings.fromBrightness(
             canChange: widget.canChange,
             canDelete: widget.canDelete,
             canReorder: widget.canReorder,
             allowedNativeFunctionCategories:
                 widget.allowedNativeFunctionCategories,
             allowedNativeFunctionTypes: widget.allowedNativeFunctionTypes,
+            colors: widget.colors,
+            brightness: Theme.of(context).brightness,
           ),
         ),
       ],

@@ -1,9 +1,10 @@
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
-import 'package:dartblock_code/widgets/views/other/dartblock_colors.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class DartBlockValueWidget extends StatelessWidget {
+class DartBlockValueWidget extends ConsumerWidget {
   final DartBlockValue? value;
   final BorderRadius? borderRadius;
   final Border? border;
@@ -15,14 +16,18 @@ class DartBlockValueWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     final Color color;
+    final Color textColor;
     if (value == null) {
       color = Theme.of(context).colorScheme.tertiaryContainer;
+      textColor = Theme.of(context).colorScheme.onTertiaryContainer;
     } else {
       switch (value!) {
         case DartBlockStringValue():
-          color = DartBlockColors.string;
+          color = settings.colorFamily.string.color;
+          textColor = settings.colorFamily.string.onColor;
           break;
         case DartBlockConcatenationValue():
           return Wrap(
@@ -32,18 +37,20 @@ class DartBlockValueWidget extends StatelessWidget {
                 .toList(),
           );
         case DartBlockVariable():
-          color = DartBlockColors.variable;
+          color = settings.colorFamily.variable.color;
+          textColor = settings.colorFamily.variable.onColor;
           break;
         case DartBlockFunctionCallValue():
-          // return FunctionCallWidget(
-          //     statement: (value! as FunctionCallValue).customFunctionCall);
-          color = DartBlockColors.function;
+          color = settings.colorFamily.function.color;
+          textColor = settings.colorFamily.function.onColor;
           break;
         case DartBlockAlgebraicExpression():
-          color = DartBlockColors.number;
+          color = settings.colorFamily.number.color;
+          textColor = settings.colorFamily.number.onColor;
           break;
         case DartBlockBooleanExpression():
-          color = DartBlockColors.boolean;
+          color = settings.colorFamily.boolean.color;
+          textColor = settings.colorFamily.boolean.onColor;
           break;
       }
     }
@@ -53,9 +60,7 @@ class DartBlockValueWidget extends StatelessWidget {
       color: color,
       border: border,
       borderRadius: borderRadius ?? BorderRadius.circular(6),
-      textColor: value == null
-          ? Theme.of(context).colorScheme.onTertiaryContainer
-          : Colors.white,
+      textColor: textColor,
     );
   }
 }
@@ -155,7 +160,7 @@ class ValueCompositionNumberConstantNodeWidget extends StatelessWidget {
   }
 }
 
-class ValueCompositionNumberDynamicNodeWidget extends StatelessWidget {
+class ValueCompositionNumberDynamicNodeWidget extends ConsumerWidget {
   final DartBlockValueTreeAlgebraicDynamicNode node;
   final String? selectedNodeKey;
   final Function(DartBlockValueTreeAlgebraicNode)? onTap;
@@ -167,16 +172,16 @@ class ValueCompositionNumberDynamicNodeWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final Color color;
-    switch (node.value) {
-      case DartBlockVariable():
-        color = DartBlockColors.variable;
-        break;
-      case DartBlockFunctionCallValue():
-        color = DartBlockColors.function;
-        break;
-    }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
+    final color = switch (node.value) {
+      DartBlockVariable() => settings.colorFamily.variable.color,
+      DartBlockFunctionCallValue() => settings.colorFamily.function.color,
+    };
+    final textColor = switch (node.value) {
+      DartBlockVariable() => settings.colorFamily.variable.onColor,
+      DartBlockFunctionCallValue() => settings.colorFamily.function.onColor,
+    };
     return Card(
       color: color,
       elevation: 6,
@@ -186,7 +191,7 @@ class ValueCompositionNumberDynamicNodeWidget extends StatelessWidget {
           node.toString(),
           style: Theme.of(
             context,
-          ).textTheme.bodyMedium?.apply(color: Colors.white),
+          ).textTheme.bodyMedium?.apply(color: textColor),
         ),
       ),
     );
@@ -472,7 +477,7 @@ class ValueCompositionBooleanDynamicNodeWidget extends StatelessWidget {
   }
 }
 
-class ValueCompositionBooleanGenericNodeWidget extends StatelessWidget {
+class ValueCompositionBooleanGenericNodeWidget extends ConsumerWidget {
   final DartBlockValueTreeBooleanGenericNode node;
   final String? selectedNodeKey;
   final Function(DartBlockValueTreeBooleanNode)? onTap;
@@ -484,11 +489,19 @@ class ValueCompositionBooleanGenericNodeWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     final backgroundColor = switch (node) {
-      DartBlockValueTreeBooleanGenericNumberNode() => DartBlockColors.number,
+      DartBlockValueTreeBooleanGenericNumberNode() =>
+        settings.colorFamily.number.color,
       DartBlockValueTreeBooleanGenericConcatenationNode() =>
-        DartBlockColors.string,
+        settings.colorFamily.string.color,
+    };
+    final textColor = switch (node) {
+      DartBlockValueTreeBooleanGenericNumberNode() =>
+        settings.colorFamily.number.onColor,
+      DartBlockValueTreeBooleanGenericConcatenationNode() =>
+        settings.colorFamily.string.onColor,
     };
     return Card(
       color: backgroundColor,
@@ -500,7 +513,7 @@ class ValueCompositionBooleanGenericNodeWidget extends StatelessWidget {
           node.value.toString(),
           style: Theme.of(
             context,
-          ).textTheme.bodyMedium?.apply(color: Colors.white),
+          ).textTheme.bodyMedium?.apply(color: textColor),
         ),
       ),
     );
@@ -756,15 +769,16 @@ class ValueCompositionEqualityOperatorNodeWidget extends StatelessWidget {
   }
 }
 
-class NumberComparisonOperatorWidget extends StatelessWidget {
+class NumberComparisonOperatorWidget extends ConsumerWidget {
   final DartBlockNumberComparisonOperator operator;
   const NumberComparisonOperatorWidget({super.key, required this.operator});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     return Card(
       elevation: 2,
-      color: DartBlockColors.number,
+      color: settings.colorFamily.number.color,
       child: Container(
         width: 36,
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
@@ -776,9 +790,9 @@ class NumberComparisonOperatorWidget extends StatelessWidget {
           child: Text(
             operator.toScript(),
             textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.apply(color: Colors.white),
+            style: Theme.of(context).textTheme.bodyMedium?.apply(
+              color: settings.colorFamily.number.onColor,
+            ),
           ),
         ),
       ),

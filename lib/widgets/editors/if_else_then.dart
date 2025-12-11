@@ -1,3 +1,4 @@
+import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,9 +8,9 @@ import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/editors/composers/boolean_value.dart';
 import 'package:dartblock_code/widgets/dartblock_value_widgets.dart';
-import 'package:dartblock_code/widgets/views/other/dartblock_colors.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class IfElseStatementEditor extends StatefulWidget {
+class IfElseStatementEditor extends ConsumerStatefulWidget {
   final IfElseStatement? statement;
   final Function(IfElseStatement) onSaved;
 
@@ -22,10 +23,11 @@ class IfElseStatementEditor extends StatefulWidget {
   });
 
   @override
-  State<IfElseStatementEditor> createState() => _IfElseStatementEditorState();
+  ConsumerState<IfElseStatementEditor> createState() =>
+      _IfElseStatementEditorState();
 }
 
-class _IfElseStatementEditorState extends State<IfElseStatementEditor> {
+class _IfElseStatementEditorState extends ConsumerState<IfElseStatementEditor> {
   DartBlockBooleanExpression? ifCondition;
   late final StatementBlock ifThenStatementBlock;
   late final List<(DartBlockBooleanExpression?, StatementBlock)>
@@ -357,6 +359,7 @@ class _IfElseStatementEditorState extends State<IfElseStatementEditor> {
   }
 
   void _showIfConditionEditorModalBottomSheet() {
+    final settings = ref.watch(settingsProvider);
     _showModalBottomSheet(
       "If-Condition",
       BooleanValueComposer(
@@ -370,11 +373,12 @@ class _IfElseStatementEditorState extends State<IfElseStatementEditor> {
           });
         },
       ),
-      titleColor: DartBlockColors.boolean,
+      titleColor: settings.colorFamily.boolean.color,
     );
   }
 
   void _showElseIfConditionEditorModalBottomSheet(int index) {
+    final settings = ref.watch(settingsProvider);
     _showModalBottomSheet(
       "Else-If-Condition",
       BooleanValueComposer(
@@ -391,7 +395,7 @@ class _IfElseStatementEditorState extends State<IfElseStatementEditor> {
           });
         },
       ),
-      titleColor: DartBlockColors.boolean,
+      titleColor: settings.colorFamily.boolean.color,
     );
   }
 }
