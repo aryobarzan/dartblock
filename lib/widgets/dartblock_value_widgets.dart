@@ -1,3 +1,5 @@
+import 'package:collection/collection.dart';
+import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
@@ -17,55 +19,115 @@ class DartBlockValueWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(settingsProvider);
     final Color color;
     final Color textColor;
     if (value == null) {
       color = Theme.of(context).colorScheme.tertiaryContainer;
       textColor = Theme.of(context).colorScheme.onTertiaryContainer;
+      return ColoredTitleChip(
+        title: value.toString(),
+        color: color,
+        border: border,
+        borderRadius: borderRadius ?? BorderRadius.circular(6),
+        textColor: textColor,
+      );
     } else {
       switch (value!) {
         case DartBlockStringValue():
-          color = settings.colorFamily.string.color;
-          textColor = settings.colorFamily.string.onColor;
-          break;
+          final stringValue = value! as DartBlockStringValue;
+          return DartBlockStringValueWidget(
+            value: stringValue,
+            borderRadius: borderRadius,
+          );
         case DartBlockConcatenationValue():
+          final concatenationValue = value! as DartBlockConcatenationValue;
           return Wrap(
             spacing: 1,
-            children: (value! as DartBlockConcatenationValue).values
-                .map((e) => DartBlockValueWidget(value: e))
+            children: concatenationValue.values
+                .mapIndexed(
+                  (i, e) => DartBlockValueWidget(
+                    value: e,
+                    borderRadius:
+                        i == 0 && concatenationValue.values.length == 1
+                        ? BorderRadius.circular(8)
+                        : i == 0
+                        ? BorderRadius.only(
+                            topLeft: Radius.circular(8),
+                            bottomLeft: Radius.circular(8),
+                          )
+                        : i == concatenationValue.values.length - 1
+                        ? BorderRadius.only(
+                            topRight: Radius.circular(8),
+                            bottomRight: Radius.circular(8),
+                          )
+                        : null,
+                  ),
+                )
                 .toList(),
           );
         case DartBlockVariable():
-          color = settings.colorFamily.variable.color;
-          textColor = settings.colorFamily.variable.onColor;
-          break;
+          final variable = value! as DartBlockVariable;
+          return DartBlockVariableNodeWidget(
+            variableName: variable.name,
+            borderRadius: borderRadius,
+          );
         case DartBlockFunctionCallValue():
-          color = settings.colorFamily.function.color;
-          textColor = settings.colorFamily.function.onColor;
-          break;
+          final functionCallValue = value! as DartBlockFunctionCallValue;
+          return DartBlockFunctionCallNodeWidget(
+            functionCallStatement: functionCallValue.functionCall,
+          );
         case DartBlockAlgebraicExpression():
-          color = settings.colorFamily.number.color;
-          textColor = settings.colorFamily.number.onColor;
-          break;
+          final algebraicExpression = value! as DartBlockAlgebraicExpression;
+          return ValueCompositionNumberNodeWidget(
+            node: algebraicExpression.compositionNode,
+            selectedNodeKey: null,
+            onChangeOperator: null,
+            includeBorder: false,
+            borderRadius: borderRadius,
+            padding: EdgeInsets.zero,
+          );
         case DartBlockBooleanExpression():
-          color = settings.colorFamily.boolean.color;
-          textColor = settings.colorFamily.boolean.onColor;
-          break;
+          final booleanExpression = value! as DartBlockBooleanExpression;
+          return ValueCompositionBooleanNodeWidget(
+            node: booleanExpression.compositionNode,
+            onChangeEqualityOperator: (node, operator) {},
+            onChangeLogicalOperator: (node, operator) {},
+            onChangeNumberComparisonOperator: (node, operator) {},
+            selectedNodeKey: null,
+          );
       }
     }
-
-    return ColoredTitleChip(
-      title: value.toString(),
-      color: color,
-      border: border,
-      borderRadius: borderRadius ?? BorderRadius.circular(6),
-      textColor: textColor,
-    );
   }
 }
 
 ///
+
+class DartBlockStringValueWidget extends ConsumerWidget {
+  final DartBlockStringValue value;
+  final BorderRadius? borderRadius;
+  const DartBlockStringValueWidget({
+    super.key,
+    required this.value,
+    this.borderRadius,
+  });
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
+    return Container(
+      decoration: BoxDecoration(
+        color: settings.colorFamily.string.color,
+        borderRadius: borderRadius ?? BorderRadius.circular(8),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: Text(
+        value.value,
+        style: Theme.of(context).textTheme.bodyMedium?.apply(
+          color: settings.colorFamily.string.onColor,
+        ),
+      ),
+    );
+  }
+}
 
 class ValueCompositionNumberNodeWidget extends StatelessWidget {
   final DartBlockValueTreeAlgebraicNode node;
@@ -74,20 +136,26 @@ class ValueCompositionNumberNodeWidget extends StatelessWidget {
   final Function(
     DartBlockValueTreeAlgebraicOperatorNode,
     DartBlockAlgebraicOperator,
-  )
+  )?
   onChangeOperator;
+  final bool includeBorder;
+  final BorderRadius? borderRadius;
+  final EdgeInsetsGeometry? padding;
   const ValueCompositionNumberNodeWidget({
     super.key,
     required this.node,
     required this.selectedNodeKey,
     this.onTap,
     required this.onChangeOperator,
+    this.includeBorder = true,
+    this.borderRadius,
+    this.padding,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: borderRadius ?? BorderRadius.circular(8),
       onTap: onTap != null
           ? () {
               onTap!(node);
@@ -111,14 +179,10 @@ class ValueCompositionNumberNodeWidget extends StatelessWidget {
       case DartBlockValueTreeAlgebraicConstantNode():
         return ValueCompositionNumberConstantNodeWidget(
           node: node as DartBlockValueTreeAlgebraicConstantNode,
-          selectedNodeKey: selectedNodeKey,
-          onTap: onTap,
         );
       case DartBlockValueTreeAlgebraicDynamicNode():
         return ValueCompositionNumberDynamicNodeWidget(
           node: node as DartBlockValueTreeAlgebraicDynamicNode,
-          selectedNodeKey: selectedNodeKey,
-          onTap: onTap,
         );
       case DartBlockValueTreeAlgebraicOperatorNode():
         return ValueCompositionArithmeticOperatorNodeWidget(
@@ -126,90 +190,205 @@ class ValueCompositionNumberNodeWidget extends StatelessWidget {
           selectedNodeKey: selectedNodeKey,
           onTap: onTap,
           onChangeOperator: onChangeOperator,
+          includeBorder: includeBorder,
+          padding: padding,
         );
     }
   }
 }
 
-class ValueCompositionNumberConstantNodeWidget extends StatelessWidget {
+class ValueCompositionNumberConstantNodeWidget extends ConsumerWidget {
   final DartBlockValueTreeAlgebraicConstantNode node;
-  final String? selectedNodeKey;
-  final Function(DartBlockValueTreeAlgebraicNode)? onTap;
+  final BorderRadius? borderRadius;
   const ValueCompositionNumberConstantNodeWidget({
     super.key,
     required this.node,
-    required this.selectedNodeKey,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-      child: Text(
-        node.toString(),
-        style: Theme.of(context).textTheme.bodyMedium?.apply(
-          color: Theme.of(context).colorScheme.onPrimaryContainer,
-        ),
-      ),
-    );
-  }
-}
-
-class ValueCompositionNumberDynamicNodeWidget extends ConsumerWidget {
-  final DartBlockValueTreeAlgebraicDynamicNode node;
-  final String? selectedNodeKey;
-  final Function(DartBlockValueTreeAlgebraicNode)? onTap;
-  const ValueCompositionNumberDynamicNodeWidget({
-    super.key,
-    required this.node,
-    required this.selectedNodeKey,
-    this.onTap,
+    this.borderRadius,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
-    final color = switch (node.value) {
-      DartBlockVariable() => settings.colorFamily.variable.color,
-      DartBlockFunctionCallValue() => settings.colorFamily.function.color,
-    };
-    final textColor = switch (node.value) {
-      DartBlockVariable() => settings.colorFamily.variable.onColor,
-      DartBlockFunctionCallValue() => settings.colorFamily.function.onColor,
-    };
-    return Card(
-      color: color,
-      elevation: 6,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-        child: Text(
-          node.toString(),
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.apply(color: textColor),
+    return Container(
+      decoration: BoxDecoration(
+        color: settings.colorFamily.number.color,
+        borderRadius: borderRadius ?? BorderRadius.circular(8),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: Text(
+        node.toString(),
+        style: Theme.of(context).textTheme.bodyMedium?.apply(
+          color: settings.colorFamily.number.onColor,
         ),
       ),
     );
   }
 }
 
-class ArithmericOperatorWidget extends StatelessWidget {
+class ValueCompositionNumberDynamicNodeWidget extends StatelessWidget {
+  final DartBlockValueTreeAlgebraicDynamicNode node;
+  final BorderRadius? borderRadius;
+
+  const ValueCompositionNumberDynamicNodeWidget({
+    super.key,
+    required this.node,
+    this.borderRadius,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final value = node.value;
+    return switch (value) {
+      DartBlockVariable() => DartBlockVariableNodeWidget(
+        variableName: value.name,
+        borderRadius: borderRadius,
+      ),
+      DartBlockFunctionCallValue() => DartBlockFunctionCallNodeWidget(
+        functionCallStatement: value.functionCall,
+      ),
+    };
+  }
+}
+
+class DartBlockVariableNodeWidget extends ConsumerWidget {
+  final String variableName;
+  final BorderRadius? borderRadius;
+  const DartBlockVariableNodeWidget({
+    super.key,
+    required this.variableName,
+    this.borderRadius,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
+    return Container(
+      decoration: BoxDecoration(
+        color: settings.colorFamily.variable.color,
+        borderRadius: borderRadius ?? BorderRadius.circular(8),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: Text(
+        variableName,
+        style: Theme.of(context).textTheme.bodyMedium?.apply(
+          color: settings.colorFamily.variable.onColor,
+        ),
+      ),
+    );
+  }
+}
+
+class DartBlockFunctionCallNodeWidget extends ConsumerWidget {
+  final FunctionCallStatement functionCallStatement;
+  final BorderRadius? borderRadius;
+  const DartBlockFunctionCallNodeWidget({
+    super.key,
+    required this.functionCallStatement,
+    this.borderRadius,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: settings.colorFamily.function.color,
+            borderRadius:
+                borderRadius ??
+                (functionCallStatement.arguments.isEmpty
+                    ? BorderRadius.circular(8)
+                    : BorderRadius.only(
+                        topLeft: Radius.circular(8),
+                        bottomLeft: Radius.circular(8),
+                      )),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: Text(
+            functionCallStatement.functionName +
+                (functionCallStatement.arguments.isEmpty ? "()" : "("),
+            style: Theme.of(context).textTheme.bodyMedium?.apply(
+              color: settings.colorFamily.function.onColor,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(
+              width: 2,
+              color: settings.colorFamily.function.color,
+            ),
+          ),
+          child: Row(
+            spacing: 8,
+            children: [
+              for (int i = 0; i < functionCallStatement.arguments.length; i++)
+                IgnorePointer(
+                  child: DartBlockValueWidget(
+                    value: functionCallStatement.arguments[i],
+                    // borderRadius:
+                    //     i == 0 && functionCallStatement.arguments.length == 1
+                    //     ? BorderRadius.circular(8)
+                    //     : i == 0
+                    //     ? BorderRadius.only(
+                    //         topLeft: Radius.circular(8),
+                    //         bottomLeft: Radius.circular(8),
+                    //       )
+                    //     : i == functionCallStatement.arguments.length - 1
+                    //     ? BorderRadius.only(
+                    //         topRight: Radius.circular(8),
+                    //         bottomRight: Radius.circular(8),
+                    //       )
+                    //     : null,
+                  ),
+                ),
+            ],
+          ),
+        ),
+
+        if (functionCallStatement.arguments.isNotEmpty)
+          Container(
+            decoration: BoxDecoration(
+              color: settings.colorFamily.function.color,
+              borderRadius: functionCallStatement.arguments.isEmpty
+                  ? BorderRadius.circular(8)
+                  : BorderRadius.only(
+                      topRight: Radius.circular(8),
+                      bottomRight: Radius.circular(8),
+                    ),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Text(
+              ")",
+              style: Theme.of(context).textTheme.bodyMedium?.apply(
+                color: settings.colorFamily.function.onColor,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class ArithmericOperatorWidget extends ConsumerWidget {
   final DartBlockAlgebraicOperator arithmeticOperator;
   const ArithmericOperatorWidget({super.key, required this.arithmeticOperator});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     return Card(
       elevation: 8,
-      color: Theme.of(context).colorScheme.surfaceTint,
+      color: settings.colorFamily.number.color,
       child: Container(
         width: 24,
-        //  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
         child: Center(
           child: Text(
@@ -232,27 +411,35 @@ class ValueCompositionArithmeticOperatorNodeWidget extends StatelessWidget {
   final Function(
     DartBlockValueTreeAlgebraicOperatorNode,
     DartBlockAlgebraicOperator,
-  )
+  )?
   onChangeOperator;
+  final bool includeBorder;
+  final EdgeInsetsGeometry? padding;
   const ValueCompositionArithmeticOperatorNodeWidget({
     super.key,
     required this.node,
     required this.selectedNodeKey,
     this.onTap,
     required this.onChangeOperator,
+    this.includeBorder = true,
+    this.padding,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(right: 16, top: 4, bottom: 4, left: 4),
+      padding:
+          padding ??
+          const EdgeInsets.only(right: 16, top: 4, bottom: 4, left: 4),
       //margin: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Theme.of(context).colorScheme.outline),
+        borderRadius: BorderRadius.circular(8),
+        border: includeBorder
+            ? Border.all(color: Theme.of(context).colorScheme.outline)
+            : null,
       ),
       child: Wrap(
-        spacing: 8,
+        spacing: 4,
         runSpacing: 2,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
@@ -264,40 +451,42 @@ class ValueCompositionArithmeticOperatorNodeWidget extends StatelessWidget {
               onChangeOperator: onChangeOperator,
             ),
           if (node.operator != null)
-            PopupWidgetButton(
-              tooltip: "Change operator...",
-              widget: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: node
-                    .getSupportedOperators()
-                    .map(
-                      (e) => InkWell(
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          onChangeOperator(node, e);
-                        },
-                        child: Badge(
-                          backgroundColor: Theme.of(context).colorScheme.error,
-                          label: Icon(
-                            Icons.check,
-                            size: 12,
-                            color: Theme.of(context).colorScheme.onError,
-                          ),
-                          isLabelVisible: node.operator == e,
-                          child: SizedBox(
-                            width: 48,
-                            height: 48,
+            // TODO: turn into vertical list
+            IgnorePointer(
+              ignoring: onChangeOperator == null,
+              child: PopupWidgetButton(
+                tooltip: "Change operator...",
+                widget: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: node
+                      .getSupportedOperators()
+                      .map(
+                        (e) => InkWell(
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            onChangeOperator?.call(node, e);
+                          },
+                          child: Badge(
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.error,
+                            label: Icon(
+                              Icons.check,
+                              size: 12,
+                              color: Theme.of(context).colorScheme.onError,
+                            ),
+                            isLabelVisible: node.operator == e,
                             child: ArithmericOperatorWidget(
                               arithmeticOperator: e,
                             ),
                           ),
                         ),
-                      ),
-                    )
-                    .toList(),
-              ),
-              child: ArithmericOperatorWidget(
-                arithmeticOperator: node.operator!,
+                      )
+                      .toList(),
+                ),
+                child: ArithmericOperatorWidget(
+                  arithmeticOperator: node.operator!,
+                ),
               ),
             ),
           if (node.rightChild != null)

@@ -42,7 +42,7 @@ class _EditorViewState extends State<EditorView> {
                 // Can be useful for collecting usage statistics and general logging.
               },
               colors: DartBlockColors(
-                number: MaterialTheme.function,
+                number: MaterialTheme.number,
                 boolean: MaterialTheme.boolean,
                 variable: MaterialTheme.variable,
                 function: MaterialTheme.function,

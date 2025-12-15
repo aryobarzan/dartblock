@@ -115,6 +115,7 @@ class _NumberValueComposerState extends ConsumerState<NumberValueComposer> {
                           ? ValueCompositionNumberNodeWidget(
                               node: value!,
                               selectedNodeKey: selectedNodeKey,
+                              includeBorder: false,
                               onTap: (tappedNode) {
                                 setState(() {
                                   if (selectedNodeKey == tappedNode.nodeKey) {

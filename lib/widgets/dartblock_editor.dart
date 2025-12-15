@@ -506,7 +506,7 @@ class _DartBlockEditorState extends State<DartBlockEditor>
             }
           },
           onCreateFunction: (newFunction) {
-            _onCreateFunction(newFunction);
+            _onCreateFunction(context, ref, newFunction);
           },
           onRun: widget.canRun
               ? () async {
@@ -553,10 +553,18 @@ class _DartBlockEditorState extends State<DartBlockEditor>
     );
   }
 
-  void _onCreateFunction(DartBlockCustomFunction newFunction) {
+  void _onCreateFunction(
+    BuildContext context,
+    WidgetRef ref,
+    DartBlockCustomFunction newFunction,
+  ) {
     setState(() {
       program.customFunctions.add(newFunction);
+      // notify Riverpod that program has changed
+      ref.read(programProvider.notifier).state = program;
     });
+    widget.onChanged?.call(program);
+
     ScaffoldMessenger.of(context).showSnackBar(
       createDartBlockInfoSnackBar(
         context,
@@ -740,6 +748,8 @@ class _DartBlockEditorState extends State<DartBlockEditor>
                     },
                     onSaved: (newName, newReturnType) {
                       _onCreateFunction(
+                        context,
+                        ref,
                         DartBlockCustomFunction(newName, newReturnType, [], []),
                       );
                     },
