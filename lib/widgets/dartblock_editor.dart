@@ -6,7 +6,6 @@ import 'package:dartblock_code/widgets/dartblock_colors.dart';
 import 'package:dartblock_code/widgets/helpers/adaptive_display.dart';
 import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
 import 'package:file_picker/file_picker.dart';
-// import 'package:code_text_field/code_text_field.dart';
 import 'package:flutter_code_editor/flutter_code_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:dartblock_code/widgets/views/toolbox/models/code_view_action.dart';
@@ -15,7 +14,6 @@ import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_configuratio
 import 'package:dartblock_code/widgets/views/toolbox/toolbox.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_highlight/theme_map.dart';
 import 'package:flutter_highlight/themes/monokai-sublime.dart';
 import 'package:flutter_highlight/themes/github-gist.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -267,8 +265,8 @@ class _DartBlockEditorState extends State<DartBlockEditor>
                               padding: EdgeInsetsGeometry.only(
                                 right: 4,
                                 left: 4,
-                                // top: !isBottomDocked ? 8 : 0,
-                                // bottom: isBottomDocked ? 8 : 0,
+                                top: !isBottomDocked ? 8 : 0,
+                                bottom: isBottomDocked ? 8 : 0,
                               ),
                               child: SingleChildScrollView(
                                 padding: widget.padding,
@@ -286,14 +284,8 @@ class _DartBlockEditorState extends State<DartBlockEditor>
                                                 : githubGistTheme,
                                           ),
                                           child: CodeField(
-                                            gutterStyle: GutterStyle(
-                                              width: 70,
-
-                                              // width: 34,
-                                            ),
+                                            gutterStyle: GutterStyle(width: 70),
                                             readOnly: true,
-                                            // isDense: true,
-                                            // horizontalScroll: true,
                                             wrap: false,
                                             background: Theme.of(
                                               context,
@@ -407,17 +399,12 @@ class _DartBlockEditorState extends State<DartBlockEditor>
                         data: CodeThemeData(
                           styles:
                               Theme.of(context).brightness == Brightness.dark
-                              ? themeMap['monokai-sublime']!
-                              : themeMap["github-gist"]!,
+                              ? monokaiSublimeTheme
+                              : githubGistTheme,
                         ),
                         child: CodeField(
-                          lineNumberStyle: const LineNumberStyle(
-                            margin: 8,
-                            width: 34, // 34
-                          ),
+                          gutterStyle: GutterStyle(width: 70),
                           readOnly: true,
-                          // isDense: true,
-                          // horizontalScroll: true,
                           wrap: false,
                           enabled: true,
                           controller: CodeController(

@@ -48,6 +48,7 @@ class _EditorViewState extends State<EditorView> {
                 function: MaterialTheme.function,
                 string: MaterialTheme.string,
               ),
+              isToolboxDockedBottom: true,
             ),
           ),
         ],

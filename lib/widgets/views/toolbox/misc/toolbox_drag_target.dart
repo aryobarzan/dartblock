@@ -164,10 +164,6 @@ class ToolboxDragTargetIndicator extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(0),
       decoration: BoxDecoration(
-        border: Border.all(
-          width: 0.5,
-          color: Theme.of(context).colorScheme.primary,
-        ),
         borderRadius: BorderRadius.circular(12),
         color: statementType == null
             ? isGlowing

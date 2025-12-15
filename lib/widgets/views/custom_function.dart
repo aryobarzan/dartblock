@@ -37,12 +37,8 @@ class CustomFunctionWidget extends ConsumerWidget {
     final program = ref.watch(programProvider);
     final settings = ref.watch(settingsProvider);
 
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Theme.of(context).colorScheme.primaryContainer),
-      ),
-      elevation: 8,
+    return Container(
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
@@ -117,7 +113,6 @@ class CustomFunctionWidget extends ConsumerWidget {
                               label: const Text('Parameter'),
                             )
                           : IconButton(
-                              // visualDensity: VisualDensity.compact,
                               color: Theme.of(context).colorScheme.primary,
                               onPressed: () {
                                 _showCustomFunctionParameterEditorBottomSheet(
@@ -134,7 +129,6 @@ class CustomFunctionWidget extends ConsumerWidget {
               ),
             ),
           const SizedBox(height: 8),
-          // isMainFunction ? const SizedBox(height: 8) : const Divider(),
           Padding(
             padding: const EdgeInsets.only(left: 2, right: 2, bottom: 4),
             child: StatementListView(
@@ -241,7 +235,6 @@ class CustomFunctionWidget extends ConsumerWidget {
 
     showAdaptiveBottomSheetOrDialog(
       context,
-      // sheetPadding: EdgeInsets.all(8),
       dialogPadding: EdgeInsets.all(16),
       useProviderAwareModal: true,
       child: VariableDefinitionEditor(
@@ -300,93 +293,6 @@ class CustomFunctionWidget extends ConsumerWidget {
         },
       ),
     );
-
-    // showModalBottomSheet(
-    //   isScrollControlled: true,
-    //   clipBehavior: Clip.hardEdge,
-    //   shape: const RoundedRectangleBorder(
-    //     borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
-    //   ),
-    //   context: context,
-    //   builder: (sheetContext) {
-    //     /// Due to the modal sheet having a separate context and thus no relation
-    //     /// to the main context of the NeoTechWidget, we capture DartBlockNotifications
-    //     /// from the sheet's context and manually re-dispatch them using the parent context.
-    //     /// The parent context may not necessarily be the NeoTechWidget's context,
-    //     /// as certain sheets open additional nested sheets with their own contexts,
-    //     /// hence this process needs to be repeated for every sheet until the NeoTechWidget's
-    //     /// context is reached.
-    //     return NotificationListener<DartBlockNotification>(
-    //       onNotification: (notification) {
-    //         notification.dispatch(context);
-    //         return true;
-    //       },
-    //       child: Padding(
-    //         padding: EdgeInsets.only(
-    //           left: 8,
-    //           right: 8,
-    //           top: 8,
-    //           bottom: 16 + MediaQuery.of(sheetContext).viewInsets.bottom,
-    //         ),
-    //         child: VariableDefinitionEditor(
-    //           functionDefinition: customFunction.getAsFunctionDefinition(),
-    //           variableDefinition: variableDefinition,
-    //           existingVariableDefinitions: variableDefinition != null
-    //               ? neoTechCoreTree
-    //                     .findVariableDefinitions(
-    //                       customFunction.hashCode,
-    //                       includeNode: true,
-    //                     )
-    //                     .whereNot((element) => element == variableDefinition)
-    //                     .toList()
-    //               : neoTechCoreTree.findVariableDefinitions(
-    //                   customFunction.hashCode,
-    //                   includeNode: true,
-    //                 ),
-    //           canChange: neoTechCoreInheritedWidget.canChange,
-    //           canDelete: neoTechCoreInheritedWidget.canDelete,
-    //           onSaved: (value) {
-    //             Navigator.of(sheetContext).pop();
-    //             if (isParameterIndexValid(parameterIndex)) {
-    //               DartBlockInteraction.create(
-    //                 dartBlockInteractionType:
-    //                     DartBlockInteractionType.editedFunctionParameter,
-    //               ).dispatch(context);
-    //               customFunction.parameters[parameterIndex!] = value;
-    //             } else {
-    //               DartBlockInteraction.create(
-    //                 dartBlockInteractionType:
-    //                     DartBlockInteractionType.createdFunctionParameter,
-    //               ).dispatch(context);
-    //               customFunction.parameters.add(value);
-    //             }
-
-    //             ScaffoldMessenger.of(sheetContext).showSnackBar(
-    //               createDartBlockInfoSnackBar(
-    //                 sheetContext,
-    //                 iconData: Icons.check,
-    //                 message:
-    //                     "${isParameterIndexValid(parameterIndex) ? 'Saved' : 'Added'} function parameter: ${value.name}",
-    //               ),
-    //             );
-    //             onChanged(customFunction);
-    //           },
-    //           onDelete: () {
-    //             Navigator.of(sheetContext).pop();
-    //             if (isParameterIndexValid(parameterIndex)) {
-    //               DartBlockInteraction.create(
-    //                 dartBlockInteractionType:
-    //                     DartBlockInteractionType.deletedFunctionParameter,
-    //               ).dispatch(context);
-    //               customFunction.parameters.removeAt(parameterIndex!);
-    //               onChanged(customFunction);
-    //             }
-    //           },
-    //         ),
-    //       ),
-    //     );
-    //   },
-    // );
   }
 }
 
