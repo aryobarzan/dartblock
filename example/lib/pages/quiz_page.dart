@@ -80,7 +80,7 @@ class _QuizPageState extends State<QuizPage> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
       child: Stack(
         children: [
           CustomScrollView(

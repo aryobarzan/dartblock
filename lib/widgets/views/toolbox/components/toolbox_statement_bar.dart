@@ -48,7 +48,7 @@ class ToolboxStatementTypeBar extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 8),
               scrollDirection: maxRows == 1 ? Axis.horizontal : Axis.vertical,
               child: Wrap(
-                spacing: 8,
+                spacing: 4,
                 runSpacing: runSpacing,
                 alignment: WrapAlignment.start,
                 crossAxisAlignment: WrapCrossAlignment.start,

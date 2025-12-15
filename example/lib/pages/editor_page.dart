@@ -25,7 +25,7 @@ class _EditorViewState extends State<EditorView> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
       child: CustomScrollView(
         slivers: [
           SliverFillRemaining(

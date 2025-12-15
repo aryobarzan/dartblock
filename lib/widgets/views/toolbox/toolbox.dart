@@ -28,6 +28,7 @@ class DartBlockToolbox extends StatefulWidget {
   final Function(DartBlockCustomFunction) onCreateFunction;
   final Function(ToolboxExtraAction action) onAction;
   final Function(CodeViewAction action) onCodeViewAction;
+  final BorderRadius borderRadius;
 
   const DartBlockToolbox({
     super.key,
@@ -48,6 +49,7 @@ class DartBlockToolbox extends StatefulWidget {
     required this.onCreateFunction,
     required this.onAction,
     required this.onCodeViewAction,
+    required this.borderRadius,
   });
 
   @override
@@ -67,7 +69,7 @@ class _DartBlockToolboxState extends State<DartBlockToolbox> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        double toolboxHeight = 120;
+        double toolboxHeight = 110;
         final screenHeight = MediaQuery.of(context).size.height;
         final screenWidth = MediaQuery.of(context).size.width;
         final itemHeight = ToolboxConfig.minTouchSize;
@@ -81,8 +83,8 @@ class _DartBlockToolboxState extends State<DartBlockToolbox> {
         return Opacity(
           opacity: widget.isTransparent ? 0.5 : 1.0,
           child: Material(
-            elevation: 8,
-            borderRadius: BorderRadius.circular(ToolboxConfig.borderRadius),
+            // elevation: 8,
+            borderRadius: widget.borderRadius,
             child: AnimatedSize(
               duration: Duration(milliseconds: 500),
               curve: Curves.fastOutSlowIn,
@@ -90,16 +92,12 @@ class _DartBlockToolboxState extends State<DartBlockToolbox> {
                   ? Container(
                       height: ToolboxConfig.toolboxMinimalHeight,
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(
-                          ToolboxConfig.borderRadius,
-                        ),
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.outline
-                            ..withValues(alpha: 0.5),
-                        ),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHigh,
+                        borderRadius: widget.borderRadius,
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                       alignment: Alignment.center,
                       child: Row(
                         children: [
@@ -162,14 +160,10 @@ class _DartBlockToolboxState extends State<DartBlockToolbox> {
                           ? toolboxHeight // ToolboxConfig.toolboxHeight
                           : ToolboxConfig.toolboxMinimalHeight,
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(
-                          ToolboxConfig.borderRadius,
-                        ),
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.outline
-                            ..withValues(alpha: 0.5),
-                        ),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHigh,
+                        borderRadius: widget.borderRadius,
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -193,8 +187,7 @@ class _DartBlockToolboxState extends State<DartBlockToolbox> {
                                 )
                               : _buildActionBar(),
                           if (widget.showActions) ...[
-                            const Divider(height: 1),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 4),
                             Expanded(
                               child: ToolboxStatementTypeBar(
                                 scrollController: _scrollController,

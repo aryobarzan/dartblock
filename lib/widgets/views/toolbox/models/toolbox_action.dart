@@ -4,13 +4,11 @@ import 'package:flutter/material.dart';
 ///
 /// - [ToolboxExtraAction.console] Opening the console to view the program's execution output.
 /// - [ToolboxExtraAction.code] Switching between the DartBlock and script view of the program.
-/// - [ToolboxExtraAction.dock] Docking or undocking the toolbox.
 /// - [ToolboxExtraAction.help] Opening the help window for DartBlock.
 enum ToolboxExtraAction {
   ///
   console,
   code,
-  dock,
   help;
 
   @override
@@ -22,8 +20,6 @@ enum ToolboxExtraAction {
         return 'Code';
       case ToolboxExtraAction.help:
         return 'Help';
-      case ToolboxExtraAction.dock:
-        return 'Dock';
     }
   }
 
@@ -35,8 +31,6 @@ enum ToolboxExtraAction {
         return Icons.code;
       case ToolboxExtraAction.help:
         return Icons.help_outline;
-      case ToolboxExtraAction.dock:
-        return Icons.open_in_new;
     }
   }
 }

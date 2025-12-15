@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   build_runner: ^2.9.0
-  code_text_field: ^1.1.0
+  flutter_code_editor: ^0.3.5
   collection: ^1.17.1
   file_picker: ^10.3.7
   flutter_highlight: ^0.7.0

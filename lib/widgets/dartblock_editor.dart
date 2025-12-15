@@ -6,7 +6,8 @@ import 'package:dartblock_code/widgets/dartblock_colors.dart';
 import 'package:dartblock_code/widgets/helpers/adaptive_display.dart';
 import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:code_text_field/code_text_field.dart';
+// import 'package:code_text_field/code_text_field.dart';
+import 'package:flutter_code_editor/flutter_code_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:dartblock_code/widgets/views/toolbox/models/code_view_action.dart';
 import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_action.dart';
@@ -15,6 +16,8 @@ import 'package:dartblock_code/widgets/views/toolbox/toolbox.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_highlight/theme_map.dart';
+import 'package:flutter_highlight/themes/monokai-sublime.dart';
+import 'package:flutter_highlight/themes/github-gist.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:highlight/languages/all.dart';
@@ -95,6 +98,8 @@ class DartBlockEditor extends StatefulWidget {
   ///
   /// If null, no padding is applied.
   final EdgeInsets? padding;
+
+  final bool isToolboxDockedBottom;
   const DartBlockEditor({
     super.key,
     required this.program,
@@ -111,6 +116,7 @@ class DartBlockEditor extends StatefulWidget {
     this.onChanged,
     this.onInteraction,
     this.padding,
+    this.isToolboxDockedBottom = true,
   }) : allowedNativeFunctionCategories =
            allowedNativeFunctionCategories ??
            DartBlockNativeFunctionCategory.values,
@@ -217,64 +223,123 @@ class _DartBlockEditorState extends State<DartBlockEditor>
                 return _buildDenseBody(constraints);
               }
 
+              final bool isBottomDocked = widget.isToolboxDockedBottom;
+
               /// Use a Stack widget such that the toolbox can potentially float over the program (canvas).
               return Stack(
                 fit: StackFit.expand,
                 children: [
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (_isToolboxDocked) _buildToolbox(),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          padding: widget.padding,
-                          controller: widget.scrollController,
-                          child: (viewOption == DartBlockViewOption.script)
-                              ? Padding(
-                                  padding: const EdgeInsets.only(top: 8),
-                                  child: CodeTheme(
-                                    data: CodeThemeData(
-                                      styles:
-                                          Theme.of(context).brightness ==
-                                              Brightness.dark
-                                          ? themeMap['monokai-sublime']!
-                                          : themeMap["github-gist"]!,
-                                    ),
-                                    child: CodeField(
-                                      lineNumberStyle: const LineNumberStyle(
-                                        margin: 8,
-                                        width: 34, // 34
-                                      ),
-                                      readOnly: true,
-                                      isDense: true,
-                                      horizontalScroll: true,
-                                      wrap: false,
-                                      enabled: true,
-                                      controller: CodeController(
-                                        text: widget.program
-                                            .toScript(language: language)
-                                            .trim(),
-                                        language: allLanguages[language.name],
-                                      ),
-                                      textStyle: GoogleFonts.sourceCodePro(
-                                        fontSize:
-                                            Theme.of(
+                  Material(
+                    elevation: 8,
+                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                    borderRadius: BorderRadius.vertical(
+                      top: !isBottomDocked ? Radius.circular(16) : Radius.zero,
+                      bottom: isBottomDocked
+                          ? Radius.circular(16)
+                          : Radius.zero,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (_isToolboxDocked && !isBottomDocked)
+                          _buildToolbox(
+                            borderRadius: BorderRadius.vertical(
+                              top: !isBottomDocked
+                                  ? Radius.circular(16)
+                                  : Radius.zero,
+                              bottom: isBottomDocked
+                                  ? Radius.circular(16)
+                                  : Radius.zero,
+                            ),
+                          ),
+                        Expanded(
+                          child: Material(
+                            borderRadius: BorderRadius.vertical(
+                              top: !isBottomDocked
+                                  ? Radius.circular(16)
+                                  : Radius.zero,
+                              bottom: isBottomDocked
+                                  ? Radius.circular(16)
+                                  : Radius.zero,
+                            ),
+                            child: Padding(
+                              padding: EdgeInsetsGeometry.only(
+                                right: 4,
+                                left: 4,
+                                // top: !isBottomDocked ? 8 : 0,
+                                // bottom: isBottomDocked ? 8 : 0,
+                              ),
+                              child: SingleChildScrollView(
+                                padding: widget.padding,
+                                controller: widget.scrollController,
+                                child:
+                                    (viewOption == DartBlockViewOption.script)
+                                    ? Padding(
+                                        padding: const EdgeInsets.only(top: 8),
+                                        child: CodeTheme(
+                                          data: CodeThemeData(
+                                            styles:
+                                                Theme.of(context).brightness ==
+                                                    Brightness.dark
+                                                ? monokaiSublimeTheme
+                                                : githubGistTheme,
+                                          ),
+                                          child: CodeField(
+                                            gutterStyle: GutterStyle(
+                                              width: 70,
+
+                                              // width: 34,
+                                            ),
+                                            readOnly: true,
+                                            // isDense: true,
+                                            // horizontalScroll: true,
+                                            wrap: false,
+                                            background: Theme.of(
                                               context,
-                                            ).textTheme.bodyMedium?.fontSize ??
-                                            12,
+                                            ).colorScheme.surface,
+                                            enabled: true,
+                                            controller: CodeController(
+                                              text: widget.program
+                                                  .toScript(language: language)
+                                                  .trim(),
+                                              language:
+                                                  allLanguages[language.name],
+                                            ),
+                                            textStyle:
+                                                GoogleFonts.sourceCodePro(
+                                                  fontSize:
+                                                      Theme.of(context)
+                                                          .textTheme
+                                                          .bodyMedium
+                                                          ?.fontSize ??
+                                                      12,
+                                                ),
+                                          ),
+                                        ),
+                                      )
+                                    : Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        children: _buildFunctionWidgets(),
                                       ),
-                                    ),
-                                  ),
-                                )
-                              : Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: _buildFunctionWidgets(),
-                                ),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
+                        if (_isToolboxDocked && isBottomDocked)
+                          _buildToolbox(
+                            borderRadius: BorderRadius.vertical(
+                              top: !isBottomDocked
+                                  ? Radius.circular(12)
+                                  : Radius.zero,
+                              bottom: isBottomDocked
+                                  ? Radius.circular(12)
+                                  : Radius.zero,
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                   if (!_isToolboxDocked)
                     Positioned(
@@ -289,7 +354,16 @@ class _DartBlockEditorState extends State<DartBlockEditor>
                         opacity: _isToolboxHidden ? 0.0 : 1.0,
                         child: IgnorePointer(
                           ignoring: _isToolboxHidden,
-                          child: _buildToolbox(),
+                          child: _buildToolbox(
+                            borderRadius: BorderRadius.vertical(
+                              top: !isBottomDocked
+                                  ? Radius.circular(12)
+                                  : Radius.zero,
+                              bottom: isBottomDocked
+                                  ? Radius.circular(12)
+                                  : Radius.zero,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -324,7 +398,8 @@ class _DartBlockEditorState extends State<DartBlockEditor>
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (_isToolboxDocked) _buildToolbox(),
+              if (_isToolboxDocked)
+                _buildToolbox(borderRadius: BorderRadius.circular(12)),
               (viewOption == DartBlockViewOption.script)
                   ? Padding(
                       padding: const EdgeInsets.only(top: 8),
@@ -341,8 +416,8 @@ class _DartBlockEditorState extends State<DartBlockEditor>
                             width: 34, // 34
                           ),
                           readOnly: true,
-                          isDense: true,
-                          horizontalScroll: true,
+                          // isDense: true,
+                          // horizontalScroll: true,
                           wrap: false,
                           enabled: true,
                           controller: CodeController(
@@ -377,7 +452,7 @@ class _DartBlockEditorState extends State<DartBlockEditor>
               opacity: _isToolboxHidden ? 0.0 : 1.0,
               child: IgnorePointer(
                 ignoring: _isToolboxHidden,
-                child: _buildToolbox(),
+                child: _buildToolbox(borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ),
@@ -390,12 +465,13 @@ class _DartBlockEditorState extends State<DartBlockEditor>
   /// Used to restore the previous docked/undocked state when switching back to [DartBlockViewOption.blocks].
   bool _wasToolboxPreviouslyDocked = false;
 
-  Widget _buildToolbox() {
+  Widget _buildToolbox({required BorderRadius borderRadius}) {
     return Consumer(
       builder: (context, ref, child) {
         final isDraggingStatement = ref.watch(isDraggingToolboxItemProvider);
         final availableFunctions = ref.watch(availableFunctionsProvider([]));
         return DartBlockToolbox(
+          borderRadius: borderRadius,
           isTransparent: _isDraggingToolbox,
           isDocked: _isToolboxDocked,
           canUndock: widget.isDense ? false : true,
@@ -484,14 +560,6 @@ class _DartBlockEditorState extends State<DartBlockEditor>
                 break;
               case ToolboxExtraAction.help:
                 _showHelpCenter(context);
-                break;
-              case ToolboxExtraAction.dock:
-                setState(() {
-                  _isToolboxDocked = !_isToolboxDocked;
-                });
-                if (_isToolboxDocked) {
-                  _toolboxY = 25;
-                }
                 break;
             }
           },
@@ -721,7 +789,7 @@ class _DartBlockEditorState extends State<DartBlockEditor>
       ),
 
       /// Display a "New Function" button at the bottom of the canvas (below the functions of the DartBlockProgram), in addition to the "New Function" button found in the toolbox.
-      if (widget.canChange)
+      if (widget.canChange && !widget.isToolboxDockedBottom)
         Row(
           children: [
             Consumer(

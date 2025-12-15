@@ -120,21 +120,11 @@ class ToolboxActionBar extends ConsumerWidget {
                   (action) => Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: IconButton(
-                      tooltip: action == ToolboxExtraAction.dock
-                          ? isToolboxDocked
-                                ? "Undock"
-                                : "Dock"
-                          : action.toString(),
+                      tooltip: action.toString(),
                       onPressed: () {
                         onTapExtraAction(action);
                       },
-                      icon: Icon(
-                        action == ToolboxExtraAction.dock
-                            ? isToolboxDocked
-                                  ? Icons.open_in_new
-                                  : Icons.publish
-                            : action.getIconData(),
-                      ),
+                      icon: Icon(action.getIconData()),
                     ),
                   ),
                 ),
@@ -151,20 +141,8 @@ class ToolboxActionBar extends ConsumerWidget {
                           (action) => PopupMenuItem(
                             value: action,
                             child: ListTile(
-                              leading: Icon(
-                                action == ToolboxExtraAction.dock
-                                    ? isToolboxDocked
-                                          ? Icons.open_in_new
-                                          : Icons.publish
-                                    : action.getIconData(),
-                              ),
-                              title: Text(
-                                action == ToolboxExtraAction.dock
-                                    ? isToolboxDocked
-                                          ? "Undock"
-                                          : "Dock"
-                                    : action.toString(),
-                              ),
+                              leading: Icon(action.getIconData()),
+                              title: Text(action.toString()),
                             ),
                           ),
                         )
