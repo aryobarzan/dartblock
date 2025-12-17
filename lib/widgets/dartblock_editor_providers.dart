@@ -123,20 +123,23 @@ class DartBlockSettings {
 // ============================================================================
 
 /// Provider for tracking whether a toolbox item is being dragged.
-class IsDraggingToolboxItemNotifier extends Notifier<bool> {
+class IsDraggingStatementTypeFromToolboxNotifier
+    extends Notifier<StatementType?> {
   @override
-  bool build() => false;
+  StatementType? build() => null;
 
   @override
-  set state(bool newState) => super.state = newState;
+  set state(StatementType? newState) => super.state = newState;
 
-  bool update(bool Function(bool state) cb) => state = cb(state);
+  StatementType? update(StatementType? Function(StatementType? state) cb) =>
+      state = cb(state);
 }
 
-final isDraggingToolboxItemProvider =
-    NotifierProvider<IsDraggingToolboxItemNotifier, bool>(
-      IsDraggingToolboxItemNotifier.new,
-    );
+final isDraggingStatementTypeFromToolboxProvider =
+    NotifierProvider<
+      IsDraggingStatementTypeFromToolboxNotifier,
+      StatementType?
+    >(IsDraggingStatementTypeFromToolboxNotifier.new);
 
 /// Immutable state for the DartBlock editor clipboard.
 class DartBlockEditorState {

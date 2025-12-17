@@ -51,7 +51,7 @@ class DartBlockDataTypePicker extends StatelessWidget {
               if (allowVoid)
                 PopupMenuItem<DartBlockDataType>(
                   value: null,
-                  child: const VoidSymbol(includeLabel: true),
+                  child: const DartBlockVoidSymbol(includeLabel: true),
                   onTap: () {
                     /// onTap is necessary here, as PopupMenuButton's onSelected
                     /// callback is not triggered for null value.
@@ -65,7 +65,7 @@ class DartBlockDataTypePicker extends StatelessWidget {
                 .map(
                   (e) => PopupMenuItem<DartBlockDataType>(
                     value: e,
-                    child: NeoTechDataTypeSymbol(
+                    child: DartBlockDataTypeSymbol(
                       dataType: e,
                       includeLabel: true,
                     ),
@@ -91,8 +91,8 @@ class DartBlockDataTypePicker extends StatelessWidget {
             child: icon ?? const Icon(Icons.arrow_drop_down),
           ),
         dataType != null
-            ? NeoTechDataTypeSymbol(dataType: dataType!, includeLabel: true)
-            : const VoidSymbol(includeLabel: true),
+            ? DartBlockDataTypeSymbol(dataType: dataType!, includeLabel: true)
+            : const DartBlockVoidSymbol(includeLabel: true),
         if (onChanged != null && !isIconLeft)
           icon ?? const Icon(Icons.arrow_drop_down),
       ],

@@ -4,7 +4,6 @@ import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:dartblock_code/widgets/dartblock_value_widgets.dart';
-import 'package:dartblock_code/widgets/views/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class NeoValueTextWidget extends StatelessWidget {
@@ -74,13 +73,7 @@ class ReturnStatementWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const NeoTechReturnSymbol(),
-        const SizedBox(width: 4),
-        DartBlockValueWidget(value: statement.value),
-      ],
-    );
+    return Row(children: [DartBlockValueWidget(value: statement.value)]);
   }
 }
 

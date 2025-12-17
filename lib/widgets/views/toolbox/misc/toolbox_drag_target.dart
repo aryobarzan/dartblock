@@ -2,6 +2,7 @@ import 'package:dartblock_code/core/dartblock_program.dart';
 import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:dartblock_code/widgets/helpers/adaptive_display.dart';
 import 'package:dartblock_code/widgets/views/statement_type_picker.dart';
+import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_configuration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dartblock_code/models/dartblock_interaction.dart';
@@ -58,6 +59,7 @@ class ToolboxDragTarget extends ConsumerWidget {
           builder ??
           (dragTargetContext, candidateData, rejectedData) {
             return InkWell(
+              borderRadius: BorderRadius.circular(12),
               onTap: () {
                 HapticFeedback.lightImpact();
                 DartBlockInteraction.create(
@@ -156,19 +158,35 @@ class ToolboxDragTargetIndicator extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDraggingToolboxItem = ref.watch(isDraggingToolboxItemProvider);
-    return _buildBody(context, isGlowing: isDraggingToolboxItem);
+    final isDraggingToolboxItem = ref.watch(
+      isDraggingStatementTypeFromToolboxProvider,
+    );
+    return _buildBody(
+      context,
+      isDraggingStatementTypeGlowing: isDraggingToolboxItem,
+    );
   }
 
-  Widget _buildBody(BuildContext context, {bool isGlowing = false}) {
+  Widget _buildBody(
+    BuildContext context, {
+    StatementType? isDraggingStatementTypeGlowing,
+  }) {
     return Container(
       padding: const EdgeInsets.all(0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          width: 1,
+          color: statementType == null && isDraggingStatementTypeGlowing == null
+              ? Theme.of(context).colorScheme.primary
+              : Colors.transparent,
+        ),
+
         color: statementType == null
-            ? isGlowing
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.primaryContainer
+            ? isDraggingStatementTypeGlowing != null
+                  ? ToolboxConfig.categoryColors[isDraggingStatementTypeGlowing
+                        .getCategory()]
+                  : null
             : Theme.of(context).colorScheme.primary,
       ),
       child: Row(
@@ -180,9 +198,11 @@ class ToolboxDragTargetIndicator extends ConsumerWidget {
           Icon(
             Icons.add,
             color: statementType == null
-                ? isGlowing
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : Theme.of(context).colorScheme.onPrimaryContainer
+                ? isDraggingStatementTypeGlowing != null
+                      ? ToolboxConfig
+                            .onCategoryColors[isDraggingStatementTypeGlowing
+                            .getCategory()]
+                      : Theme.of(context).colorScheme.primary
                 : Theme.of(context).colorScheme.onPrimary,
           ),
           if (statementType != null) ...[

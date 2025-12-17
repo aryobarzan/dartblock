@@ -1,4 +1,5 @@
 import 'package:dartblock_code/models/dartblock_interaction.dart';
+import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/dartblock_editor.dart';
 import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_action.dart';
 import 'package:dartblock_code/widgets/views/toolbox/models/code_view_action.dart';
@@ -17,8 +18,8 @@ class DartBlockToolbox extends StatefulWidget {
   final bool isShowingCode;
   final bool showActions;
   final bool isExecuting;
-  final Function()? onToolboxItemDragStart;
-  final Function()? onToolboxItemDragEnd;
+  final Function(StatementType statementType)? onToolboxItemDragStart;
+  final Function(StatementType statementType)? onToolboxItemDragEnd;
   final Function(DragStartDetails)? onToolboxDragStart;
   final Function(DragEndDetails)? onToolboxDragEnd;
   final Function(DragUpdateDetails)? onToolboxDragUpdate;

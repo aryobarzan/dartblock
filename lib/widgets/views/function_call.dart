@@ -145,10 +145,10 @@ class FunctionCallStatementWidget extends ConsumerWidget {
         ],
         if (dartBlockFunction != null) ...[
           const SizedBox(width: 4),
-          const NeoTechReturnSymbol(),
+          const DartBlockReturnSymbol(),
           const SizedBox(width: 4),
           dartBlockFunction!.returnType != null
-              ? NeoTechDataTypeSymbol(
+              ? DartBlockDataTypeSymbol(
                   includeLabel: true,
                   dataType: dartBlockFunction!.returnType!,
                   borderRadius: const BorderRadius.only(
@@ -156,7 +156,7 @@ class FunctionCallStatementWidget extends ConsumerWidget {
                     bottomRight: Radius.circular(12),
                   ),
                 )
-              : const VoidSymbol(
+              : const DartBlockVoidSymbol(
                   borderRadius: BorderRadius.only(
                     topRight: Radius.circular(12),
                     bottomRight: Radius.circular(12),

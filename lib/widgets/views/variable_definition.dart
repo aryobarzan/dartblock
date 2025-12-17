@@ -34,7 +34,7 @@ class VariableDefinitionWidget extends ConsumerWidget {
                 .getNeoTechDataTypeColor(variableDefinition.dataType)
                 .color,
           ),
-          child: NeoTechDataTypeIcon(
+          child: DartBlockDataTypeIcon(
             dataType: variableDefinition.dataType,
             color: settings.colorFamily
                 .getNeoTechDataTypeColor(variableDefinition.dataType)

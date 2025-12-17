@@ -58,10 +58,6 @@ class _VariableDefinitionEditorState extends State<VariableDefinitionEditor> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const NeoTechFunctionSymbol(
-                borderRadius: BorderRadius.all(Radius.circular(12)),
-              ),
-              const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   widget.variableDefinition == null
@@ -118,7 +114,9 @@ class _VariableDefinitionEditorState extends State<VariableDefinitionEditor> {
           if (widget.functionDefinition != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: FunctionNameSymbol(name: widget.functionDefinition!.name),
+              child: DartBlockFunctionNameSymbol(
+                name: widget.functionDefinition!.name,
+              ),
             ),
           TextFormField(
             autofocus: widget.variableDefinition == null,
@@ -167,7 +165,7 @@ class _VariableDefinitionEditorState extends State<VariableDefinitionEditor> {
                   (element) => ChoiceChip(
                     showCheckmark: false,
                     labelPadding: const EdgeInsets.only(left: 8),
-                    avatar: NeoTechDataTypeIcon(dataType: element),
+                    avatar: DartBlockDataTypeIcon(dataType: element),
                     label: Text(element.toScript()),
                     selected: element == dataType,
                     onSelected: widget.canChange

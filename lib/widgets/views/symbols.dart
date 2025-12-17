@@ -6,10 +6,14 @@ import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class VoidSymbol extends StatelessWidget {
+class DartBlockVoidSymbol extends StatelessWidget {
   final bool includeLabel;
   final BorderRadius? borderRadius;
-  const VoidSymbol({super.key, this.includeLabel = false, this.borderRadius});
+  const DartBlockVoidSymbol({
+    super.key,
+    this.includeLabel = false,
+    this.borderRadius,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -57,12 +61,12 @@ class VoidSymbol extends StatelessWidget {
   }
 }
 
-class NeoTechDataTypeIcon extends StatelessWidget {
+class DartBlockDataTypeIcon extends StatelessWidget {
   final DartBlockDataType dataType;
   final double width;
   final double height;
   final Color? color;
-  const NeoTechDataTypeIcon({
+  const DartBlockDataTypeIcon({
     super.key,
     required this.dataType,
     this.width = 20,
@@ -91,13 +95,13 @@ class NeoTechDataTypeIcon extends StatelessWidget {
   }
 }
 
-class NeoTechDataTypeSymbol extends ConsumerWidget {
+class DartBlockDataTypeSymbol extends ConsumerWidget {
   final DartBlockDataType dataType;
   final double width;
   final double height;
   final bool includeLabel;
   final BorderRadius? borderRadius;
-  const NeoTechDataTypeSymbol({
+  const DartBlockDataTypeSymbol({
     super.key,
     required this.dataType,
     this.width = 20,
@@ -112,7 +116,7 @@ class NeoTechDataTypeSymbol extends ConsumerWidget {
     if (includeLabel) {
       return TwoTonedChip(
         height: 25,
-        left: NeoTechDataTypeIcon(
+        left: DartBlockDataTypeIcon(
           dataType: dataType,
           width: width,
           height: height,
@@ -145,7 +149,7 @@ class NeoTechDataTypeSymbol extends ConsumerWidget {
               ),
           color: settings.colorFamily.getNeoTechDataTypeColor(dataType).color,
         ),
-        child: NeoTechDataTypeIcon(
+        child: DartBlockDataTypeIcon(
           dataType: dataType,
           width: width,
           height: height,
@@ -156,13 +160,13 @@ class NeoTechDataTypeSymbol extends ConsumerWidget {
   }
 }
 
-class NeoTechFunctionSymbol extends ConsumerWidget {
+class DartBlockFunctionSymbol extends ConsumerWidget {
   final double width;
   final double height;
   final Color? color;
   final bool includeLabel;
   final BorderRadius? borderRadius;
-  const NeoTechFunctionSymbol({
+  const DartBlockFunctionSymbol({
     super.key,
     this.width = 20,
     this.height = 20,
@@ -222,13 +226,13 @@ class NeoTechFunctionSymbol extends ConsumerWidget {
   }
 }
 
-class FunctionNameSymbol extends ConsumerWidget {
+class DartBlockFunctionNameSymbol extends ConsumerWidget {
   final String name;
   final double width;
   final double height;
   final Color? color;
   final BorderRadius? borderRadius;
-  const FunctionNameSymbol({
+  const DartBlockFunctionNameSymbol({
     super.key,
     required this.name,
     this.width = 20,
@@ -268,13 +272,13 @@ class FunctionNameSymbol extends ConsumerWidget {
   }
 }
 
-class NeoTechReturnSymbol extends ConsumerWidget {
+class DartBlockReturnSymbol extends ConsumerWidget {
   final double width;
   final double height;
   final Color? color;
   final bool includeLabel;
   final BorderRadius? borderRadius;
-  const NeoTechReturnSymbol({
+  const DartBlockReturnSymbol({
     super.key,
     this.width = 20,
     this.height = 20,
@@ -315,26 +319,28 @@ class NeoTechReturnSymbol extends ConsumerWidget {
   }
 }
 
-class NewFunctionSymbol extends StatelessWidget {
+class DartBlockNewFunctionSymbol extends ConsumerWidget {
   final double? size;
-  const NewFunctionSymbol({super.key, this.size});
+  const DartBlockNewFunctionSymbol({super.key, this.size});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     return Badge(
-      offset: const Offset(0, 0),
+      padding: EdgeInsets.zero,
+      offset: const Offset(5, -2),
       label: Icon(
         Icons.add,
         size: size != null ? (max(4, size! - 4)) : 16,
         weight: 4,
-        color: Theme.of(context).colorScheme.onSurface,
+        color: settings.colorFamily.function.onColorContainer,
       ),
-      backgroundColor: Colors.transparent,
+      backgroundColor: settings.colorFamily.function.colorContainer,
       child: Container(
         margin: const EdgeInsets.all(2),
         width: size,
         height: size,
-        child: NeoTechFunctionSymbol(borderRadius: BorderRadius.circular(12)),
+        child: DartBlockFunctionSymbol(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }

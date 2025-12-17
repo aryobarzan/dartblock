@@ -57,28 +57,28 @@ class DartBlockHelpItem {
               '4 data types are available, each symbolized by a unique color and icon:',
             ),
             ListTile(
-              leading: NeoTechDataTypeSymbol(
+              leading: DartBlockDataTypeSymbol(
                 dataType: DartBlockDataType.integerType,
               ),
               title: Text("Integer"),
               subtitle: Text('Whole number (not fractional): -1, 0, 8, ...'),
             ),
             ListTile(
-              leading: NeoTechDataTypeSymbol(
+              leading: DartBlockDataTypeSymbol(
                 dataType: DartBlockDataType.doubleType,
               ),
               title: Text("Double"),
               subtitle: Text('Real number (fractional): -4.0, 0.0, 8.42, ...'),
             ),
             ListTile(
-              leading: NeoTechDataTypeSymbol(
+              leading: DartBlockDataTypeSymbol(
                 dataType: DartBlockDataType.booleanType,
               ),
               title: Text("Boolean"),
               subtitle: Text('Logical value: true or false'),
             ),
             ListTile(
-              leading: NeoTechDataTypeSymbol(
+              leading: DartBlockDataTypeSymbol(
                 dataType: DartBlockDataType.stringType,
               ),
               title: Text("String"),
@@ -178,7 +178,7 @@ class DartBlockHelpItem {
               ), // : if all goes well, the console will be opened to display your program's output.\nIn case of an error, the console will display the relevant information.
             ),
             const ListTile(
-              leading: NewFunctionSymbol(size: 20),
+              leading: DartBlockNewFunctionSymbol(size: 20),
               title: Text("New Function"),
               subtitle: Text("Tap to create a new custom function."),
             ),
@@ -251,14 +251,14 @@ class DartBlockHelpItem {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ListTile(
-              trailing: NewFunctionSymbol(),
+              trailing: DartBlockNewFunctionSymbol(),
               title: Text("Create"),
               subtitle: Text(
                 """To create a custom function, tap the green function icon in the Toolbox next to the 'Run' button!""",
               ),
             ),
             ListTile(
-              trailing: NeoTechDataTypeSymbol(
+              trailing: DartBlockDataTypeSymbol(
                 dataType: DartBlockDataType.booleanType,
                 includeLabel: true,
               ),

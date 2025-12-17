@@ -101,7 +101,7 @@ class ToolboxActionBar extends ConsumerWidget {
                   },
                   child: const Tooltip(
                     message: "Create new function",
-                    child: NewFunctionSymbol(),
+                    child: DartBlockNewFunctionSymbol(),
                   ),
                 ),
                 const SizedBox(width: 8),

@@ -54,7 +54,7 @@ class _CustomFunctionBasicEditorState extends State<CustomFunctionBasicEditor> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const NewFunctionSymbol(),
+              const DartBlockNewFunctionSymbol(),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -181,7 +181,7 @@ class _CustomFunctionBasicEditorState extends State<CustomFunctionBasicEditor> {
                       (dataType) => ChoiceChip(
                         showCheckmark: false,
                         labelPadding: const EdgeInsets.only(left: 8),
-                        avatar: NeoTechDataTypeIcon(dataType: dataType),
+                        avatar: DartBlockDataTypeIcon(dataType: dataType),
                         label: Text(dataType.toScript()),
                         selected: dataType == returnType,
                         onSelected: widget.canChange

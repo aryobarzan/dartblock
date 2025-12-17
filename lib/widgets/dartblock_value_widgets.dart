@@ -262,6 +262,30 @@ class DartBlockVariableNodeWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
+    // return Container(
+    //   decoration: BoxDecoration(
+    //     borderRadius: borderRadius ?? BorderRadius.circular(4),
+    //     border: Border(
+    //       left: BorderSide(
+    //         color: settings.colorFamily.variable.color,
+    //         width: 4,
+    //       ),
+    //     ),
+    //     color: Theme.of(context).colorScheme.surfaceContainerHighest,
+    //   ),
+    //   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    //   child: Row(
+    //     mainAxisSize: MainAxisSize.min,
+    //     children: [
+    //       Text(
+    //         variableName,
+    //         style: Theme.of(context).textTheme.bodyMedium?.apply(
+    //           color: Theme.of(context).colorScheme.onSurface,
+    //         ),
+    //       ),
+    //     ],
+    //   ),
+    // );
     return Container(
       decoration: BoxDecoration(
         color: settings.colorFamily.variable.color,

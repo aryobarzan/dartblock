@@ -29,4 +29,13 @@ class ToolboxConfig {
     StatementCategory.function: const Color(0xFF9C27B0), // Purple
     StatementCategory.other: const Color(0xFF607D8B), // Blue Grey
   };
+
+  /// Colors visible on top of category colors for the different statement types.
+  static final Map<StatementCategory, Color> onCategoryColors = {
+    StatementCategory.variable: Colors.white, // Blue
+    StatementCategory.loop: Colors.black, // Amber
+    StatementCategory.decisionStructure: Colors.black, // Green
+    StatementCategory.function: Colors.white, // Purple
+    StatementCategory.other: Colors.white, // Blue Grey
+  };
 }

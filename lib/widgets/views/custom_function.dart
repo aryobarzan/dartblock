@@ -64,9 +64,9 @@ class CustomFunctionWidget extends ConsumerWidget {
           if (!isMainFunction)
             Container(
               decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primaryContainer.withValues(alpha: 0.5),
+                color: settings.colorFamily.function.colorContainer.withValues(
+                  alpha: 0.5,
+                ),
               ),
               child: Padding(
                 padding: const EdgeInsets.only(left: 4, right: 4),
@@ -108,12 +108,19 @@ class CustomFunctionWidget extends ConsumerWidget {
                               },
                               icon: Icon(
                                 Icons.add,
-                                color: Theme.of(context).colorScheme.primary,
+                                color: settings.colorFamily.function.color,
                               ),
-                              label: const Text('Parameter'),
+                              label: Text(
+                                'Parameter',
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.apply(
+                                      color:
+                                          settings.colorFamily.function.color,
+                                    ),
+                              ),
                             )
                           : IconButton(
-                              color: Theme.of(context).colorScheme.primary,
+                              color: settings.colorFamily.function.color,
                               onPressed: () {
                                 _showCustomFunctionParameterEditorBottomSheet(
                                   context,
@@ -296,7 +303,7 @@ class CustomFunctionWidget extends ConsumerWidget {
   }
 }
 
-class CustomFunctionHeaderWidget extends StatelessWidget {
+class CustomFunctionHeaderWidget extends ConsumerWidget {
   final DartBlockCustomFunction customFunction;
   final Function onTap;
   const CustomFunctionHeaderWidget({
@@ -306,10 +313,11 @@ class CustomFunctionHeaderWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
+        color: settings.colorFamily.function.colorContainer,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(12),
           topRight: Radius.circular(12),
@@ -331,7 +339,7 @@ class CustomFunctionHeaderWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const NeoTechFunctionSymbol(
+                const DartBlockFunctionSymbol(
                   borderRadius: BorderRadius.all(Radius.circular(12)),
                 ),
                 const SizedBox(width: 4),
@@ -341,17 +349,17 @@ class CustomFunctionHeaderWidget extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleMedium?.apply(
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      color: settings.colorFamily.function.onColorContainer,
                     ),
                   ),
                 ),
                 const SizedBox(width: 4),
                 customFunction.returnType != null
-                    ? NeoTechDataTypeSymbol(
+                    ? DartBlockDataTypeSymbol(
                         dataType: customFunction.returnType!,
                         includeLabel: true,
                       )
-                    : const VoidSymbol(includeLabel: true),
+                    : const DartBlockVoidSymbol(includeLabel: true),
               ],
             ),
           ),
@@ -361,14 +369,15 @@ class CustomFunctionHeaderWidget extends StatelessWidget {
   }
 }
 
-class MainFunctionHeader extends StatelessWidget {
+class MainFunctionHeader extends ConsumerWidget {
   const MainFunctionHeader({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
+        color: settings.colorFamily.function.colorContainer,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(12),
           topRight: Radius.circular(12),
@@ -392,7 +401,7 @@ class MainFunctionHeader extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: Row(
               children: [
-                const NeoTechFunctionSymbol(
+                const DartBlockFunctionSymbol(
                   borderRadius: BorderRadius.all(Radius.circular(12)),
                 ),
                 const SizedBox(width: 4),
@@ -401,7 +410,7 @@ class MainFunctionHeader extends StatelessWidget {
                     "Main Function",
                     maxLines: 1,
                     style: Theme.of(context).textTheme.titleMedium?.apply(
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      color: settings.colorFamily.function.onColorContainer,
                     ),
                   ),
                 ),
@@ -409,7 +418,7 @@ class MainFunctionHeader extends StatelessWidget {
                 Icon(
                   Icons.info_outline,
                   size: 18,
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  color: settings.colorFamily.function.onColorContainer,
                 ),
               ],
             ),

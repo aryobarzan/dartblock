@@ -124,10 +124,10 @@ class _FunctionCallComposerState extends ConsumerState<FunctionCallComposer> {
                               ),
                               const SizedBox(width: 4),
                               e.returnType != null
-                                  ? NeoTechDataTypeSymbol(
+                                  ? DartBlockDataTypeSymbol(
                                       dataType: e.returnType!,
                                     )
-                                  : const VoidSymbol(),
+                                  : const DartBlockVoidSymbol(),
                             ],
                           ),
                         ),
@@ -195,7 +195,7 @@ class _FunctionCallComposerState extends ConsumerState<FunctionCallComposer> {
                 const TextSpan(text: "\nCreate a custom function by tapping "),
                 const WidgetSpan(
                   alignment: PlaceholderAlignment.middle,
-                  child: NewFunctionSymbol(size: 24),
+                  child: DartBlockNewFunctionSymbol(size: 24),
                 ),
                 const TextSpan(text: "  in the toolbox."),
               ],
@@ -412,7 +412,7 @@ class _FunctionCallComposerState extends ConsumerState<FunctionCallComposer> {
                         text: TextSpan(
                           children: [
                             WidgetSpan(
-                              child: FunctionNameSymbol(
+                              child: DartBlockFunctionNameSymbol(
                                 name: selectedFunction!.name,
                               ),
                               alignment: PlaceholderAlignment.middle,

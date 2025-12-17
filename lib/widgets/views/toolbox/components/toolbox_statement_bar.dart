@@ -8,8 +8,8 @@ import '../models/toolbox_configuration.dart';
 
 /// The statement types which can be dragged from the [DartBlockToolbox] to [ToolboxDragTarget]s.
 class ToolboxStatementTypeBar extends StatelessWidget {
-  final Function()? onDragStart;
-  final Function()? onDragEnd;
+  final Function(StatementType statementType)? onDragStart;
+  final Function(StatementType statementType)? onDragEnd;
   final ScrollController scrollController;
 
   const ToolboxStatementTypeBar({
@@ -76,8 +76,10 @@ class ToolboxStatementTypeBar extends StatelessWidget {
             child: DartBlockToolboxStatementTypeWidget(
               statementType: type,
               categoryColor: color,
-              onDragStart: onDragStart,
-              onDragEnd: onDragEnd,
+              onDragStart: onDragStart != null
+                  ? () => onDragStart!(type)
+                  : null,
+              onDragEnd: onDragEnd != null ? () => onDragEnd!(type) : null,
             ),
           ),
         )

@@ -21,7 +21,7 @@ class FunctionDefinitionWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        FunctionNameSymbol(name: functionDefinition.name),
+        DartBlockFunctionNameSymbol(name: functionDefinition.name),
         // ColoredTitleChip(
         //   title: functionDefinition.name,
         //   textStyle: Theme.of(context)
@@ -57,7 +57,7 @@ class FunctionDefinitionWidget extends StatelessWidget {
         ...[
           const Icon(Icons.arrow_right),
           functionDefinition.returnType != null
-              ? NeoTechDataTypeSymbol(
+              ? DartBlockDataTypeSymbol(
                   dataType: functionDefinition.returnType!,
                   includeLabel: showReturnTypeLabel,
                   borderRadius: const BorderRadius.only(
@@ -65,7 +65,7 @@ class FunctionDefinitionWidget extends StatelessWidget {
                     bottomRight: Radius.circular(12),
                   ),
                 )
-              : VoidSymbol(
+              : DartBlockVoidSymbol(
                   includeLabel: showReturnTypeLabel,
                   borderRadius: const BorderRadius.only(
                     topRight: Radius.circular(12),

@@ -26,32 +26,26 @@ class _EditorViewState extends State<EditorView> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 8, bottom: 8),
-      child: CustomScrollView(
-        slivers: [
-          SliverFillRemaining(
-            child: DartBlockEditor(
-              key: ValueKey(program.hashCode),
-              program: program,
-              canChange: true,
-              canDelete: true,
-              canReorder: true,
-              canRun: true,
-              onChanged: widget.onChanged,
-              onInteraction: (dartBlockInteraction) {
-                // Example interaction: user tapped on "Run" button.
-                // Can be useful for collecting usage statistics and general logging.
-              },
-              colors: DartBlockColors(
-                number: MaterialTheme.number,
-                boolean: MaterialTheme.boolean,
-                variable: MaterialTheme.variable,
-                function: MaterialTheme.function,
-                string: MaterialTheme.string,
-              ),
-              isToolboxDockedBottom: true,
-            ),
-          ),
-        ],
+      child: DartBlockEditor(
+        key: ValueKey(program.hashCode),
+        program: program,
+        canChange: true,
+        canDelete: true,
+        canReorder: true,
+        canRun: true,
+        onChanged: widget.onChanged,
+        onInteraction: (dartBlockInteraction) {
+          // Example interaction: user tapped on "Run" button.
+          // Can be useful for collecting usage statistics and general logging.
+        },
+        colors: DartBlockColors(
+          number: MaterialTheme.number,
+          boolean: MaterialTheme.boolean,
+          variable: MaterialTheme.variable,
+          function: MaterialTheme.function,
+          string: MaterialTheme.string,
+        ),
+        isToolboxDockedBottom: true,
       ),
     );
   }

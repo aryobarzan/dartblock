@@ -82,7 +82,7 @@ class _ReturnStatementEditorState extends State<ReturnStatementEditor> {
                   (elem) => ChoiceChip(
                     showCheckmark: false,
                     labelPadding: const EdgeInsets.only(left: 8),
-                    avatar: NeoTechDataTypeIcon(dataType: elem),
+                    avatar: DartBlockDataTypeIcon(dataType: elem),
                     label: Text(elem.toScript()),
                     selected: dataType == elem,
                     onSelected: (selected) {

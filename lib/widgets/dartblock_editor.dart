@@ -455,7 +455,9 @@ class _DartBlockEditorState extends State<DartBlockEditor>
   Widget _buildToolbox({required BorderRadius borderRadius}) {
     return Consumer(
       builder: (context, ref, child) {
-        final isDraggingStatement = ref.watch(isDraggingToolboxItemProvider);
+        final isDraggingStatement = ref.watch(
+          isDraggingStatementTypeFromToolboxProvider,
+        );
         final availableFunctions = ref.watch(availableFunctionsProvider([]));
         return DartBlockToolbox(
           borderRadius: borderRadius,
@@ -465,7 +467,7 @@ class _DartBlockEditorState extends State<DartBlockEditor>
           isShowingCode: viewOption == DartBlockViewOption.script,
           isExecuting: _isExecuting,
           showActions: widget.canChange,
-          onToolboxDragStart: !_isToolboxDocked && !isDraggingStatement
+          onToolboxDragStart: !_isToolboxDocked && isDraggingStatement == null
               ? (details) {
                   // The user has started dragging the undocked toolbox around (vertically).
                   DartBlockInteraction.create(
@@ -478,7 +480,7 @@ class _DartBlockEditorState extends State<DartBlockEditor>
                   });
                 }
               : null,
-          onToolboxDragEnd: !_isToolboxDocked && !isDraggingStatement
+          onToolboxDragEnd: !_isToolboxDocked && isDraggingStatement == null
               ? (details) {
                   // The user has finished dragging the undocked toolbox around (vertically).
                   DartBlockInteraction.create(
@@ -491,7 +493,7 @@ class _DartBlockEditorState extends State<DartBlockEditor>
                   });
                 }
               : null,
-          onToolboxDragUpdate: !_isToolboxDocked && !isDraggingStatement
+          onToolboxDragUpdate: !_isToolboxDocked && isDraggingStatement == null
               ? (details) {
                   setState(() {
                     _toolboxY += details.delta.dy;
@@ -499,7 +501,7 @@ class _DartBlockEditorState extends State<DartBlockEditor>
                   });
                 }
               : null,
-          onToolboxItemDragStart: () {
+          onToolboxItemDragStart: (StatementType statementType) {
             // The user has started dragging a statement type from the toolbox. (docked/undocked)
 
             /// Do not try dispatching the notification further up the widget tree, as we are at the same context level
@@ -515,15 +517,21 @@ class _DartBlockEditorState extends State<DartBlockEditor>
             setState(() {
               _isToolboxHidden = true;
 
-              ref.read(isDraggingToolboxItemProvider.notifier).state = true;
+              ref
+                      .read(isDraggingStatementTypeFromToolboxProvider.notifier)
+                      .state =
+                  statementType;
             });
             HapticFeedback.lightImpact();
           },
-          onToolboxItemDragEnd: () {
+          onToolboxItemDragEnd: (StatementType statementType) {
             // The user has finished dragging a statement type from the toolbox. (docked/undocked)
             setState(() {
               _isToolboxHidden = false;
-              ref.read(isDraggingToolboxItemProvider.notifier).state = false;
+              ref
+                      .read(isDraggingStatementTypeFromToolboxProvider.notifier)
+                      .state =
+                  null;
             });
           },
           existingFunctionNames: availableFunctions.map((e) => e.name).toList(),
@@ -697,10 +705,10 @@ class _DartBlockEditorState extends State<DartBlockEditor>
         (index, dartBlockFunction) => Padding(
           padding: dartBlockFunction.isMainFunction()
               ? EdgeInsets.only(
-                  bottom: program.customFunctions.isNotEmpty ? 8 : 0,
+                  bottom: program.customFunctions.isNotEmpty ? 16 : 0,
                 )
               : EdgeInsets.only(
-                  bottom: index < program.customFunctions.length - 1 ? 8 : 0,
+                  bottom: index < program.customFunctions.length ? 16 : 0,
                 ),
           child: Consumer(
             builder: (context, ref, child) => CustomFunctionWidget(
@@ -811,7 +819,7 @@ class _DartBlockEditorState extends State<DartBlockEditor>
                   );
                 },
                 label: const Text("New Function"),
-                icon: const NewFunctionSymbol(),
+                icon: const DartBlockNewFunctionSymbol(),
               ),
             ),
           ],
