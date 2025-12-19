@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
+import 'package:dartblock_code/widgets/views/dartblock_base_value_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
@@ -19,17 +20,11 @@ class DartBlockValueWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final Color color;
-    final Color textColor;
     if (value == null) {
-      color = Theme.of(context).colorScheme.tertiaryContainer;
-      textColor = Theme.of(context).colorScheme.onTertiaryContainer;
-      return ColoredTitleChip(
-        title: value.toString(),
-        color: color,
-        border: border,
-        borderRadius: borderRadius ?? BorderRadius.circular(6),
-        textColor: textColor,
+      return DartblockBaseValueWidget(
+        color: Theme.of(context).colorScheme.secondary,
+        label: "null",
+        borderRadius: borderRadius,
       );
     } else {
       switch (value!) {
@@ -44,25 +39,7 @@ class DartBlockValueWidget extends ConsumerWidget {
           return Wrap(
             spacing: 1,
             children: concatenationValue.values
-                .mapIndexed(
-                  (i, e) => DartBlockValueWidget(
-                    value: e,
-                    borderRadius:
-                        i == 0 && concatenationValue.values.length == 1
-                        ? BorderRadius.circular(8)
-                        : i == 0
-                        ? BorderRadius.only(
-                            topLeft: Radius.circular(8),
-                            bottomLeft: Radius.circular(8),
-                          )
-                        : i == concatenationValue.values.length - 1
-                        ? BorderRadius.only(
-                            topRight: Radius.circular(8),
-                            bottomRight: Radius.circular(8),
-                          )
-                        : null,
-                  ),
-                )
+                .mapIndexed((i, e) => DartBlockValueWidget(value: e))
                 .toList(),
           );
         case DartBlockVariable():
@@ -113,18 +90,10 @@ class DartBlockStringValueWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
-    return Container(
-      decoration: BoxDecoration(
-        color: settings.colorFamily.string.color,
-        borderRadius: borderRadius ?? BorderRadius.circular(8),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: Text(
-        value.value,
-        style: Theme.of(context).textTheme.bodyMedium?.apply(
-          color: settings.colorFamily.string.onColor,
-        ),
-      ),
+    return DartblockBaseValueWidget(
+      color: settings.colorFamily.string.color,
+      label: "\"${value.value}\"",
+      borderRadius: borderRadius,
     );
   }
 }
@@ -209,18 +178,10 @@ class ValueCompositionNumberConstantNodeWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
-    return Container(
-      decoration: BoxDecoration(
-        color: settings.colorFamily.number.color,
-        borderRadius: borderRadius ?? BorderRadius.circular(8),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: Text(
-        node.toString(),
-        style: Theme.of(context).textTheme.bodyMedium?.apply(
-          color: settings.colorFamily.number.onColor,
-        ),
-      ),
+    return DartblockBaseValueWidget(
+      color: settings.colorFamily.number.color,
+      label: node.toString(),
+      borderRadius: borderRadius,
     );
   }
 }
@@ -262,42 +223,10 @@ class DartBlockVariableNodeWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
-    // return Container(
-    //   decoration: BoxDecoration(
-    //     borderRadius: borderRadius ?? BorderRadius.circular(4),
-    //     border: Border(
-    //       left: BorderSide(
-    //         color: settings.colorFamily.variable.color,
-    //         width: 4,
-    //       ),
-    //     ),
-    //     color: Theme.of(context).colorScheme.surfaceContainerHighest,
-    //   ),
-    //   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-    //   child: Row(
-    //     mainAxisSize: MainAxisSize.min,
-    //     children: [
-    //       Text(
-    //         variableName,
-    //         style: Theme.of(context).textTheme.bodyMedium?.apply(
-    //           color: Theme.of(context).colorScheme.onSurface,
-    //         ),
-    //       ),
-    //     ],
-    //   ),
-    // );
-    return Container(
-      decoration: BoxDecoration(
-        color: settings.colorFamily.variable.color,
-        borderRadius: borderRadius ?? BorderRadius.circular(8),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: Text(
-        variableName,
-        style: Theme.of(context).textTheme.bodyMedium?.apply(
-          color: settings.colorFamily.variable.onColor,
-        ),
-      ),
+    return DartblockBaseValueWidget(
+      color: settings.colorFamily.variable.color,
+      label: variableName,
+      borderRadius: borderRadius,
     );
   }
 }
@@ -319,22 +248,28 @@ class DartBlockFunctionCallNodeWidget extends ConsumerWidget {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: settings.colorFamily.function.color,
-            borderRadius:
-                borderRadius ??
-                (functionCallStatement.arguments.isEmpty
-                    ? BorderRadius.circular(8)
-                    : BorderRadius.only(
-                        topLeft: Radius.circular(8),
-                        bottomLeft: Radius.circular(8),
-                      )),
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            border: Border(
+              left: BorderSide(
+                color: settings.colorFamily.function.color,
+                width: 4,
+              ),
+            ),
+            // borderRadius:
+            //     borderRadius ??
+            //     (functionCallStatement.arguments.isEmpty
+            //         ? BorderRadius.circular(8)
+            //         : BorderRadius.only(
+            //             topLeft: Radius.circular(8),
+            //             bottomLeft: Radius.circular(8),
+            //           )),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           child: Text(
             functionCallStatement.functionName +
                 (functionCallStatement.arguments.isEmpty ? "()" : "("),
             style: Theme.of(context).textTheme.bodyMedium?.apply(
-              color: settings.colorFamily.function.onColor,
+              color: Theme.of(context).colorScheme.onSurface,
               fontStyle: FontStyle.italic,
             ),
           ),
@@ -342,9 +277,9 @@ class DartBlockFunctionCallNodeWidget extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
+            // borderRadius: BorderRadius.circular(4),
             border: Border.all(
-              width: 2,
+              width: 1,
               color: settings.colorFamily.function.color,
             ),
           ),
@@ -378,19 +313,19 @@ class DartBlockFunctionCallNodeWidget extends ConsumerWidget {
         if (functionCallStatement.arguments.isNotEmpty)
           Container(
             decoration: BoxDecoration(
-              color: settings.colorFamily.function.color,
-              borderRadius: functionCallStatement.arguments.isEmpty
-                  ? BorderRadius.circular(8)
-                  : BorderRadius.only(
-                      topRight: Radius.circular(8),
-                      bottomRight: Radius.circular(8),
-                    ),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              // borderRadius: functionCallStatement.arguments.isEmpty
+              //     ? BorderRadius.circular(8)
+              //     : BorderRadius.only(
+              //         topRight: Radius.circular(8),
+              //         bottomRight: Radius.circular(8),
+              //       ),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: Text(
               ")",
               style: Theme.of(context).textTheme.bodyMedium?.apply(
-                color: settings.colorFamily.function.onColor,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontStyle: FontStyle.italic,
               ),
             ),
@@ -407,20 +342,21 @@ class ArithmericOperatorWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
-    return Card(
-      elevation: 8,
-      color: settings.colorFamily.number.color,
-      child: Container(
-        width: 24,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
-        child: Center(
-          child: Text(
-            arithmeticOperator.text,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.apply(
-              color: Theme.of(context).colorScheme.onInverseSurface,
-            ),
+    return Container(
+      width: 28,
+      height: 28,
+      padding: EdgeInsets.zero,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: settings.colorFamily.number.color, width: 1),
+      ),
+      child: Center(
+        child: Text(
+          arithmeticOperator.text,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyMedium?.apply(
+            color: settings.colorFamily.number.color,
           ),
         ),
       ),
@@ -453,9 +389,8 @@ class ValueCompositionArithmeticOperatorNodeWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding:
-          padding ??
-          const EdgeInsets.only(right: 16, top: 4, bottom: 4, left: 4),
-      //margin: const EdgeInsets.all(2),
+          padding ?? const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      // const EdgeInsets.only(right: 16, top: 4, bottom: 4, left: 4),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         border: includeBorder
@@ -482,6 +417,7 @@ class ValueCompositionArithmeticOperatorNodeWidget extends StatelessWidget {
                 tooltip: "Change operator...",
                 widget: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  spacing: 12,
                   children: node
                       .getSupportedOperators()
                       .map(
@@ -630,7 +566,7 @@ class ValueCompositionBooleanNodeWidget extends StatelessWidget {
   }
 }
 
-class ValueCompositionBooleanConstantNodeWidget extends StatelessWidget {
+class ValueCompositionBooleanConstantNodeWidget extends ConsumerWidget {
   final DartBlockValueTreeBooleanConstantNode node;
   final String? selectedNodeKey;
   final Function(DartBlockValueTreeBooleanNode)? onTap;
@@ -642,20 +578,11 @@ class ValueCompositionBooleanConstantNodeWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      color: Theme.of(context).colorScheme.primaryContainer,
-      elevation: 2,
-      child: Container(
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-        child: Text(
-          node.toString(),
-          style: Theme.of(context).textTheme.bodyMedium?.apply(
-            color: Theme.of(context).colorScheme.onPrimaryContainer,
-          ),
-        ),
-      ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
+    return DartblockBaseValueWidget(
+      color: settings.colorFamily.boolean.color,
+      label: node.toString(),
     );
   }
 }
@@ -703,33 +630,7 @@ class ValueCompositionBooleanGenericNodeWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(settingsProvider);
-    final backgroundColor = switch (node) {
-      DartBlockValueTreeBooleanGenericNumberNode() =>
-        settings.colorFamily.number.color,
-      DartBlockValueTreeBooleanGenericConcatenationNode() =>
-        settings.colorFamily.string.color,
-    };
-    final textColor = switch (node) {
-      DartBlockValueTreeBooleanGenericNumberNode() =>
-        settings.colorFamily.number.onColor,
-      DartBlockValueTreeBooleanGenericConcatenationNode() =>
-        settings.colorFamily.string.onColor,
-    };
-    return Card(
-      color: backgroundColor,
-      elevation: 2,
-      child: Container(
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-        child: Text(
-          node.value.toString(),
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.apply(color: textColor),
-        ),
-      ),
-    );
+    return DartBlockValueWidget(value: node.value);
   }
 }
 
@@ -739,20 +640,24 @@ class LogicalOperatorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      color: Theme.of(context).colorScheme.surfaceTint,
-      child: Container(
-        width: 36,
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
-        child: Center(
-          child: Text(
-            logicalOperator.text,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.apply(
-              color: Theme.of(context).colorScheme.onInverseSurface,
-            ),
+    return Container(
+      width: 28,
+      height: 28,
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.surfaceTint,
+          width: 1,
+        ),
+      ),
+      child: Center(
+        child: Text(
+          logicalOperator.text,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyMedium?.apply(
+            color: Theme.of(context).colorScheme.surfaceTint,
           ),
         ),
       ),
@@ -799,7 +704,8 @@ class ValueCompositionLogicalOperatorNodeWidget extends StatelessWidget {
         border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Wrap(
-        spacing: 2,
+        spacing: 4,
+        runSpacing: 4,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           if (node.leftChild != null)
@@ -817,6 +723,7 @@ class ValueCompositionLogicalOperatorNodeWidget extends StatelessWidget {
               tooltip: "Change operator...",
               widget: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 12,
                 children: DartBlockBooleanOperator.values
                     .map(
                       (e) => InkWell(
@@ -862,23 +769,24 @@ class EqualityOperatorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      color: Theme.of(context).colorScheme.surfaceTint,
-      child: Container(
-        width: 36,
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-        decoration: BoxDecoration(
-          //
-          borderRadius: BorderRadius.circular(8),
+    return Container(
+      width: 28,
+      height: 28,
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.surfaceTint,
+          width: 1,
         ),
-        child: Center(
-          child: Text(
-            equalityOperator.text,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.apply(
-              color: Theme.of(context).colorScheme.onInverseSurface,
-            ),
+      ),
+      child: Center(
+        child: Text(
+          equalityOperator.text,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyMedium?.apply(
+            color: Theme.of(context).colorScheme.surfaceTint,
           ),
         ),
       ),
@@ -925,7 +833,8 @@ class ValueCompositionEqualityOperatorNodeWidget extends StatelessWidget {
         border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Wrap(
-        spacing: 2,
+        spacing: 4,
+        runSpacing: 4,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           if (node.leftChild != null)
@@ -943,6 +852,7 @@ class ValueCompositionEqualityOperatorNodeWidget extends StatelessWidget {
               tooltip: "Change operator...",
               widget: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 12,
                 children: DartBlockEqualityOperator.values
                     .map(
                       (e) => InkWell(
@@ -989,23 +899,21 @@ class NumberComparisonOperatorWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
-    return Card(
-      elevation: 2,
-      color: settings.colorFamily.number.color,
-      child: Container(
-        width: 36,
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-        decoration: BoxDecoration(
-          //
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Center(
-          child: Text(
-            operator.toScript(),
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.apply(
-              color: settings.colorFamily.number.onColor,
-            ),
+    return Container(
+      width: 28,
+      height: 28,
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: settings.colorFamily.number.color, width: 1),
+      ),
+      child: Center(
+        child: Text(
+          operator.toScript(),
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyMedium?.apply(
+            color: settings.colorFamily.number.color,
           ),
         ),
       ),
@@ -1053,7 +961,8 @@ class ValueCompositionNumberComparisonOperatorNodeWidget
         border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Wrap(
-        spacing: 2,
+        spacing: 4,
+        runSpacing: 4,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           if (node.leftChild != null)
@@ -1070,6 +979,7 @@ class ValueCompositionNumberComparisonOperatorNodeWidget
             PopupWidgetButton(
               tooltip: "Change operator...",
               widget: Row(
+                spacing: 12,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: DartBlockNumberComparisonOperator.values
                     .map(

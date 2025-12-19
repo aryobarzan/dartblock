@@ -474,7 +474,7 @@ class StatementWidget extends ConsumerWidget {
           bottomRight: Radius.circular(12),
         ),
       ),
-      child: Text(text, style: Theme.of(context).textTheme.bodySmall),
+      child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
     );
   }
 

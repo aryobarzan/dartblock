@@ -1,4 +1,5 @@
 import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
+import 'package:dartblock_code/widgets/views/dartblock_base_value_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/models/statement.dart';
@@ -37,22 +38,9 @@ class VariableTextWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
-    return Container(
-      alignment: Alignment.center,
-      height: 24,
-      constraints: const BoxConstraints(minWidth: 24),
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-      decoration: BoxDecoration(
-        borderRadius: borderRadius ?? BorderRadius.circular(12),
-        color: settings.colorFamily.variable.color,
-      ),
-      child: Text(
-        variable.name,
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: settings.colorFamily.variable.onColor,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+    return DartblockBaseValueWidget(
+      color: settings.colorFamily.variable.color,
+      label: variable.name,
     );
   }
 }

@@ -64,9 +64,7 @@ class CustomFunctionWidget extends ConsumerWidget {
           if (!isMainFunction)
             Container(
               decoration: BoxDecoration(
-                color: settings.colorFamily.function.colorContainer.withValues(
-                  alpha: 0.5,
-                ),
+                color: Theme.of(context).colorScheme.surfaceContainer,
               ),
               child: Padding(
                 padding: const EdgeInsets.only(left: 4, right: 4),
@@ -91,7 +89,6 @@ class CustomFunctionWidget extends ConsumerWidget {
                           height: 36,
                           child: VariableDefinitionWidget(
                             variableDefinition: e,
-                            circularRightSide: true,
                           ),
                         ),
                       ),
@@ -317,7 +314,9 @@ class CustomFunctionHeaderWidget extends ConsumerWidget {
     final settings = ref.watch(settingsProvider);
     return Container(
       decoration: BoxDecoration(
-        color: settings.colorFamily.function.colorContainer,
+        color: Theme.of(context)
+            .colorScheme
+            .surfaceContainerHighest, //settings.colorFamily.function.colorContainer,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(12),
           topRight: Radius.circular(12),
@@ -342,14 +341,15 @@ class CustomFunctionHeaderWidget extends ConsumerWidget {
                 const DartBlockFunctionSymbol(
                   borderRadius: BorderRadius.all(Radius.circular(12)),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     customFunction.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleMedium?.apply(
-                      color: settings.colorFamily.function.onColorContainer,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: settings.colorFamily.function.color,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -377,7 +377,7 @@ class MainFunctionHeader extends ConsumerWidget {
     final settings = ref.watch(settingsProvider);
     return Container(
       decoration: BoxDecoration(
-        color: settings.colorFamily.function.colorContainer,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(12),
           topRight: Radius.circular(12),
@@ -404,13 +404,14 @@ class MainFunctionHeader extends ConsumerWidget {
                 const DartBlockFunctionSymbol(
                   borderRadius: BorderRadius.all(Radius.circular(12)),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     "Main Function",
                     maxLines: 1,
-                    style: Theme.of(context).textTheme.titleMedium?.apply(
-                      color: settings.colorFamily.function.onColorContainer,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: settings.colorFamily.function.color,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -439,7 +440,7 @@ class MainFunctionHeader extends ConsumerWidget {
           content: const Text(
             "'Main Function' is the entry point of your DartBlock program, "
             "which is executed when tapping 'Run'.\n"
-            "The name of this special function cannot be changed, and it has no return type.",
+            "The name of this special function cannot be changed, and it has no return type (void).",
           ),
           actions: <Widget>[
             TextButton(

@@ -12,6 +12,7 @@ class VariableAssignmentStatementWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
+      spacing: 4,
       children: [
         VariableTextWidget(
           variable: DartBlockVariable.init(statement.name),
@@ -20,10 +21,11 @@ class VariableAssignmentStatementWidget extends StatelessWidget {
             bottomLeft: Radius.circular(12),
           ),
         ),
-        Container(
-          width: 12,
-          height: 2,
-          color: Theme.of(context).colorScheme.outline,
+        Text(
+          "=",
+          style: Theme.of(context).textTheme.bodyMedium?.apply(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
         DartBlockValueWidget(
           value: statement.value,

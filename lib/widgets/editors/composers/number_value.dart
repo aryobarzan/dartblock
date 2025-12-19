@@ -84,7 +84,7 @@ class _NumberValueComposerState extends ConsumerState<NumberValueComposer> {
               }
             },
             child: Material(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              // color: Theme.of(context).colorScheme.surfaceContainer,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),

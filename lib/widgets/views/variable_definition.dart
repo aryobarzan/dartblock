@@ -23,13 +23,9 @@ class VariableDefinitionWidget extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          height: 24,
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          height: 28,
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
           decoration: BoxDecoration(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(12),
-              bottomLeft: Radius.circular(12),
-            ),
             color: settings.colorFamily
                 .getNeoTechDataTypeColor(variableDefinition.dataType)
                 .color,
@@ -42,7 +38,7 @@ class VariableDefinitionWidget extends ConsumerWidget {
           ),
         ),
         Container(
-          height: 24,
+          height: 28,
           decoration: BoxDecoration(
             borderRadius: circularRightSide
                 ? const BorderRadius.only(
@@ -50,21 +46,15 @@ class VariableDefinitionWidget extends ConsumerWidget {
                     bottomRight: Radius.circular(12),
                   )
                 : null,
-            color: settings.colorFamily.variable.color,
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           alignment: Alignment.center,
           child: Text(
             variableDefinition.name,
-            style: useBodyMedium
-                ? Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: settings.colorFamily.variable.onColor,
-                    fontWeight: FontWeight.bold,
-                  )
-                : Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: settings.colorFamily.variable.onColor,
-                    fontWeight: FontWeight.bold,
-                  ),
+            style: Theme.of(context).textTheme.bodyMedium?.apply(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
         ),
       ],

@@ -15,6 +15,7 @@ class VariableDeclarationStatementWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
+      spacing: 4,
       children: [
         VariableDefinitionWidget(
           variableDefinition: DartBlockVariableDefinition(
@@ -22,18 +23,13 @@ class VariableDeclarationStatementWidget extends StatelessWidget {
             statement.dataType,
           ),
         ),
-        Container(
-          width: 12,
-          height: 2,
-          color: Theme.of(context).colorScheme.outline,
-        ),
-        DartBlockValueWidget(
-          value: statement.value,
-          borderRadius: const BorderRadius.only(
-            topRight: Radius.circular(12),
-            bottomRight: Radius.circular(12),
+        Text(
+          "=",
+          style: Theme.of(context).textTheme.bodyMedium?.apply(
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
+        DartBlockValueWidget(value: statement.value),
       ],
     );
   }
