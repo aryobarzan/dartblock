@@ -112,10 +112,10 @@ class _VariableAssignmentEditorState extends State<VariableAssignmentEditor> {
             border: Border.all(color: Theme.of(context).colorScheme.outline),
             borderRadius: BorderRadius.circular(8),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 4),
           child: ProviderAwareDropdownButton(
             isExpanded: true,
             hint: const Text("Select a variable..."),
+            padding: const EdgeInsets.symmetric(horizontal: 4),
             underline: const SizedBox(),
             value: selectedVariableDefinition,
             items: widget.existingVariableDefinitions

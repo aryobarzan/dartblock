@@ -36,493 +36,382 @@ class ForLoopStatementWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final program = ref.watch(programProvider);
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.only(left: 4, right: 4, bottom: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Title and execution order number
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      "1",
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        fontWeight: FontWeight.bold,
-                      ),
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, right: 4, bottom: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Title and execution order number
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    "1",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Initialize Loop Variable",
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "Initialize",
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ],
             ),
-            // Initialization statement
-            Padding(
-              padding: const EdgeInsets.only(left: 32),
-              child: statement.initStatement != null
-                  ? StatementWidget(
-                      statement: statement.initStatement!,
-                      includeBottomPadding: false,
-                      showLabel: false,
-                      canDelete: canDelete,
-                      canReorder: false,
-                      canDuplicate: false,
-                      onChanged: (value) {
-                        statement.initStatement = value;
-                        onChanged(statement);
-                      },
-                      onDelete: () {
-                        statement.initStatement = null;
-                        onChanged(statement);
-                      },
-                      onCopyStatement: (statementToCopy, cut) {
-                        onCopiedStatement(statementToCopy, cut);
-                        if (cut) {
-                          statement.initStatement = null;
-                          onChanged(statement);
-                        }
-                      },
-                      onCopiedStatement: onCopiedStatement,
-                      onPastedStatement: onPastedStatement,
-                      onPasteStatement: (statementToPaste) {
-                        if (statementToPaste.statementType ==
-                            StatementType.variableDeclarationStatement) {
-                          statement.initStatement = statementToPaste.copy();
-                          onPastedStatement();
-                          onChanged(statement);
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            createDartBlockInfoSnackBar(
-                              context,
-                              iconData: Icons.error,
-                              message:
-                                  "Can only use 'Declare Variable' statement for initialization.",
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.errorContainer,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onErrorContainer,
-                            ),
-                          );
-                        }
-                      },
-                      onDuplicate: (_) {
-                        // The initialization statement cannot be duplicated.
-                      },
-                      onAppendNewStatement: null,
-                    )
-                  : TextButton.icon(
-                      onPressed: canChange
-                          ? () {
-                              final programTree = program.buildTree();
-                              final existingVariableDefinitions = programTree
-                                  .findVariableDefinitions(
-                                    statement.hashCode,
-                                    includeNode: false,
-                                  );
-                              StatementEditor.create(
-                                statementType:
-                                    StatementType.variableDeclarationStatement,
-                                existingVariableDefinitions:
-                                    existingVariableDefinitions,
-                                customFunctions: program.customFunctions,
-                                onSaved: (value) {
-                                  Navigator.of(context).pop();
-                                  statement.initStatement = value;
-                                  onChanged(statement);
-                                },
-                              ).showAsModalBottomSheet(context);
-                            }
-                          : null,
-                      icon: const Icon(Icons.add),
-                      label: const Text("Add 'Declare Variable' statement"),
-                    ),
-            ),
-            const SizedBox(height: 16),
-
-            // Condition with step number 2
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      "2",
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Check Condition",
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-
-                  const SizedBox(width: 8),
-                  Tooltip(
-                    message:
-                        "If the condition is false, exit the loop.\nIf the condition is true, continue to step 3.",
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: Text("Step 2: Check Condition"),
-                            content: Text(
-                              "If the condition is false, exit the loop.\nIf the condition is true, continue to step 3.",
-                            ),
-                            actions: <Widget>[
-                              TextButton(
-                                child: const Text('Okay'),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                      child: Icon(Icons.info_outline),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Decision visualization
-            Padding(
-              padding: const EdgeInsets.only(left: 32.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Condition expression
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      return SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minWidth: constraints.maxWidth,
-                          ),
-                          child: DartBlockValueWidget(
-                            value: statement.condition,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+          ),
+          // Initialization statement
+          statement.initStatement != null
+              ? StatementWidget(
+                  statement: statement.initStatement!,
+                  includeBottomPadding: false,
+                  showLabel: false,
+                  canDelete: canDelete,
+                  canReorder: false,
+                  canDuplicate: false,
+                  onChanged: (value) {
+                    statement.initStatement = value;
+                    onChanged(statement);
+                  },
+                  onDelete: () {
+                    statement.initStatement = null;
+                    onChanged(statement);
+                  },
+                  onCopyStatement: (statementToCopy, cut) {
+                    onCopiedStatement(statementToCopy, cut);
+                    if (cut) {
+                      statement.initStatement = null;
+                      onChanged(statement);
+                    }
+                  },
+                  onCopiedStatement: onCopiedStatement,
+                  onPastedStatement: onPastedStatement,
+                  onPasteStatement: (statementToPaste) {
+                    if (statementToPaste.statementType ==
+                        StatementType.variableDeclarationStatement) {
+                      statement.initStatement = statementToPaste.copy();
+                      onPastedStatement();
+                      onChanged(statement);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        createDartBlockInfoSnackBar(
+                          context,
+                          iconData: Icons.error,
+                          message:
+                              "Can only use 'Declare Variable' statement for initialization.",
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.errorContainer,
+                          color: Theme.of(context).colorScheme.onErrorContainer,
                         ),
                       );
-                    },
+                    }
+                  },
+                  onDuplicate: (_) {
+                    // The initialization statement cannot be duplicated.
+                  },
+                  onAppendNewStatement: null,
+                )
+              : TextButton.icon(
+                  onPressed: canChange
+                      ? () {
+                          final programTree = program.buildTree();
+                          final existingVariableDefinitions = programTree
+                              .findVariableDefinitions(
+                                statement.hashCode,
+                                includeNode: false,
+                              );
+                          StatementEditor.create(
+                            statementType:
+                                StatementType.variableDeclarationStatement,
+                            existingVariableDefinitions:
+                                existingVariableDefinitions,
+                            customFunctions: program.customFunctions,
+                            onSaved: (value) {
+                              Navigator.of(context).pop();
+                              statement.initStatement = value;
+                              onChanged(statement);
+                            },
+                          ).showAsModalBottomSheet(context);
+                        }
+                      : null,
+                  icon: const Icon(Icons.add),
+                  label: const Text("Add 'Declare Variable' statement"),
+                ),
+          const SizedBox(height: 16),
+          // Condition with step number 2
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(height: 8),
-                  // Decision arrows
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.check,
-                                  size: 16,
-                                  color: Colors.green,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  "If true:",
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(
-                                        color: Colors.green,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  "continue to step 3",
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.close,
-                                  size: 16,
-                                  color: Colors.red,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  "Else:",
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(
-                                        color: Colors.red,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  "exit the loop",
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                                const SizedBox(width: 4),
-                                const Icon(Icons.exit_to_app, size: 16),
-                              ],
+                  child: Text(
+                    "2",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "Condition",
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(width: 8),
+                Tooltip(
+                  message:
+                      "If the condition is false, exit the loop.\nIf the condition is true, continue to step 3.",
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text("Step 2: Check Condition"),
+                          content: Text(
+                            "If the condition is false, exit the loop.\nIf the condition is true, continue to step 3.",
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('Okay'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
                             ),
                           ],
                         ),
-                      ],
-                    ),
+                      );
+                    },
+                    child: Icon(Icons.info_outline, size: 18),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-
-            const SizedBox(height: 16),
-
-            // Loop body with step number 3
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      "3",
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        fontWeight: FontWeight.bold,
-                      ),
+          ),
+          // Condition expression
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+                  child: DartBlockValueWidget(
+                    value: statement.condition,
+                    borderRadius: BorderRadius.circular(12),
+                    isInteractive: false,
+                  ),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+          // Loop body with step number 3
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    "3",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Execute Loop Body",
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 8),
+                Text("Body", style: Theme.of(context).textTheme.titleMedium),
+              ],
             ),
-            // Loop body statements
-            Padding(
-              padding: const EdgeInsets.only(left: 32.0),
-              child: StatementListView(
-                neoTechCoreNodeKey: statement.bodyStatements.isNotEmpty
-                    ? statement.bodyStatements.last.hashCode
-                    : (statement.initStatement?.hashCode ?? statement.hashCode),
-                statements: statement.bodyStatements,
-                canDelete: canDelete,
-                canReorder: canReorder,
-                onCopiedStatement: onCopiedStatement,
-                onChanged: (statements) {
-                  statement.bodyStatements = statements;
-                  onChanged(statement);
-                },
-                onDuplicate: (index) {
-                  final duplicatedStatement = statement.bodyStatements[index]
-                      .copy();
-                  if (index < statement.bodyStatements.length - 1) {
-                    statement.bodyStatements.insert(
-                      index + 1,
-                      duplicatedStatement,
-                    );
-                  } else {
-                    statement.bodyStatements.add(duplicatedStatement);
-                  }
-                  onChanged(statement);
-                },
-                onPastedStatement: onPastedStatement,
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Update step with number 4
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      "4",
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        fontWeight: FontWeight.bold,
-                      ),
+          ),
+          // Loop body statements
+          StatementListView(
+            neoTechCoreNodeKey: statement.bodyStatements.isNotEmpty
+                ? statement.bodyStatements.last.hashCode
+                : (statement.initStatement?.hashCode ?? statement.hashCode),
+            statements: statement.bodyStatements,
+            canDelete: canDelete,
+            canReorder: canReorder,
+            onCopiedStatement: onCopiedStatement,
+            onChanged: (statements) {
+              statement.bodyStatements = statements;
+              onChanged(statement);
+            },
+            onDuplicate: (index) {
+              final duplicatedStatement = statement.bodyStatements[index]
+                  .copy();
+              if (index < statement.bodyStatements.length - 1) {
+                statement.bodyStatements.insert(index + 1, duplicatedStatement);
+              } else {
+                statement.bodyStatements.add(duplicatedStatement);
+              }
+              onChanged(statement);
+            },
+            onPastedStatement: onPastedStatement,
+          ),
+          const SizedBox(height: 16),
+          // Update step with number 4
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              spacing: 8,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    "4",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Update Loop Variable",
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(width: 8),
-                  Tooltip(
-                    message:
-                        "After executing the loop body, this step updates the loop variable before checking the condition again.",
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: Text("Step 4: Update Loop Variable"),
-                            content: Text(
-                              "After executing the loop body, this step updates the loop variable before checking the condition again.",
-                            ),
-                            actions: <Widget>[
-                              TextButton(
-                                child: const Text('Okay'),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
+                ),
+                Text("Update", style: Theme.of(context).textTheme.titleMedium),
+                Tooltip(
+                  message:
+                      "After executing the loop body, this step updates the loop variable before checking the condition again.",
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text("Step 4: Update Loop Variable"),
+                          content: Text(
+                            "After executing the loop body, this step updates the loop variable before checking the condition again.",
                           ),
-                        );
-                      },
-                      child: Icon(Icons.info_outline),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Update statement
-            Padding(
-              padding: const EdgeInsets.only(left: 32),
-              child: statement.postStatement != null
-                  ? StatementWidget(
-                      statement: statement.postStatement!,
-                      includeBottomPadding: false,
-                      showLabel: false,
-                      canDelete: canDelete,
-                      canReorder: canReorder,
-                      canDuplicate: false,
-                      onChanged: (value) {
-                        statement.postStatement = value;
-                        onChanged(statement);
-                      },
-                      onDelete: () {
-                        statement.postStatement = null;
-                        onChanged(statement);
-                      },
-                      onCopyStatement: (statementToCopy, cut) {
-                        onCopiedStatement(statementToCopy, cut);
-                        if (cut) {
-                          statement.postStatement = null;
-                          onChanged(statement);
-                        }
-                      },
-                      onCopiedStatement: onCopiedStatement,
-                      onDuplicate: (statementToDuplicate) {
-                        /// Cannot duplicate this statement.
-                      },
-                      onPastedStatement: onPastedStatement,
-                      onPasteStatement: (statementToPaste) {
-                        if (statementToPaste.statementType ==
-                            StatementType.variableAssignmentStatement) {
-                          statement.postStatement = statementToPaste.copy();
-                          onPastedStatement();
-                          onChanged(statement);
-                        } else {
-                          // Special case: the for-loop's init ('post-step') can only be a 'Update Variable' type statement.
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            createDartBlockInfoSnackBar(
-                              context,
-                              iconData: Icons.error,
-                              message:
-                                  "Can only use 'Update Variable' statement for a For-Loop's post-step.",
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.errorContainer,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onErrorContainer,
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('Okay'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
                             ),
-                          );
-                        }
-                      },
-                      onAppendNewStatement: null,
-                    )
-                  : TextButton.icon(
-                      onPressed: canChange
-                          ? () {
-                              final programTree = program.buildTree();
-                              final existingVariableDefinitions = programTree
-                                  .findVariableDefinitions(
-                                    statement.initStatement?.hashCode ??
-                                        statement.hashCode,
-                                    includeNode: true,
-                                  );
-                              StatementEditor.create(
-                                statementType:
-                                    StatementType.variableAssignmentStatement,
-                                existingVariableDefinitions:
-                                    existingVariableDefinitions,
-                                customFunctions: program.customFunctions,
-                                onSaved: (value) {
-                                  Navigator.of(context).pop();
-                                  statement.postStatement = value;
-                                  onChanged(statement);
-                                },
-                              ).showAsModalBottomSheet(context);
-                            }
-                          : null,
-                      icon: const Icon(Icons.add),
-                      label: const Text("Add 'Update Variable' statement"),
-                    ),
-            ),
-
-            // Visual flow indicator showing that it goes back to step 2
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0, top: 8.0),
-              child: Row(
-                children: [
-                  const Icon(Icons.replay, size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Return to step 2",
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontStyle: FontStyle.italic,
-                    ),
+                          ],
+                        ),
+                      );
+                    },
+                    child: Icon(Icons.info_outline, size: 18),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          // Update statement
+          statement.postStatement != null
+              ? StatementWidget(
+                  statement: statement.postStatement!,
+                  includeBottomPadding: false,
+                  showLabel: false,
+                  canDelete: canDelete,
+                  canReorder: canReorder,
+                  canDuplicate: false,
+                  onChanged: (value) {
+                    statement.postStatement = value;
+                    onChanged(statement);
+                  },
+                  onDelete: () {
+                    statement.postStatement = null;
+                    onChanged(statement);
+                  },
+                  onCopyStatement: (statementToCopy, cut) {
+                    onCopiedStatement(statementToCopy, cut);
+                    if (cut) {
+                      statement.postStatement = null;
+                      onChanged(statement);
+                    }
+                  },
+                  onCopiedStatement: onCopiedStatement,
+                  onDuplicate: (statementToDuplicate) {
+                    /// Cannot duplicate this statement.
+                  },
+                  onPastedStatement: onPastedStatement,
+                  onPasteStatement: (statementToPaste) {
+                    if (statementToPaste.statementType ==
+                        StatementType.variableAssignmentStatement) {
+                      statement.postStatement = statementToPaste.copy();
+                      onPastedStatement();
+                      onChanged(statement);
+                    } else {
+                      // Special case: the for-loop's init ('post-step') can only be a 'Update Variable' type statement.
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        createDartBlockInfoSnackBar(
+                          context,
+                          iconData: Icons.error,
+                          message:
+                              "Can only use 'Update Variable' statement for a For-Loop's post-step.",
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.errorContainer,
+                          color: Theme.of(context).colorScheme.onErrorContainer,
+                        ),
+                      );
+                    }
+                  },
+                  onAppendNewStatement: null,
+                )
+              : TextButton.icon(
+                  onPressed: canChange
+                      ? () {
+                          final programTree = program.buildTree();
+                          final existingVariableDefinitions = programTree
+                              .findVariableDefinitions(
+                                statement.initStatement?.hashCode ??
+                                    statement.hashCode,
+                                includeNode: true,
+                              );
+                          StatementEditor.create(
+                            statementType:
+                                StatementType.variableAssignmentStatement,
+                            existingVariableDefinitions:
+                                existingVariableDefinitions,
+                            customFunctions: program.customFunctions,
+                            onSaved: (value) {
+                              Navigator.of(context).pop();
+                              statement.postStatement = value;
+                              onChanged(statement);
+                            },
+                          ).showAsModalBottomSheet(context);
+                        }
+                      : null,
+                  icon: const Icon(Icons.add),
+                  label: const Text("Add 'Update Variable' statement"),
+                ),
+          const SizedBox(height: 16),
+          // Visual flow indicator showing that it goes back to step 2
+          Row(
+            children: [
+              const Icon(Icons.replay, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                "Return to step 2",
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

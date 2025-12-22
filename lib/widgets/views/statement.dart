@@ -197,7 +197,7 @@ class StatementWidget extends ConsumerWidget {
     }
 
     return Padding(
-      padding: EdgeInsets.only(bottom: includeBottomPadding ? 8 : 0),
+      padding: EdgeInsets.only(bottom: includeBottomPadding ? 12 : 0),
       child: InkWell(
         onTapUp: (TapUpDetails details) async {
           DartBlockInteraction.create(
@@ -347,6 +347,7 @@ class StatementWidget extends ConsumerWidget {
                     color: Theme.of(context).colorScheme.outline,
                   ),
                 ),
+                color: Theme.of(context).colorScheme.surface,
                 elevation: 8,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,

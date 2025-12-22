@@ -58,6 +58,7 @@ class WhileLoopStatementWidget extends ConsumerWidget {
                         scrollDirection: Axis.horizontal,
                         child: DartBlockValueWidget(
                           value: statement.condition,
+                          isInteractive: false,
                           border: Border.all(
                             color: settings.colorFamily.boolean.color,
                           ),
@@ -134,6 +135,7 @@ class WhileLoopStatementWidget extends ConsumerWidget {
                         scrollDirection: Axis.horizontal,
                         child: DartBlockValueWidget(
                           value: statement.condition,
+                          isInteractive: false,
                           border: Border.all(
                             color: settings.colorFamily.boolean.color,
                           ),

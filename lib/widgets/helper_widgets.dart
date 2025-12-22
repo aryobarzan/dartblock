@@ -341,7 +341,7 @@ class ColoredTitleChip extends StatelessWidget {
           title,
           style:
               textStyle ??
-              Theme.of(context).textTheme.bodySmall?.apply(
+              Theme.of(context).textTheme.bodyMedium?.apply(
                 color:
                     textColor ??
                     Theme.of(context).colorScheme.onPrimaryContainer,

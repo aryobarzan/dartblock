@@ -11,17 +11,20 @@ class DartBlockValueWidget extends ConsumerWidget {
   final DartBlockValue? value;
   final BorderRadius? borderRadius;
   final Border? border;
+  final bool isInteractive;
   const DartBlockValueWidget({
     super.key,
     required this.value,
     this.borderRadius,
     this.border,
+    this.isInteractive = true,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final Widget child;
     if (value == null) {
-      return DartblockBaseValueWidget(
+      child = DartblockBaseValueWidget(
         color: Theme.of(context).colorScheme.secondary,
         label: "null",
         borderRadius: borderRadius,
@@ -30,13 +33,13 @@ class DartBlockValueWidget extends ConsumerWidget {
       switch (value!) {
         case DartBlockStringValue():
           final stringValue = value! as DartBlockStringValue;
-          return DartBlockStringValueWidget(
+          child = DartBlockStringValueWidget(
             value: stringValue,
             borderRadius: borderRadius,
           );
         case DartBlockConcatenationValue():
           final concatenationValue = value! as DartBlockConcatenationValue;
-          return Wrap(
+          child = Wrap(
             spacing: 1,
             children: concatenationValue.values
                 .mapIndexed((i, e) => DartBlockValueWidget(value: e))
@@ -44,18 +47,18 @@ class DartBlockValueWidget extends ConsumerWidget {
           );
         case DartBlockVariable():
           final variable = value! as DartBlockVariable;
-          return DartBlockVariableNodeWidget(
+          child = DartBlockVariableNodeWidget(
             variableName: variable.name,
             borderRadius: borderRadius,
           );
         case DartBlockFunctionCallValue():
           final functionCallValue = value! as DartBlockFunctionCallValue;
-          return DartBlockFunctionCallNodeWidget(
+          child = DartBlockFunctionCallNodeWidget(
             functionCallStatement: functionCallValue.functionCall,
           );
         case DartBlockAlgebraicExpression():
           final algebraicExpression = value! as DartBlockAlgebraicExpression;
-          return ValueCompositionNumberNodeWidget(
+          child = ValueCompositionNumberNodeWidget(
             node: algebraicExpression.compositionNode,
             selectedNodeKey: null,
             onChangeOperator: null,
@@ -65,7 +68,7 @@ class DartBlockValueWidget extends ConsumerWidget {
           );
         case DartBlockBooleanExpression():
           final booleanExpression = value! as DartBlockBooleanExpression;
-          return ValueCompositionBooleanNodeWidget(
+          child = ValueCompositionBooleanNodeWidget(
             node: booleanExpression.compositionNode,
             onChangeEqualityOperator: (node, operator) {},
             onChangeLogicalOperator: (node, operator) {},
@@ -74,6 +77,7 @@ class DartBlockValueWidget extends ConsumerWidget {
           );
       }
     }
+    return isInteractive ? child : IgnorePointer(child: child);
   }
 }
 
@@ -255,14 +259,6 @@ class DartBlockFunctionCallNodeWidget extends ConsumerWidget {
                 width: 4,
               ),
             ),
-            // borderRadius:
-            //     borderRadius ??
-            //     (functionCallStatement.arguments.isEmpty
-            //         ? BorderRadius.circular(8)
-            //         : BorderRadius.only(
-            //             topLeft: Radius.circular(8),
-            //             bottomLeft: Radius.circular(8),
-            //           )),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           child: Text(
@@ -389,18 +385,27 @@ class ValueCompositionArithmeticOperatorNodeWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding:
-          padding ?? const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      // const EdgeInsets.only(right: 16, top: 4, bottom: 4, left: 4),
+          padding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         border: includeBorder
-            ? Border.all(color: Theme.of(context).colorScheme.outline)
+            ? Border(
+                left: BorderSide(
+                  color: Theme.of(context).colorScheme.outline,
+                  width: 2,
+                ),
+                right: BorderSide(
+                  color: Theme.of(context).colorScheme.outline,
+                  width: 2,
+                ),
+              )
             : null,
       ),
       child: Wrap(
         spacing: 4,
         runSpacing: 2,
         crossAxisAlignment: WrapCrossAlignment.center,
+        runAlignment: WrapAlignment.center,
         children: [
           if (node.leftChild != null)
             ValueCompositionNumberNodeWidget(
@@ -697,16 +702,25 @@ class ValueCompositionLogicalOperatorNodeWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(right: 16, top: 4, bottom: 4, left: 4),
-      //margin: const EdgeInsets.all(2),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Theme.of(context).colorScheme.outline),
+        border: Border(
+          left: BorderSide(
+            color: Theme.of(context).colorScheme.outline,
+            width: 2,
+          ),
+          right: BorderSide(
+            color: Theme.of(context).colorScheme.outline,
+            width: 2,
+          ),
+        ),
       ),
       child: Wrap(
         spacing: 4,
         runSpacing: 4,
         crossAxisAlignment: WrapCrossAlignment.center,
+        runAlignment: WrapAlignment.center,
         children: [
           if (node.leftChild != null)
             ValueCompositionBooleanNodeWidget(
@@ -826,16 +840,25 @@ class ValueCompositionEqualityOperatorNodeWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(right: 16, top: 4, bottom: 4, left: 4),
-      //margin: const EdgeInsets.all(2),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Theme.of(context).colorScheme.outline),
+        border: Border(
+          left: BorderSide(
+            color: Theme.of(context).colorScheme.outline,
+            width: 2,
+          ),
+          right: BorderSide(
+            color: Theme.of(context).colorScheme.outline,
+            width: 2,
+          ),
+        ),
       ),
       child: Wrap(
         spacing: 4,
         runSpacing: 4,
         crossAxisAlignment: WrapCrossAlignment.center,
+        runAlignment: WrapAlignment.center,
         children: [
           if (node.leftChild != null)
             ValueCompositionBooleanNodeWidget(
@@ -954,16 +977,25 @@ class ValueCompositionNumberComparisonOperatorNodeWidget
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(right: 16, top: 4, bottom: 4, left: 4),
-      //margin: const EdgeInsets.all(2),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Theme.of(context).colorScheme.outline),
+        border: Border(
+          left: BorderSide(
+            color: Theme.of(context).colorScheme.outline,
+            width: 2,
+          ),
+          right: BorderSide(
+            color: Theme.of(context).colorScheme.outline,
+            width: 2,
+          ),
+        ),
       ),
       child: Wrap(
         spacing: 4,
         runSpacing: 4,
         crossAxisAlignment: WrapCrossAlignment.center,
+        runAlignment: WrapAlignment.center,
         children: [
           if (node.leftChild != null)
             ValueCompositionBooleanNodeWidget(

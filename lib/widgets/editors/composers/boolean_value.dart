@@ -155,7 +155,7 @@ class _BooleanValueComposerState extends ConsumerState<BooleanValueComposer> {
                               },
                         )
                       : Text(
-                          'No value (null)',
+                          'null',
                           style: Theme.of(context).textTheme.bodyMedium?.apply(
                             fontStyle: FontStyle.italic,
                           ),

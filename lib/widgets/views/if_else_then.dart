@@ -41,6 +41,8 @@ class IfElseStatementWidget extends ConsumerWidget {
           Column(
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                spacing: 4,
                 children: [
                   ColoredTitleChip(
                     title: "If",
@@ -58,6 +60,7 @@ class IfElseStatementWidget extends ConsumerWidget {
                       scrollDirection: Axis.horizontal,
                       child: DartBlockValueWidget(
                         value: statement.ifCondition,
+                        isInteractive: false,
                         border: Border.all(
                           color: settings.colorFamily.boolean.color,
                         ),
@@ -259,6 +262,7 @@ class IfElseStatementWidget extends ConsumerWidget {
                 scrollDirection: Axis.horizontal,
                 child: DartBlockValueWidget(
                   value: condition,
+                  isInteractive: false,
                   border: Border.all(color: settings.colorFamily.boolean.color),
                   borderRadius: const BorderRadius.only(
                     topRight: Radius.circular(12),

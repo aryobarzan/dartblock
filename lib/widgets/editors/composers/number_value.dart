@@ -154,7 +154,7 @@ class _NumberValueComposerState extends ConsumerState<NumberValueComposer> {
                                   },
                             )
                           : Text(
-                              'No value (null)',
+                              'null',
                               style: Theme.of(context).textTheme.bodyMedium
                                   ?.apply(fontStyle: FontStyle.italic),
                             ),

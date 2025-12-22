@@ -467,7 +467,7 @@ class _ConcatenationValueComposerState
         constraints: const BoxConstraints(minHeight: 32),
         child: Center(
           child: Text(
-            "No value (null)",
+            "null",
             style: Theme.of(
               context,
             ).textTheme.bodyMedium?.apply(fontStyle: FontStyle.italic),
