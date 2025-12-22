@@ -27,13 +27,13 @@ class VariableDefinitionWidget extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
           decoration: BoxDecoration(
             color: settings.colorFamily
-                .getNeoTechDataTypeColor(variableDefinition.dataType)
+                .getDartBlockDataTypeColorFamily(variableDefinition.dataType)
                 .color,
           ),
           child: DartBlockDataTypeIcon(
             dataType: variableDefinition.dataType,
             color: settings.colorFamily
-                .getNeoTechDataTypeColor(variableDefinition.dataType)
+                .getDartBlockDataTypeColorFamily(variableDefinition.dataType)
                 .onColor,
           ),
         ),

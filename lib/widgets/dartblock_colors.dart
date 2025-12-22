@@ -96,7 +96,7 @@ class DartBlockColorFamily {
     required this.string,
   });
 
-  ColorFamily getNeoTechDataTypeColor(DartBlockDataType dataType) {
+  ColorFamily getDartBlockDataTypeColorFamily(DartBlockDataType dataType) {
     switch (dataType) {
       case DartBlockDataType.integerType:
       case DartBlockDataType.doubleType:

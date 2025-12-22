@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
+import 'package:dartblock_code/widgets/editors/composers/components/variable_definition_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -11,8 +12,6 @@ import 'package:dartblock_code/widgets/editors/composers/boolean_value.dart';
 import 'package:dartblock_code/widgets/editors/composers/number_value.dart';
 import 'package:dartblock_code/widgets/editors/composers/string_value.dart';
 import 'package:dartblock_code/widgets/editors/function_call.dart';
-import 'package:dartblock_code/widgets/helper_widgets.dart';
-import 'package:dartblock_code/widgets/editors/misc.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:reorderables/reorderables.dart';
 
@@ -213,17 +212,9 @@ class _ConcatenationValueComposerState
                         concatenationValueType: elem,
                         isSelected: _concatenationValueType == elem,
                         isEnabled: true,
-                        borderRadius: idx == 0
-                            ? const BorderRadius.only(
-                                topLeft: Radius.circular(24),
-                                bottomLeft: Radius.circular(24),
-                              )
-                            : idx == _ConcatenationValueType.values.length - 1
-                            ? const BorderRadius.only(
-                                topRight: Radius.circular(24),
-                                bottomRight: Radius.circular(24),
-                              )
-                            : const BorderRadius.all(Radius.zero),
+                        borderRadius: _concatenationValueType == elem
+                            ? BorderRadius.circular(24)
+                            : BorderRadius.all(Radius.zero),
                         onTap: () {
                           widget.onInteract();
                           HapticFeedback.lightImpact();
@@ -300,7 +291,7 @@ class _ConcatenationValueComposerState
               border: _concatenationValueType != null
                   ? Border(
                       top: BorderSide(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: _getTypeColor(ref, _concatenationValueType!),
                       ),
                     )
                   : null,
@@ -457,9 +448,6 @@ class _ConcatenationValueComposerState
         spacing: 1,
         runSpacing: 1,
         children: children,
-        // children: value.values
-        //     .mapIndexed((index, item) => _buildItem(index, item))
-        //     .toList(),
       );
     } else {
       // ConstrainedBox ensures the UI does not shift downwards/upwards when the user adds a value.
@@ -881,7 +869,7 @@ class _ConcatenationValueTypeButton extends ConsumerWidget {
           borderRadius: borderRadius ?? BorderRadius.circular(24),
           color: isEnabled
               ? isSelected
-                    ? _getTypeColor(context, ref)
+                    ? _getTypeColorContainer(context, ref)
                     : Theme.of(context).colorScheme.primaryContainer
               : Colors.grey,
           child: InkWell(
@@ -895,53 +883,46 @@ class _ConcatenationValueTypeButton extends ConsumerWidget {
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 borderRadius: borderRadius ?? BorderRadius.circular(24),
-                border: isSelected
-                    ? Border.all(
-                        strokeAlign: BorderSide.strokeAlignOutside,
-                        color: Theme.of(context).colorScheme.primary,
-                        width: 2,
-                      )
-                    : null,
               ),
               width: 80,
               height: 40,
-              child: _buildTypeLabel(context),
+              child: _buildTypeLabel(
+                context,
+                _getTypeOnColorContainer(context, ref),
+              ),
             ),
           ),
         ),
         if (isSelected) ...[
-          Padding(
-            padding: const EdgeInsets.only(top: 2),
-            child: ArrowHeadWidget(
-              direction: AxisDirection.up,
-              strokeColor: Theme.of(context).colorScheme.primary,
-              size: const Size(12, 8),
-            ),
+          Container(
+            width: 2,
+            height: 8,
+            color: _getTypeColor(ref, concatenationValueType),
           ),
           Text(
             concatenationValueType.toString(),
             style: Theme.of(context).textTheme.bodySmall?.apply(
-              color: Theme.of(context).colorScheme.primary,
+              color: _getTypeColor(ref, concatenationValueType),
             ),
           ),
           Container(
-            width: 1,
+            width: 2,
             height: 8,
-            color: Theme.of(context).colorScheme.primary,
+            color: _getTypeColor(ref, concatenationValueType),
           ),
         ],
       ],
     );
   }
 
-  Widget _buildTypeLabel(BuildContext context) {
+  Widget _buildTypeLabel(BuildContext context, Color textColor) {
     return switch (concatenationValueType) {
       _ConcatenationValueType.constantString => Text(
         "Text",
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
           color: isEnabled
               ? isSelected
-                    ? Colors.white
+                    ? textColor
                     : Theme.of(context).colorScheme.onPrimaryContainer
               : Colors.black,
           fontWeight: FontWeight.w600,
@@ -954,7 +935,7 @@ class _ConcatenationValueTypeButton extends ConsumerWidget {
         height: 20,
         color: isEnabled
             ? isSelected
-                  ? Colors.white.withValues(alpha: isEnabled ? 1.0 : 0.5)
+                  ? textColor
                   : Theme.of(context).colorScheme.onPrimaryContainer
             : Colors.black,
       ),
@@ -965,7 +946,7 @@ class _ConcatenationValueTypeButton extends ConsumerWidget {
         height: 20,
         color: isEnabled
             ? isSelected
-                  ? Colors.white
+                  ? textColor
                   : Theme.of(context).colorScheme.onPrimaryContainer
             : Colors.black,
       ),
@@ -974,7 +955,7 @@ class _ConcatenationValueTypeButton extends ConsumerWidget {
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
           color: isEnabled
               ? isSelected
-                    ? Colors.white
+                    ? textColor
                     : Theme.of(context).colorScheme.onPrimaryContainer
               : Colors.black,
           fontWeight: FontWeight.w600,
@@ -985,7 +966,7 @@ class _ConcatenationValueTypeButton extends ConsumerWidget {
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
           color: isEnabled
               ? isSelected
-                    ? Colors.white
+                    ? textColor
                     : Theme.of(context).colorScheme.onPrimaryContainer
               : Colors.black,
           fontWeight: FontWeight.w600,
@@ -994,21 +975,57 @@ class _ConcatenationValueTypeButton extends ConsumerWidget {
     };
   }
 
-  Color _getTypeColor(BuildContext context, WidgetRef ref) {
+  Color _getTypeColorContainer(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
     if (!isEnabled) {
       return Colors.white24;
     }
     return switch (concatenationValueType) {
       _ConcatenationValueType.constantString =>
-        settings.colorFamily.string.color,
+        settings.colorFamily.string.colorContainer,
       _ConcatenationValueType.functionCall =>
-        settings.colorFamily.function.color,
-      _ConcatenationValueType.variable => settings.colorFamily.variable.color,
+        settings.colorFamily.function.colorContainer,
+      _ConcatenationValueType.variable =>
+        settings.colorFamily.variable.colorContainer,
       _ConcatenationValueType.numericExpression =>
-        settings.colorFamily.number.color,
+        settings.colorFamily.number.colorContainer,
       _ConcatenationValueType.booleanExpression =>
-        settings.colorFamily.boolean.color,
+        settings.colorFamily.boolean.colorContainer,
     };
   }
+
+  Color _getTypeOnColorContainer(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
+    if (!isEnabled) {
+      return Colors.white24;
+    }
+    return switch (concatenationValueType) {
+      _ConcatenationValueType.constantString =>
+        settings.colorFamily.string.onColorContainer,
+      _ConcatenationValueType.functionCall =>
+        settings.colorFamily.function.onColorContainer,
+      _ConcatenationValueType.variable =>
+        settings.colorFamily.variable.onColorContainer,
+      _ConcatenationValueType.numericExpression =>
+        settings.colorFamily.number.onColorContainer,
+      _ConcatenationValueType.booleanExpression =>
+        settings.colorFamily.boolean.onColorContainer,
+    };
+  }
+}
+
+Color _getTypeColor(
+  WidgetRef ref,
+  _ConcatenationValueType concatenationValueType,
+) {
+  final settings = ref.watch(settingsProvider);
+  return switch (concatenationValueType) {
+    _ConcatenationValueType.constantString => settings.colorFamily.string.color,
+    _ConcatenationValueType.functionCall => settings.colorFamily.function.color,
+    _ConcatenationValueType.variable => settings.colorFamily.variable.color,
+    _ConcatenationValueType.numericExpression =>
+      settings.colorFamily.number.color,
+    _ConcatenationValueType.booleanExpression =>
+      settings.colorFamily.boolean.color,
+  };
 }

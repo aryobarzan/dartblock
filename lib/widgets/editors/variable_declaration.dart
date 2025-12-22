@@ -140,7 +140,7 @@ class _VariableDeclarationEditorState extends State<VariableDeclarationEditor> {
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           // const Divider(),
           const Text("Initial value (optional):"),
           const SizedBox(height: 4),

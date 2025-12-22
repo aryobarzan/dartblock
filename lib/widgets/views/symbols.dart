@@ -120,7 +120,9 @@ class DartBlockDataTypeSymbol extends ConsumerWidget {
           dataType: dataType,
           width: width,
           height: height,
-          color: settings.colorFamily.getNeoTechDataTypeColor(dataType).onColor,
+          color: settings.colorFamily
+              .getDartBlockDataTypeColorFamily(dataType)
+              .onColor,
         ),
         right: Text(
           dataType.toString(),
@@ -128,7 +130,9 @@ class DartBlockDataTypeSymbol extends ConsumerWidget {
             context,
           ).textTheme.bodyMedium?.apply(color: Colors.white),
         ),
-        leftColor: settings.colorFamily.getNeoTechDataTypeColor(dataType).color,
+        leftColor: settings.colorFamily
+            .getDartBlockDataTypeColorFamily(dataType)
+            .color,
         rightColor: const Color.fromARGB(255, 42, 42, 42),
       );
     } else {
@@ -147,13 +151,17 @@ class DartBlockDataTypeSymbol extends ConsumerWidget {
                     ? const Radius.circular(4)
                     : Radius.zero,
               ),
-          color: settings.colorFamily.getNeoTechDataTypeColor(dataType).color,
+          color: settings.colorFamily
+              .getDartBlockDataTypeColorFamily(dataType)
+              .color,
         ),
         child: DartBlockDataTypeIcon(
           dataType: dataType,
           width: width,
           height: height,
-          color: settings.colorFamily.getNeoTechDataTypeColor(dataType).onColor,
+          color: settings.colorFamily
+              .getDartBlockDataTypeColorFamily(dataType)
+              .onColor,
         ),
       );
     }
