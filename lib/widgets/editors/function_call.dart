@@ -94,8 +94,9 @@ class _FunctionCallComposerState extends ConsumerState<FunctionCallComposer> {
                   ),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: ProviderAwareDropdownButton(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  borderRadius: BorderRadius.circular(8),
                   isExpanded: true,
                   value: selectedFunction,
                   hint: const Text("Select a function..."),

@@ -2,7 +2,9 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
+import 'package:dartblock_code/widgets/editors/composers/components/composer_common_button.dart';
 import 'package:dartblock_code/widgets/editors/composers/components/variable_definition_picker.dart';
+import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -13,7 +15,6 @@ import 'package:dartblock_code/widgets/editors/composers/number_value.dart';
 import 'package:dartblock_code/widgets/editors/composers/string_value.dart';
 import 'package:dartblock_code/widgets/editors/function_call.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:reorderables/reorderables.dart';
 
 class ConcatenationValueComposer extends ConsumerStatefulWidget {
   final DartBlockConcatenationValue? value;
@@ -94,112 +95,120 @@ class _ConcatenationValueComposerState
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _buildItems(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              if (_selectedIndex != null)
-                TextButton.icon(
-                  onPressed: () {
-                    DartBlockInteraction.create(
-                      dartBlockInteractionType: DartBlockInteractionType
-                          .deselectConcatenationValueComposerValueNode,
-                      content: 'TappedButton',
-                    ).dispatch(context);
-                    widget.onInteract();
-                    setState(() {
-                      _selectedIndex = null;
-                      _concatenationValueType = null;
-                    });
-                  },
-                  label: const Text("Deselect"),
-                  icon: const Icon(Icons.deselect),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 40,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              spacing: 12,
+              children: [
+                if (_selectedIndex != null)
+                  ComposerCommonButton(
+                    onTap: () {
+                      DartBlockInteraction.create(
+                        dartBlockInteractionType: DartBlockInteractionType
+                            .deselectConcatenationValueComposerValueNode,
+                        content: 'TappedButton',
+                      ).dispatch(context);
+                      widget.onInteract();
+                      setState(() {
+                        _selectedIndex = null;
+                        _concatenationValueType = null;
+                      });
+                    },
+                    tooltipMessage: "Deselect",
+                    child: Icon(Icons.deselect),
+                  )
+                else
+                  SizedBox(),
+                ComposerCommonButton(
+                  onTap: undoHistory.isNotEmpty
+                      ? () {
+                          DartBlockInteraction.create(
+                            dartBlockInteractionType: DartBlockInteractionType
+                                .tapConcatenationValueComposerUndo,
+                          ).dispatch(context);
+                          widget.onInteract();
+                          HapticFeedback.lightImpact();
+                          _undo();
+                        }
+                      : null,
+                  tooltipMessage: "Undo",
+                  child: Icon(Icons.undo),
                 ),
-              IconButton(
-                tooltip: "Undo",
-                color: Theme.of(context).colorScheme.primary,
-                onPressed: undoHistory.isNotEmpty
-                    ? () {
-                        DartBlockInteraction.create(
-                          dartBlockInteractionType: DartBlockInteractionType
-                              .tapConcatenationValueComposerUndo,
-                        ).dispatch(context);
-                        widget.onInteract();
-                        HapticFeedback.lightImpact();
-                        _undo();
-                      }
-                    : null,
-                icon: const Icon(Icons.undo),
-              ),
-              IconButton(
-                tooltip: "Redo",
-                color: Theme.of(context).colorScheme.primary,
-                onPressed: redoHistory.isNotEmpty
-                    ? () {
-                        DartBlockInteraction.create(
-                          dartBlockInteractionType: DartBlockInteractionType
-                              .tapConcatenationValueComposerRedo,
-                        ).dispatch(context);
-                        widget.onInteract();
-                        HapticFeedback.lightImpact();
-                        _redo();
-                      }
-                    : null,
-                icon: const Icon(Icons.redo),
-              ),
-              IconButton(
-                tooltip: "Delete",
-                color: Theme.of(context).colorScheme.primary,
-                onPressed: value.values.isNotEmpty
-                    ? () {
-                        DartBlockInteraction.create(
-                          dartBlockInteractionType: DartBlockInteractionType
-                              .tapConcatenationValueComposerBackspace,
-                        ).dispatch(context);
-                        widget.onInteract();
-                        HapticFeedback.lightImpact();
-                        setState(() {
-                          undoHistory.add(value.copy());
-                          if (_selectedIndex != null &&
-                              _isEditingLastDeletedIndex &&
-                              _selectedIndex! >= 1 &&
-                              _selectedIndex! <= value.values.length &&
-                              value.values.isNotEmpty) {
-                            value.values.removeAt(_selectedIndex! - 1);
-                            _selectedIndex = max(0, _selectedIndex! - 1);
-                          } else if (_selectedIndex != null &&
-                              getSelectedValue() != null) {
-                            value.values.removeAt(_selectedIndex!);
-                            if (value.values.isNotEmpty &&
-                                _selectedIndex! <= value.values.length) {
-                              _isEditingLastDeletedIndex = true;
-                              if (_selectedIndex! == value.values.length) {
-                                _selectedIndex = _selectedIndex! + 1;
+
+                ComposerCommonButton(
+                  onTap: redoHistory.isNotEmpty
+                      ? () {
+                          DartBlockInteraction.create(
+                            dartBlockInteractionType: DartBlockInteractionType
+                                .tapConcatenationValueComposerRedo,
+                          ).dispatch(context);
+                          widget.onInteract();
+                          HapticFeedback.lightImpact();
+                          _redo();
+                        }
+                      : null,
+                  tooltipMessage: "Redo",
+                  child: Icon(Icons.redo),
+                ),
+                ComposerCommonButton(
+                  onTap: value.values.isNotEmpty
+                      ? () {
+                          DartBlockInteraction.create(
+                            dartBlockInteractionType: DartBlockInteractionType
+                                .tapConcatenationValueComposerBackspace,
+                          ).dispatch(context);
+                          widget.onInteract();
+                          HapticFeedback.lightImpact();
+                          setState(() {
+                            undoHistory.add(value.copy());
+                            if (_selectedIndex != null &&
+                                _isEditingLastDeletedIndex &&
+                                _selectedIndex! >= 1 &&
+                                _selectedIndex! <= value.values.length &&
+                                value.values.isNotEmpty) {
+                              value.values.removeAt(_selectedIndex! - 1);
+                              _selectedIndex = max(0, _selectedIndex! - 1);
+                            } else if (_selectedIndex != null &&
+                                getSelectedValue() != null) {
+                              value.values.removeAt(_selectedIndex!);
+                              if (value.values.isNotEmpty &&
+                                  _selectedIndex! <= value.values.length) {
+                                _isEditingLastDeletedIndex = true;
+                                if (_selectedIndex! == value.values.length) {
+                                  _selectedIndex = _selectedIndex! + 1;
+                                }
+                              } else {
+                                _selectedIndex = max(0, _selectedIndex! - 1);
                               }
                             } else {
-                              _selectedIndex = max(0, _selectedIndex! - 1);
+                              value.values.removeLast();
                             }
-                          } else {
-                            value.values.removeLast();
-                          }
 
-                          if (_selectedIndex != null) {
-                            if (_selectedIndex! >= value.values.length) {
-                              _selectedIndex = _selectedIndex! - 1;
+                            if (_selectedIndex != null) {
+                              if (_selectedIndex! >= value.values.length) {
+                                _selectedIndex = _selectedIndex! - 1;
+                              }
+                              if (value.values.isEmpty) {
+                                _selectedIndex = null;
+                                _isEditingLastDeletedIndex = false;
+                              }
+                              _updateActiveConcatenationValueType();
                             }
-                            if (value.values.isEmpty) {
-                              _selectedIndex = null;
-                              _isEditingLastDeletedIndex = false;
-                            }
-                            _updateActiveConcatenationValueType();
-                          }
-                        });
-                        _updateValue();
-                      }
-                    : null,
-                icon: const Icon(Icons.backspace),
-              ),
-            ],
+                          });
+                          _updateValue();
+                        }
+                      : null,
+                  tooltipMessage: "Delete",
+                  child: Icon(Icons.backspace_outlined),
+                ),
+              ].map((child) => Expanded(child: child)).toList(),
+            ),
           ),
+          const SizedBox(height: 12),
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Wrap(
@@ -348,6 +357,7 @@ class _ConcatenationValueComposerState
             _selectedIndex == index) {
           children.add(
             AbsorbPointer(
+              key: ValueKey("cursor_$index"),
               child: IgnorePointer(
                 child: GestureDetector(
                   onLongPress: () {},
@@ -386,68 +396,71 @@ class _ConcatenationValueComposerState
         }
         children.add(_buildItem(index, value.values[index]));
       }
-      return ReorderableWrap(
-        needsLongPressDraggable: false,
-        onReorder: (oldIndex, newIndex) {
-          // If the user is trying to reorder the 'cursor' tile, ignore.
-          if (_selectedIndex != null &&
-              _isEditingLastDeletedIndex &&
-              oldIndex == _selectedIndex) {
-            // Do nothing
-          } else {
-            DartBlockInteraction.create(
-              dartBlockInteractionType: DartBlockInteractionType
-                  .reorderConcatenationValueComposerValueNode,
-            ).dispatch(context);
-            setState(() {
-              // If the 'cursor' tile is visible, adjust the indices accordingly.
-              if (_selectedIndex != null && _isEditingLastDeletedIndex) {
-                final adjustedOldIndex = oldIndex >= _selectedIndex!
-                    ? oldIndex - 1
-                    : oldIndex;
-                final int adjustedNewIndex;
-                // User is moving an element backwards
-                if (newIndex < oldIndex) {
-                  adjustedNewIndex = newIndex > _selectedIndex!
-                      ? newIndex - 1
-                      : newIndex;
-                }
-                // User is moving an element forwards
-                else {
-                  adjustedNewIndex = newIndex >= _selectedIndex!
-                      ? newIndex - 1
-                      : newIndex;
+      return ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 32, maxHeight: 32),
+        child: ReorderableListView(
+          buildDefaultDragHandles: false,
+          scrollDirection: Axis.horizontal,
+          children: children,
+          onReorder: (oldIndex, newIndex) {
+            // If the user is trying to reorder the 'cursor' tile, ignore.
+            if (_selectedIndex != null &&
+                _isEditingLastDeletedIndex &&
+                oldIndex == _selectedIndex) {
+              // Do nothing
+            } else {
+              DartBlockInteraction.create(
+                dartBlockInteractionType: DartBlockInteractionType
+                    .reorderConcatenationValueComposerValueNode,
+              ).dispatch(context);
+              setState(() {
+                if (oldIndex < newIndex) {
+                  newIndex -= 1;
                 }
 
-                final item = value.values.removeAt(adjustedOldIndex);
-                value.values.insert(adjustedNewIndex, item);
-              }
-              // 'Cursor' tile is not visible, no index adjustment required.
-              else {
-                final item = value.values.removeAt(oldIndex);
-                value.values.insert(newIndex, item);
-              }
-              // If the user has reordered the element that was previously selected,
-              // adjust the selected index such that the same element is still selected.
-              if (!_isEditingLastDeletedIndex && _selectedIndex != null) {
-                if (_selectedIndex == oldIndex) {
-                  _selectedIndex = newIndex;
+                // If the 'cursor' tile is visible, adjust the indices accordingly.
+                if (_selectedIndex != null && _isEditingLastDeletedIndex) {
+                  final adjustedOldIndex = oldIndex > _selectedIndex!
+                      ? oldIndex - 1
+                      : oldIndex;
+                  final adjustedNewIndex = newIndex > _selectedIndex!
+                      ? newIndex - 1
+                      : newIndex;
+
+                  final item = value.values.removeAt(adjustedOldIndex);
+                  value.values.insert(adjustedNewIndex, item);
                 }
-              }
-              // Hide the 'cursor' tile.
-              _isEditingLastDeletedIndex = false;
-              // If the selected index is no longer valid, void it.
-              if (_selectedIndex != null &&
-                  _selectedIndex! >= value.values.length) {
-                _selectedIndex = null;
-              }
-            });
-          }
-        },
-        alignment: WrapAlignment.center,
-        spacing: 1,
-        runSpacing: 1,
-        children: children,
+                // 'Cursor' tile is not visible, no index adjustment required.
+                else {
+                  final item = value.values.removeAt(oldIndex);
+                  value.values.insert(newIndex, item);
+
+                  // If the user has reordered the element that was previously selected,
+                  // or reordered other elements around it, adjust the selected index.
+                  if (_selectedIndex != null) {
+                    if (_selectedIndex == oldIndex) {
+                      _selectedIndex = newIndex;
+                    } else if (oldIndex < _selectedIndex! &&
+                        newIndex >= _selectedIndex!) {
+                      _selectedIndex = _selectedIndex! - 1;
+                    } else if (oldIndex > _selectedIndex! &&
+                        newIndex <= _selectedIndex!) {
+                      _selectedIndex = _selectedIndex! + 1;
+                    }
+                  }
+                }
+
+                // Hide the 'cursor' tile.
+                _isEditingLastDeletedIndex = false;
+                // If the selected index is no longer valid, void it.
+                if (_selectedIndex != null &&
+                    _selectedIndex! >= value.values.length) {
+                  _selectedIndex = null;
+                }
+              });
+            }
+          },
+        ),
       );
     } else {
       // ConstrainedBox ensures the UI does not shift downwards/upwards when the user adds a value.
@@ -520,7 +533,7 @@ class _ConcatenationValueComposerState
         child = _buildChip(
           item.name,
           settings.colorFamily.variable.color,
-          Colors.white,
+          settings.colorFamily.variable.onColor,
           index,
         );
         break;
@@ -529,16 +542,16 @@ class _ConcatenationValueComposerState
         child = _buildChip(
           item.toString(),
           settings.colorFamily.function.color,
-          Colors.white,
+          settings.colorFamily.function.onColor,
           index,
         );
         break;
       case DartBlockStringValue():
         concatenationValueType = _ConcatenationValueType.constantString;
         child = _buildChip(
-          item.value,
+          "\"${item.value}\"",
           settings.colorFamily.string.color,
-          Colors.white,
+          settings.colorFamily.string.onColor,
           index,
         );
         break;
@@ -547,7 +560,7 @@ class _ConcatenationValueComposerState
         child = _buildChip(
           item.toString(),
           settings.colorFamily.number.color,
-          Colors.white,
+          settings.colorFamily.number.onColor,
           index,
         );
         break;
@@ -556,7 +569,7 @@ class _ConcatenationValueComposerState
         child = _buildChip(
           item.toString(),
           settings.colorFamily.boolean.color,
-          Colors.white,
+          settings.colorFamily.boolean.onColor,
           index,
         );
         break;
@@ -566,30 +579,34 @@ class _ConcatenationValueComposerState
         child = const SizedBox();
         break;
     }
-    return InkWell(
-      onTap: () {
-        setState(() {
-          widget.onInteract();
-          if (getSelectedValue() == item) {
-            DartBlockInteraction.create(
-              dartBlockInteractionType: DartBlockInteractionType
-                  .deselectConcatenationValueComposerValueNode,
-            ).dispatch(context);
-            _selectedIndex = null;
-            _concatenationValueType = null;
-          } else {
-            DartBlockInteraction.create(
-              dartBlockInteractionType: DartBlockInteractionType
-                  .selectConcatenationValueComposerValueNode,
-            ).dispatch(context);
-            _selectedIndex = index;
-            _concatenationValueType = concatenationValueType;
-          }
-          _isEditingLastDeletedIndex = false;
-          _isAddingNewValue = false; // Reset when switching selection
-        });
-      },
-      child: child,
+    return ReorderableDragStartListener(
+      index: index,
+      key: ValueKey("item_$index"),
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            widget.onInteract();
+            if (getSelectedValue() == item) {
+              DartBlockInteraction.create(
+                dartBlockInteractionType: DartBlockInteractionType
+                    .deselectConcatenationValueComposerValueNode,
+              ).dispatch(context);
+              _selectedIndex = null;
+              _concatenationValueType = null;
+            } else {
+              DartBlockInteraction.create(
+                dartBlockInteractionType: DartBlockInteractionType
+                    .selectConcatenationValueComposerValueNode,
+              ).dispatch(context);
+              _selectedIndex = index;
+              _concatenationValueType = concatenationValueType;
+            }
+            _isEditingLastDeletedIndex = false;
+            _isAddingNewValue = false; // Reset when switching selection
+          });
+        },
+        child: child,
+      ),
     );
   }
 
@@ -603,15 +620,11 @@ class _ConcatenationValueComposerState
     final isRightCircular =
         value.values.length == 1 || itemIndex == value.values.length - 1;
 
-    return Container(
+    final child = Container(
+      // Necessary, as otherwise it will not take up the full available height in the ReorderableListView (32 based on the ConstrainedBox), when placed inside a Stack.
+      height: double.infinity,
       decoration: BoxDecoration(
         color: backgroundColor,
-        border: Border.all(
-          width: 2,
-          color: itemIndex == _selectedIndex && !_isEditingLastDeletedIndex
-              ? Theme.of(context).colorScheme.primary
-              : Colors.transparent,
-        ),
         borderRadius: BorderRadius.horizontal(
           left: Radius.circular(isLeftCircular ? 12 : 0),
           right: Radius.circular(isRightCircular ? 12 : 0),
@@ -627,6 +640,28 @@ class _ConcatenationValueComposerState
         ),
       ),
     );
+
+    if (itemIndex == _selectedIndex && !_isEditingLastDeletedIndex) {
+      // Arrow indicator for the selected item
+      // Badge is not used, as it interferes with the height of the item.
+      return Stack(
+        alignment: Alignment.bottomCenter,
+        clipBehavior: Clip.none,
+        children: [
+          child,
+          Transform.translate(
+            offset: const Offset(0, 12),
+            child: ArrowHeadWidget(
+              strokeColor: Theme.of(context).colorScheme.primary,
+              direction: AxisDirection.up,
+              size: const Size(12, 12),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return child;
   }
 
   Widget _buildEditor() {
