@@ -384,8 +384,7 @@ class ValueCompositionArithmeticOperatorNodeWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding:
-          padding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: padding ?? const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         border: includeBorder
@@ -702,7 +701,7 @@ class ValueCompositionLogicalOperatorNodeWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border(
@@ -840,7 +839,7 @@ class ValueCompositionEqualityOperatorNodeWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border(
@@ -977,7 +976,7 @@ class ValueCompositionNumberComparisonOperatorNodeWidget
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border(

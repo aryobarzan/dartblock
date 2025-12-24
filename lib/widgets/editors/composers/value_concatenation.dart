@@ -212,7 +212,7 @@ class _ConcatenationValueComposerState
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Wrap(
-              spacing: 2,
+              spacing: 1,
               children: _ConcatenationValueType.values
                   .mapIndexed(
                     (idx, elem) => Tooltip(
@@ -734,20 +734,33 @@ class _ConcatenationValueComposerState
             },
           );
         case _ConcatenationValueType.numericExpression:
-          return NumberValueComposer(
-            ///  (*) See explanation above.
-            key: _selectedIndex != null
-                ? ValueKey("NumberValueComposer-$_selectedIndex")
-                : null,
-            value: selectedValue is DartBlockAlgebraicExpression
-                ? selectedValue.compositionNode
-                : null,
-            variableDefinitions: widget.variableDefinitions,
-            onChange: (newAlgebraicNode) {
-              _onChangeValue(
-                newAlgebraicNode != null
-                    ? DartBlockAlgebraicExpression.init(newAlgebraicNode)
-                    : null,
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              return FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+                  child: NumberValueComposer(
+                    ///  (*) See explanation above.
+                    key: _selectedIndex != null
+                        ? ValueKey("NumberValueComposer-$_selectedIndex")
+                        : null,
+                    value: selectedValue is DartBlockAlgebraicExpression
+                        ? selectedValue.compositionNode
+                        : null,
+                    variableDefinitions: widget.variableDefinitions,
+                    onChange: (newAlgebraicNode) {
+                      _onChangeValue(
+                        newAlgebraicNode != null
+                            ? DartBlockAlgebraicExpression.init(
+                                newAlgebraicNode,
+                              )
+                            : null,
+                      );
+                    },
+                  ),
+                ),
               );
             },
           );

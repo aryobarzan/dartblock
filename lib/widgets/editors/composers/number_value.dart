@@ -83,36 +83,32 @@ class _NumberValueComposerState extends ConsumerState<NumberValueComposer> {
                 // }
               }
             },
-            child: Material(
-              // color: Theme.of(context).colorScheme.surfaceContainer,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 12,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: selectedNodeKey != null
-                    ? () {
-                        DartBlockInteraction.create(
-                          dartBlockInteractionType: DartBlockInteractionType
-                              .deselectNumberComposerValueNode,
-                          content: 'TappedOutsideValue',
-                        ).dispatch(context);
-                        setState(() {
-                          selectedNodeKey = null;
-                        });
-                      }
-                    : () {},
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    minHeight: 42,
-                    maxHeight: 100,
-                  ),
-                  child: Center(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: (value != null)
-                          ? ValueCompositionNumberNodeWidget(
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: selectedNodeKey != null
+                  ? () {
+                      DartBlockInteraction.create(
+                        dartBlockInteractionType: DartBlockInteractionType
+                            .deselectNumberComposerValueNode,
+                        content: 'TappedOutsideValue',
+                      ).dispatch(context);
+                      setState(() {
+                        selectedNodeKey = null;
+                      });
+                    }
+                  : () {},
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 42, maxHeight: 60),
+                child: Center(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: (value != null)
+                        ? Padding(
+                            padding: const EdgeInsetsGeometry.symmetric(
+                              vertical: 12,
+                              horizontal: 12,
+                            ),
+                            child: ValueCompositionNumberNodeWidget(
                               node: value!,
                               selectedNodeKey: selectedNodeKey,
                               includeBorder: false,
@@ -152,13 +148,13 @@ class _NumberValueComposerState extends ConsumerState<NumberValueComposer> {
                                       });
                                     }
                                   },
-                            )
-                          : Text(
-                              'null',
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.apply(fontStyle: FontStyle.italic),
                             ),
-                    ),
+                          )
+                        : Text(
+                            'null',
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.apply(fontStyle: FontStyle.italic),
+                          ),
                   ),
                 ),
               ),
@@ -169,8 +165,8 @@ class _NumberValueComposerState extends ConsumerState<NumberValueComposer> {
           shrinkWrap: true,
           primary: false,
           padding: EdgeInsets.zero,
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
+          crossAxisSpacing: 4,
+          mainAxisSpacing: 4,
           crossAxisCount: 4,
           childAspectRatio: 4 / 2.25,
           children: [

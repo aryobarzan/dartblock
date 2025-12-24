@@ -75,97 +75,103 @@ class _BooleanValueComposerState extends ConsumerState<BooleanValueComposer> {
                 : null,
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  minHeight: 50,
-                  maxHeight: 200,
-                ),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: value != null
-                      ? ValueCompositionBooleanNodeWidget(
-                          node: value!,
-                          selectedNodeKey: selectedNodeKey,
-                          onTap: (tappedNode) {
-                            setState(() {
-                              if (selectedNodeKey == tappedNode.nodeKey) {
-                                DartBlockInteraction.create(
-                                  dartBlockInteractionType:
-                                      DartBlockInteractionType
-                                          .deselectBooleanComposerValueNode,
-                                ).dispatch(context);
-                                selectedNodeKey = null;
-                              } else {
-                                DartBlockInteraction.create(
-                                  dartBlockInteractionType:
-                                      DartBlockInteractionType
-                                          .selectBooleanComposerValueNode,
-                                ).dispatch(context);
-                                selectedNodeKey = tappedNode.nodeKey;
-                              }
-                            });
-                          },
-                          onChangeLogicalOperator:
-                              (logicalOperatorNode, newOperator) {
-                                if (newOperator !=
-                                    logicalOperatorNode.operator) {
-                                  DartBlockInteraction.create(
-                                    dartBlockInteractionType:
-                                        DartBlockInteractionType
-                                            .changeBooleanComposerLogicalOperatorThroughNode,
-                                  ).dispatch(context);
-                                  undoHistory.add(value?.copy());
-                                  setState(() {
-                                    logicalOperatorNode.operator = newOperator;
-                                    _updateValue(value);
-                                  });
-                                }
+                constraints: const BoxConstraints(minHeight: 42, maxHeight: 60),
+                child: Center(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: value != null
+                        ? Padding(
+                            padding: const EdgeInsetsGeometry.symmetric(
+                              vertical: 12,
+                              horizontal: 12,
+                            ),
+                            child: ValueCompositionBooleanNodeWidget(
+                              node: value!,
+                              selectedNodeKey: selectedNodeKey,
+                              onTap: (tappedNode) {
+                                setState(() {
+                                  if (selectedNodeKey == tappedNode.nodeKey) {
+                                    DartBlockInteraction.create(
+                                      dartBlockInteractionType:
+                                          DartBlockInteractionType
+                                              .deselectBooleanComposerValueNode,
+                                    ).dispatch(context);
+                                    selectedNodeKey = null;
+                                  } else {
+                                    DartBlockInteraction.create(
+                                      dartBlockInteractionType:
+                                          DartBlockInteractionType
+                                              .selectBooleanComposerValueNode,
+                                    ).dispatch(context);
+                                    selectedNodeKey = tappedNode.nodeKey;
+                                  }
+                                });
                               },
-                          onChangeEqualityOperator:
-                              (equalityOperatorNode, newOperator) {
-                                if (newOperator !=
-                                    equalityOperatorNode.operator) {
-                                  DartBlockInteraction.create(
-                                    dartBlockInteractionType:
-                                        DartBlockInteractionType
-                                            .changeBooleanComposerEqualityOperatorThroughNode,
-                                  ).dispatch(context);
-                                  undoHistory.add(value?.copy());
-                                  setState(() {
-                                    equalityOperatorNode.operator = newOperator;
-                                    _updateValue(value);
-                                  });
-                                }
-                              },
-                          onChangeNumberComparisonOperator:
-                              (numberComparisonOperatorNode, newOperator) {
-                                if (newOperator !=
-                                    numberComparisonOperatorNode.operator) {
-                                  DartBlockInteraction.create(
-                                    dartBlockInteractionType:
-                                        DartBlockInteractionType
-                                            .changeBooleanComposerNumberComparisonOperatorThroughNode,
-                                  ).dispatch(context);
-                                  undoHistory.add(value?.copy());
-                                  setState(() {
-                                    numberComparisonOperatorNode.operator =
-                                        newOperator;
-                                    _updateValue(value);
-                                  });
-                                }
-                              },
-                        )
-                      : Text(
-                          'null',
-                          style: Theme.of(context).textTheme.bodyMedium?.apply(
-                            fontStyle: FontStyle.italic,
+                              onChangeLogicalOperator:
+                                  (logicalOperatorNode, newOperator) {
+                                    if (newOperator !=
+                                        logicalOperatorNode.operator) {
+                                      DartBlockInteraction.create(
+                                        dartBlockInteractionType:
+                                            DartBlockInteractionType
+                                                .changeBooleanComposerLogicalOperatorThroughNode,
+                                      ).dispatch(context);
+                                      undoHistory.add(value?.copy());
+                                      setState(() {
+                                        logicalOperatorNode.operator =
+                                            newOperator;
+                                        _updateValue(value);
+                                      });
+                                    }
+                                  },
+                              onChangeEqualityOperator:
+                                  (equalityOperatorNode, newOperator) {
+                                    if (newOperator !=
+                                        equalityOperatorNode.operator) {
+                                      DartBlockInteraction.create(
+                                        dartBlockInteractionType:
+                                            DartBlockInteractionType
+                                                .changeBooleanComposerEqualityOperatorThroughNode,
+                                      ).dispatch(context);
+                                      undoHistory.add(value?.copy());
+                                      setState(() {
+                                        equalityOperatorNode.operator =
+                                            newOperator;
+                                        _updateValue(value);
+                                      });
+                                    }
+                                  },
+                              onChangeNumberComparisonOperator:
+                                  (numberComparisonOperatorNode, newOperator) {
+                                    if (newOperator !=
+                                        numberComparisonOperatorNode.operator) {
+                                      DartBlockInteraction.create(
+                                        dartBlockInteractionType:
+                                            DartBlockInteractionType
+                                                .changeBooleanComposerNumberComparisonOperatorThroughNode,
+                                      ).dispatch(context);
+                                      undoHistory.add(value?.copy());
+                                      setState(() {
+                                        numberComparisonOperatorNode.operator =
+                                            newOperator;
+                                        _updateValue(value);
+                                      });
+                                    }
+                                  },
+                            ),
+                          )
+                        : Text(
+                            'null',
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.apply(fontStyle: FontStyle.italic),
                           ),
-                        ),
+                  ),
                 ),
               ),
             ),
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 12),
         GridView.count(
           shrinkWrap: true,
           primary: false,
