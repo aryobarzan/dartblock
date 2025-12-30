@@ -1,4 +1,8 @@
 import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
+import 'package:dartblock_code/widgets/editors/composers/components/button_group.dart';
+import 'package:dartblock_code/widgets/editors/composers/components/composer_common_button.dart';
+import 'package:dartblock_code/widgets/editors/composers/components/function_composer_button.dart';
+import 'package:dartblock_code/widgets/editors/composers/components/variable_picker_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dartblock_code/models/function.dart';
@@ -46,163 +50,262 @@ class _BooleanValueComposerState extends ConsumerState<BooleanValueComposer> {
       selectedNodeKey = null;
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        GestureDetector(
-          onHorizontalDragEnd: (details) {
-            if (details.primaryVelocity != null &&
-                details.primaryVelocity != 0) {
-              DartBlockInteraction.create(
-                dartBlockInteractionType: DartBlockInteractionType
-                    .swipeBooleanComposerValueToBackspace,
-              ).dispatch(context);
-              _onBackSpace();
-            }
-          },
-          child: InkWell(
-            onTap: selectedNodeKey != null
-                ? () {
-                    DartBlockInteraction.create(
-                      dartBlockInteractionType: DartBlockInteractionType
-                          .deselectBooleanComposerValueNode,
-                      content: 'TappedOutsideValue',
-                    ).dispatch(context);
-                    setState(() {
-                      selectedNodeKey = null;
-                    });
-                  }
-                : null,
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(minHeight: 42, maxHeight: 60),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const crossAxisCount = 4;
+        const crossAxisSpacing = 2.0;
+        const childAspectRatio = 2 / 1;
+
+        final availableWidth = constraints.maxWidth;
+        final itemWidth =
+            (availableWidth - (crossAxisCount - 1) * crossAxisSpacing) /
+            crossAxisCount;
+        // Used to match the height of the button group with that of the GridView
+        final itemHeight = itemWidth / childAspectRatio;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            GestureDetector(
+              onHorizontalDragEnd: (details) {
+                if (details.primaryVelocity != null &&
+                    details.primaryVelocity != 0) {
+                  DartBlockInteraction.create(
+                    dartBlockInteractionType: DartBlockInteractionType
+                        .swipeBooleanComposerValueToBackspace,
+                  ).dispatch(context);
+                  _onBackSpace();
+                }
+              },
+              child: InkWell(
+                onTap: selectedNodeKey != null
+                    ? () {
+                        DartBlockInteraction.create(
+                          dartBlockInteractionType: DartBlockInteractionType
+                              .deselectBooleanComposerValueNode,
+                          content: 'TappedOutsideValue',
+                        ).dispatch(context);
+                        setState(() {
+                          selectedNodeKey = null;
+                        });
+                      }
+                    : null,
                 child: Center(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: value != null
-                        ? Padding(
-                            padding: const EdgeInsetsGeometry.symmetric(
-                              vertical: 12,
-                              horizontal: 12,
-                            ),
-                            child: ValueCompositionBooleanNodeWidget(
-                              node: value!,
-                              selectedNodeKey: selectedNodeKey,
-                              onTap: (tappedNode) {
-                                setState(() {
-                                  if (selectedNodeKey == tappedNode.nodeKey) {
-                                    DartBlockInteraction.create(
-                                      dartBlockInteractionType:
-                                          DartBlockInteractionType
-                                              .deselectBooleanComposerValueNode,
-                                    ).dispatch(context);
-                                    selectedNodeKey = null;
-                                  } else {
-                                    DartBlockInteraction.create(
-                                      dartBlockInteractionType:
-                                          DartBlockInteractionType
-                                              .selectBooleanComposerValueNode,
-                                    ).dispatch(context);
-                                    selectedNodeKey = tappedNode.nodeKey;
-                                  }
-                                });
-                              },
-                              onChangeLogicalOperator:
-                                  (logicalOperatorNode, newOperator) {
-                                    if (newOperator !=
-                                        logicalOperatorNode.operator) {
-                                      DartBlockInteraction.create(
-                                        dartBlockInteractionType:
-                                            DartBlockInteractionType
-                                                .changeBooleanComposerLogicalOperatorThroughNode,
-                                      ).dispatch(context);
-                                      undoHistory.add(value?.copy());
-                                      setState(() {
-                                        logicalOperatorNode.operator =
-                                            newOperator;
-                                        _updateValue(value);
-                                      });
-                                    }
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      minHeight: 42,
+                      maxHeight: 60,
+                    ),
+                    child: Center(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: value != null
+                            ? Padding(
+                                padding: const EdgeInsetsGeometry.symmetric(
+                                  vertical: 12,
+                                  horizontal: 12,
+                                ),
+                                child: ValueCompositionBooleanNodeWidget(
+                                  node: value!,
+                                  selectedNodeKey: selectedNodeKey,
+                                  onTap: (tappedNode) {
+                                    setState(() {
+                                      if (selectedNodeKey ==
+                                          tappedNode.nodeKey) {
+                                        DartBlockInteraction.create(
+                                          dartBlockInteractionType:
+                                              DartBlockInteractionType
+                                                  .deselectBooleanComposerValueNode,
+                                        ).dispatch(context);
+                                        selectedNodeKey = null;
+                                      } else {
+                                        DartBlockInteraction.create(
+                                          dartBlockInteractionType:
+                                              DartBlockInteractionType
+                                                  .selectBooleanComposerValueNode,
+                                        ).dispatch(context);
+                                        selectedNodeKey = tappedNode.nodeKey;
+                                      }
+                                    });
                                   },
-                              onChangeEqualityOperator:
-                                  (equalityOperatorNode, newOperator) {
-                                    if (newOperator !=
-                                        equalityOperatorNode.operator) {
-                                      DartBlockInteraction.create(
-                                        dartBlockInteractionType:
-                                            DartBlockInteractionType
-                                                .changeBooleanComposerEqualityOperatorThroughNode,
-                                      ).dispatch(context);
-                                      undoHistory.add(value?.copy());
-                                      setState(() {
-                                        equalityOperatorNode.operator =
-                                            newOperator;
-                                        _updateValue(value);
-                                      });
-                                    }
-                                  },
-                              onChangeNumberComparisonOperator:
-                                  (numberComparisonOperatorNode, newOperator) {
-                                    if (newOperator !=
-                                        numberComparisonOperatorNode.operator) {
-                                      DartBlockInteraction.create(
-                                        dartBlockInteractionType:
-                                            DartBlockInteractionType
-                                                .changeBooleanComposerNumberComparisonOperatorThroughNode,
-                                      ).dispatch(context);
-                                      undoHistory.add(value?.copy());
-                                      setState(() {
-                                        numberComparisonOperatorNode.operator =
-                                            newOperator;
-                                        _updateValue(value);
-                                      });
-                                    }
-                                  },
-                            ),
-                          )
-                        : Text(
-                            'null',
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.apply(fontStyle: FontStyle.italic),
-                          ),
+                                  onChangeLogicalOperator:
+                                      (logicalOperatorNode, newOperator) {
+                                        if (newOperator !=
+                                            logicalOperatorNode.operator) {
+                                          DartBlockInteraction.create(
+                                            dartBlockInteractionType:
+                                                DartBlockInteractionType
+                                                    .changeBooleanComposerLogicalOperatorThroughNode,
+                                          ).dispatch(context);
+                                          undoHistory.add(value?.copy());
+                                          setState(() {
+                                            logicalOperatorNode.operator =
+                                                newOperator;
+                                            _updateValue(value);
+                                          });
+                                        }
+                                      },
+                                  onChangeEqualityOperator:
+                                      (equalityOperatorNode, newOperator) {
+                                        if (newOperator !=
+                                            equalityOperatorNode.operator) {
+                                          DartBlockInteraction.create(
+                                            dartBlockInteractionType:
+                                                DartBlockInteractionType
+                                                    .changeBooleanComposerEqualityOperatorThroughNode,
+                                          ).dispatch(context);
+                                          undoHistory.add(value?.copy());
+                                          setState(() {
+                                            equalityOperatorNode.operator =
+                                                newOperator;
+                                            _updateValue(value);
+                                          });
+                                        }
+                                      },
+                                  onChangeNumberComparisonOperator:
+                                      (
+                                        numberComparisonOperatorNode,
+                                        newOperator,
+                                      ) {
+                                        if (newOperator !=
+                                            numberComparisonOperatorNode
+                                                .operator) {
+                                          DartBlockInteraction.create(
+                                            dartBlockInteractionType:
+                                                DartBlockInteractionType
+                                                    .changeBooleanComposerNumberComparisonOperatorThroughNode,
+                                          ).dispatch(context);
+                                          undoHistory.add(value?.copy());
+                                          setState(() {
+                                            numberComparisonOperatorNode
+                                                    .operator =
+                                                newOperator;
+                                            _updateValue(value);
+                                          });
+                                        }
+                                      },
+                                ),
+                              )
+                            : Text(
+                                'null',
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.apply(fontStyle: FontStyle.italic),
+                              ),
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        GridView.count(
-          shrinkWrap: true,
-          primary: false,
-          padding: EdgeInsets.zero,
-          crossAxisSpacing: 2,
-          mainAxisSpacing: 2,
-          crossAxisCount: 4,
-          childAspectRatio: 2 / 1,
-          children: [
-            _buildFunctionVariableButton(),
-            _buildUndoRedoButton(),
-            _buildBackspaceButton(),
-            _buildLogicalOperatorButton(DartBlockBooleanOperator.and),
-            _buildConstantButton(true),
-            _buildConstantButton(false),
-            _buildEqualityOperatorSplitButton(),
-            _buildLogicalOperatorButton(DartBlockBooleanOperator.or),
-            _buildStringValueComposerButton(),
-            _buildNumberComposerButton(),
-            _buildNumberComparisonOperatorSplitButton(
-              DartBlockNumberComparisonOperator.greater,
-              DartBlockNumberComparisonOperator.greaterOrEqual,
+            const SizedBox(height: 12),
+            GridView.count(
+              shrinkWrap: true,
+              primary: false,
+              padding: EdgeInsets.zero,
+              crossAxisSpacing: 2,
+              mainAxisSpacing: 2,
+              crossAxisCount: 5,
+              childAspectRatio: 2 / 1.25,
+              children: [
+                _buildFunctionComposerButton(),
+                _buildVariablePickerButton(),
+                _buildUndoButton(),
+                _buildRedoButton(),
+                _buildBackspaceButton(),
+              ],
             ),
-            _buildNumberComparisonOperatorSplitButton(
-              DartBlockNumberComparisonOperator.lessOrEqual,
-              DartBlockNumberComparisonOperator.less,
+            const SizedBox(height: 2),
+            GridView.count(
+              shrinkWrap: true,
+              primary: false,
+              padding: EdgeInsets.zero,
+              crossAxisSpacing: 2,
+              mainAxisSpacing: 2,
+              crossAxisCount: 4,
+              childAspectRatio: 2 / 1,
+              children: [
+                _buildLogicalOperatorButton(DartBlockBooleanOperator.and),
+                _buildLogicalOperatorButton(DartBlockBooleanOperator.or),
+                _buildEqualityOperatorButton(DartBlockEqualityOperator.equal),
+                _buildEqualityOperatorButton(
+                  DartBlockEqualityOperator.notEqual,
+                ),
+              ],
             ),
+            const SizedBox(height: 4),
+            Divider(),
+            SizedBox(
+              height: itemHeight,
+              child: ButtonGroup<_BooleanComposerActiveComposerType?>(
+                emptySelectionAllowed: true,
+                items: [
+                  ButtonGroupItem(
+                    value: _BooleanComposerActiveComposerType.logic,
+                    label: "Logic",
+                  ),
+                  ButtonGroupItem(
+                    value: _BooleanComposerActiveComposerType.math,
+                    label: "Math",
+                  ),
+                  ButtonGroupItem(
+                    value: _BooleanComposerActiveComposerType.text,
+                    label: "Text",
+                  ),
+                ],
+                selected: _booleanComposerActiveComposerType != null
+                    ? {_booleanComposerActiveComposerType}
+                    : {},
+                onSelectionChanged: (newSelection) {
+                  setState(() {
+                    if (newSelection.isEmpty) {
+                      _booleanComposerActiveComposerType = null;
+                    } else {
+                      _booleanComposerActiveComposerType = newSelection.first;
+                    }
+                  });
+                },
+              ),
+            ),
+            if (_booleanComposerActiveComposerType != null) SizedBox(height: 8),
+            _buildActiveComposer(),
           ],
-        ),
-        _buildActiveComposer(),
+        );
+      },
+    );
+  }
+
+  Widget _buildFunctionComposerButton() {
+    final selectedNode = getSelectedNode();
+
+    final rightLeaf = (selectedNode ?? value)?.getRightLeaf();
+    DartBlockFunctionCallValue? currentFunctionCallValue;
+    if (rightLeaf is DartBlockValueTreeBooleanDynamicNode &&
+        rightLeaf.value is DartBlockFunctionCallValue) {
+      currentFunctionCallValue = rightLeaf.value as DartBlockFunctionCallValue;
+    }
+
+    return FunctionComposerButton(
+      functionCallValue: currentFunctionCallValue,
+      variableDefinitions: widget.variableDefinitions,
+      restrictFunctionCallReturnTypes: const [
+        DartBlockDataType.integerType,
+        DartBlockDataType.doubleType,
       ],
+      onSavedFunctionCallStatement: (customFunction, savedFunctionCall) {
+        _onReceiveFunctionCall(
+          customFunction,
+          DartBlockFunctionCallValue.init(savedFunctionCall),
+        );
+      },
+    );
+  }
+
+  Widget _buildVariablePickerButton() {
+    return VariablePickerButton(
+      variableDefinitions: widget.variableDefinitions,
+      onPickedVariableDefinition: (pickedVariableDefinition) {
+        _onReceiveVariableDefinition(pickedVariableDefinition);
+      },
     );
   }
 
@@ -210,49 +313,35 @@ class _BooleanValueComposerState extends ConsumerState<BooleanValueComposer> {
     final settings = ref.watch(settingsProvider);
     return switch (_booleanComposerActiveComposerType) {
       null => const SizedBox(height: 16),
-      _BooleanComposerActiveComposerType.number => Container(
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: settings.colorFamily.number.color,
-            width: 2,
-          ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        padding: const EdgeInsets.all(4),
-        child: NumberValueComposer(
-          key: ValueKey(
-            "NumberValueComposer-${_getCurrentAlgebraicNode().hashCode}",
-          ),
-          value: _getCurrentAlgebraicNode(),
-          variableDefinitions: widget.variableDefinitions,
-          showValue: false,
-          showBackspaceButton: false,
-          showFunctionVariableButton: false,
-          showUndoRedoButton: false,
-          onChange: (neoValueAlgebraicNode) {
-            _onReceiveNeoValueAlgebraicNode(neoValueAlgebraicNode);
-          },
-        ),
+      _BooleanComposerActiveComposerType.logic => GridView.count(
+        shrinkWrap: true,
+        primary: false,
+        padding: EdgeInsets.zero,
+        crossAxisSpacing: 2,
+        mainAxisSpacing: 2,
+        crossAxisCount: 2,
+        childAspectRatio: 4 / 1,
+        children: [_buildConstantButton(true), _buildConstantButton(false)],
       ),
-      _BooleanComposerActiveComposerType.text => Container(
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: settings.colorFamily.string.color,
-            width: 2,
-          ),
-          borderRadius: const BorderRadius.only(
-            topRight: Radius.circular(12),
-            bottomRight: Radius.circular(12),
-            bottomLeft: Radius.circular(12),
-          ),
+      _BooleanComposerActiveComposerType.math => NumberValueComposer(
+        key: ValueKey(
+          "NumberValueComposer-${_getCurrentAlgebraicNode().hashCode}",
         ),
-        padding: const EdgeInsets.all(8),
-        child: StringValueComposer(
-          value: _getCurrentStringValue(),
-          onChange: (stringValue) {
-            _onReceiveStringValue(stringValue);
-          },
-        ),
+        value: _getCurrentAlgebraicNode(),
+        variableDefinitions: widget.variableDefinitions,
+        showValue: false,
+        showBackspaceButton: false,
+        showFunctionVariableButton: false,
+        showUndoRedoButton: false,
+        onChange: (neoValueAlgebraicNode) {
+          _onReceiveNeoValueAlgebraicNode(neoValueAlgebraicNode);
+        },
+      ),
+      _BooleanComposerActiveComposerType.text => StringValueComposer(
+        value: _getCurrentStringValue(),
+        onChange: (stringValue) {
+          _onReceiveStringValue(stringValue);
+        },
       ),
     };
   }
@@ -367,36 +456,6 @@ class _BooleanValueComposerState extends ConsumerState<BooleanValueComposer> {
       selectedNodeKey = resultingNode?.nodeKey;
       _updateValue(resultingNode);
     });
-  }
-
-  Widget _buildFunctionVariableButton() {
-    final selectedNode = getSelectedNode();
-
-    final rightLeaf = (selectedNode ?? value)?.getRightLeaf();
-    DartBlockFunctionCallValue? currentFunctionCallValue;
-    if (rightLeaf is DartBlockValueTreeBooleanDynamicNode &&
-        rightLeaf.value is DartBlockFunctionCallValue) {
-      currentFunctionCallValue = rightLeaf.value as DartBlockFunctionCallValue;
-    }
-
-    return FunctionVariableSplitButton(
-      functionCallValue: currentFunctionCallValue,
-      variableDefinitions: widget.variableDefinitions,
-      // .where((element) => element.dataType == NeoTechDataType.booleanType)
-      // .toList(),
-      /// Allow all custom function return types, except for void
-      restrictFunctionCallReturnTypes: DartBlockDataType.values,
-      onSavedFunctionCallStatement: (customFunction, savedFunctionCall) {
-        _onReceiveFunctionCall(
-          customFunction,
-          DartBlockFunctionCallValue.init(savedFunctionCall),
-        );
-      },
-      onPickedVariableDefinition: (pickedVariableDefinition) {
-        _onReceiveVariableDefinition(pickedVariableDefinition);
-        // _onReceiveDynamicValue(NeoVariable.init(pickedVariableDefinition.name));
-      },
-    );
   }
 
   void _onReceiveDynamicValue(DartBlockDynamicValue dynamicValue) {
@@ -523,137 +582,62 @@ class _BooleanValueComposerState extends ConsumerState<BooleanValueComposer> {
     }
   }
 
-  // Widget _buildClearSelectionButton() {
-  //   return OutlinedButton(
-  //     style: OutlinedButton.styleFrom(
-  //       padding: const EdgeInsets.symmetric(
-  //         vertical: 4,
-  //         horizontal: 1,
-  //       ),
-  //     ),
-  //     onPressed: selectedNodeKey != null
-  //         ? () {
-  //             setState(() {
-  //               selectedNodeKey = null;
-  //             });
-  //           }
-  //         : null,
-  //     child: const Icon(Icons.deselect),
-  //   );
-  // }
+  Widget _buildUndoButton() {
+    return ComposerCommonButton(
+      onTap: undoHistory.isNotEmpty
+          ? () {
+              if (undoHistory.isNotEmpty) {
+                DartBlockInteraction.create(
+                  dartBlockInteractionType:
+                      DartBlockInteractionType.tapBooleanComposerUndo,
+                ).dispatch(context);
+                HapticFeedback.lightImpact();
+                setState(() {
+                  redoHistory.add(value?.copy());
+                  _updateValue(undoHistory.removeLast());
+                });
+              }
+            }
+          : null,
+      tooltipMessage: "Undo",
+      child: Icon(Icons.undo),
+    );
+  }
 
-  Widget _buildUndoRedoButton() {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: Tooltip(
-            message: "Undo",
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  bottomLeft: Radius.circular(24),
-                ),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.outline,
-                ),
-              ),
-              child: InkWell(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  bottomLeft: Radius.circular(24),
-                ),
-                onTap: undoHistory.isNotEmpty
-                    ? () {
-                        if (undoHistory.isNotEmpty) {
-                          DartBlockInteraction.create(
-                            dartBlockInteractionType:
-                                DartBlockInteractionType.tapBooleanComposerUndo,
-                          ).dispatch(context);
-                          HapticFeedback.lightImpact();
-                          setState(() {
-                            redoHistory.add(value?.copy());
-                            _updateValue(undoHistory.removeLast());
-                          });
-                        }
-                      }
-                    : null,
-                child: Icon(
-                  Icons.undo,
-                  color: undoHistory.isNotEmpty
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.outline,
-                ),
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          child: Tooltip(
-            message: "Redo",
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(
-                  topRight: Radius.circular(24),
-                  bottomRight: Radius.circular(24),
-                ),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.outline,
-                ),
-              ),
-              child: InkWell(
-                borderRadius: const BorderRadius.only(
-                  topRight: Radius.circular(24),
-                  bottomRight: Radius.circular(24),
-                ),
-                onTap: redoHistory.isNotEmpty
-                    ? () {
-                        if (redoHistory.isNotEmpty) {
-                          DartBlockInteraction.create(
-                            dartBlockInteractionType:
-                                DartBlockInteractionType.tapBooleanComposerRedo,
-                          ).dispatch(context);
-                          HapticFeedback.lightImpact();
-                          setState(() {
-                            undoHistory.add(value?.copy());
-                            _updateValue(redoHistory.removeLast());
-                          });
-                        }
-                      }
-                    : null,
-                child: Icon(
-                  Icons.redo,
-                  color: redoHistory.isNotEmpty
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.outline,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
+  Widget _buildRedoButton() {
+    return ComposerCommonButton(
+      onTap: redoHistory.isNotEmpty
+          ? () {
+              if (redoHistory.isNotEmpty) {
+                DartBlockInteraction.create(
+                  dartBlockInteractionType:
+                      DartBlockInteractionType.tapBooleanComposerRedo,
+                ).dispatch(context);
+                HapticFeedback.lightImpact();
+                setState(() {
+                  undoHistory.add(value?.copy());
+                  _updateValue(redoHistory.removeLast());
+                });
+              }
+            }
+          : null,
+      tooltipMessage: "Redo",
+      child: Icon(Icons.redo),
     );
   }
 
   Widget _buildBackspaceButton() {
-    return Tooltip(
-      message: "Delete",
-      child: OutlinedButton(
-        style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 1),
-        ),
-        onPressed: () {
-          DartBlockInteraction.create(
-            dartBlockInteractionType:
-                DartBlockInteractionType.tapBooleanComposerBackspace,
-          ).dispatch(context);
-          HapticFeedback.lightImpact();
-          _onBackSpace();
-        },
-        child: const Icon(Icons.backspace),
-      ),
+    return ComposerCommonButton(
+      tooltipMessage: "Delete",
+      onTap: () {
+        DartBlockInteraction.create(
+          dartBlockInteractionType:
+              DartBlockInteractionType.tapBooleanComposerBackspace,
+        ).dispatch(context);
+        HapticFeedback.lightImpact();
+        _onBackSpace();
+      },
+      child: const Icon(Icons.backspace_outlined),
     );
   }
 
@@ -690,11 +674,9 @@ class _BooleanValueComposerState extends ConsumerState<BooleanValueComposer> {
   Widget _buildConstantButton(bool constant) {
     final selectedNode = getSelectedNode();
 
-    return OutlinedButton(
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 1),
-      ),
-      onPressed: () {
+    return ComposerCommonButton(
+      tooltipMessage: constant.toString(),
+      onTap: () {
         DartBlockInteraction.create(
           dartBlockInteractionType:
               DartBlockInteractionType.tapBooleanComposerConstant,
@@ -719,9 +701,33 @@ class _BooleanValueComposerState extends ConsumerState<BooleanValueComposer> {
       },
       child: Text(
         constant.toString(),
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
           fontWeight: FontWeight.bold,
           color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEqualityOperatorButton(DartBlockEqualityOperator operator) {
+    return ComposerCommonButton(
+      tooltipMessage: operator.describeVerbal(),
+      backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+      foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
+      onTap: () {
+        DartBlockInteraction.create(
+          dartBlockInteractionType:
+              DartBlockInteractionType.tapBooleanComposerEqualityOperator,
+          content: 'Operator-${operator.name}',
+        ).dispatch(context);
+        HapticFeedback.lightImpact();
+        _onReceiveEqualityOperator(operator);
+      },
+      child: Text(
+        operator.text,
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.onTertiaryContainer,
         ),
       ),
     );
@@ -810,51 +816,48 @@ class _BooleanValueComposerState extends ConsumerState<BooleanValueComposer> {
   Widget _buildLogicalOperatorButton(DartBlockBooleanOperator operator) {
     final selectedNode = getSelectedNode();
 
-    return Tooltip(
-      message: operator.describeVerbal(),
-      child: FilledButton(
-        style: FilledButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 1),
-        ),
-        onPressed: () {
-          if (selectedNode != null || value != null) {
-            DartBlockInteraction.create(
-              dartBlockInteractionType:
-                  DartBlockInteractionType.tapBooleanComposerLogicalOperator,
-              content: 'Operator-${operator.name}',
-            ).dispatch(context);
-            HapticFeedback.lightImpact();
-            undoHistory.add(value?.copy());
-            setState(() {
-              final DartBlockValueTreeBooleanNode? resultingNode;
-              if (selectedNode != null) {
-                resultingNode = selectedNode.receiveLogicalOperator(operator);
-              } else if (value != null) {
-                resultingNode = value?.receiveLogicalOperator(operator);
-              } else {
-                // Do not do anything if the current value is null, as it does not make sense to add a logical boolean operator in that case.
-                resultingNode = null;
-                // Previously, if the current value was null, the result would be "null &&", which does not make sense and is syntactically incorrect.
-                // resultingNode = NeoValueBooleanOperatorNode.init(
-                //   operator,
-                //   null,
-                //   null,
-                //   null,
-                // );
-              }
-              if (resultingNode != null) {
-                selectedNodeKey = resultingNode.nodeKey;
-                _updateValue(resultingNode);
-              }
-            });
-          }
-        },
-        child: Text(
-          operator.text,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onPrimary,
-          ),
+    return ComposerCommonButton(
+      tooltipMessage: operator.describeVerbal(),
+      backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+      foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
+      onTap: () {
+        if (selectedNode != null || value != null) {
+          DartBlockInteraction.create(
+            dartBlockInteractionType:
+                DartBlockInteractionType.tapBooleanComposerLogicalOperator,
+            content: 'Operator-${operator.name}',
+          ).dispatch(context);
+          HapticFeedback.lightImpact();
+          undoHistory.add(value?.copy());
+          setState(() {
+            final DartBlockValueTreeBooleanNode? resultingNode;
+            if (selectedNode != null) {
+              resultingNode = selectedNode.receiveLogicalOperator(operator);
+            } else if (value != null) {
+              resultingNode = value?.receiveLogicalOperator(operator);
+            } else {
+              // Do not do anything if the current value is null, as it does not make sense to add a logical boolean operator in that case.
+              resultingNode = null;
+              // Previously, if the current value was null, the result would be "null &&", which does not make sense and is syntactically incorrect.
+              // resultingNode = NeoValueBooleanOperatorNode.init(
+              //   operator,
+              //   null,
+              //   null,
+              //   null,
+              // );
+            }
+            if (resultingNode != null) {
+              selectedNodeKey = resultingNode.nodeKey;
+              _updateValue(resultingNode);
+            }
+          });
+        }
+      },
+      child: Text(
+        operator.text,
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.onTertiaryContainer,
         ),
       ),
     );
@@ -1027,7 +1030,7 @@ class _BooleanValueComposerState extends ConsumerState<BooleanValueComposer> {
   Widget _buildNumberComposerButton() {
     final bool isActive =
         _booleanComposerActiveComposerType ==
-        _BooleanComposerActiveComposerType.number;
+        _BooleanComposerActiveComposerType.math;
     final settings = ref.watch(settingsProvider);
     return InkWell(
       borderRadius: const BorderRadius.only(
@@ -1038,7 +1041,7 @@ class _BooleanValueComposerState extends ConsumerState<BooleanValueComposer> {
         HapticFeedback.lightImpact();
         setState(() {
           if (_booleanComposerActiveComposerType ==
-              _BooleanComposerActiveComposerType.number) {
+              _BooleanComposerActiveComposerType.math) {
             DartBlockInteraction.create(
               dartBlockInteractionType:
                   DartBlockInteractionType.tapBooleanComposerNumberToggleToHide,
@@ -1050,7 +1053,7 @@ class _BooleanValueComposerState extends ConsumerState<BooleanValueComposer> {
                   DartBlockInteractionType.tapBooleanComposerNumberToggleToShow,
             ).dispatch(context);
             _booleanComposerActiveComposerType =
-                _BooleanComposerActiveComposerType.number;
+                _BooleanComposerActiveComposerType.math;
           }
         });
       },
@@ -1151,4 +1154,4 @@ class _BooleanValueComposerState extends ConsumerState<BooleanValueComposer> {
   }
 }
 
-enum _BooleanComposerActiveComposerType { number, text }
+enum _BooleanComposerActiveComposerType { logic, math, text }

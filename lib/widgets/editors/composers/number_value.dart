@@ -160,7 +160,7 @@ class _NumberValueComposerState extends ConsumerState<NumberValueComposer> {
               ),
             ),
           ),
-        const SizedBox(height: 12),
+        if (widget.showValue) const SizedBox(height: 12),
         GridView.count(
           shrinkWrap: true,
           primary: false,

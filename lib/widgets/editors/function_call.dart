@@ -102,6 +102,7 @@ class _FunctionCallComposerState extends ConsumerState<FunctionCallComposer> {
                   hint: const Text("Select a function..."),
                   underline: const SizedBox(),
                   items: availableFunctions
+                      .sorted((a, b) => a.name.compareTo(b.name))
                       .map(
                         (e) => DropdownMenuItem(
                           value: e,
