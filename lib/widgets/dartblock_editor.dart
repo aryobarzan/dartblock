@@ -130,11 +130,19 @@ class _DartBlockEditorState extends State<DartBlockEditor>
     with TickerProviderStateMixin {
   late DartBlockProgram program;
   late DartBlockExecutor executor;
+  ProviderContainer? _isolatedContainer;
+
   @override
   void initState() {
     super.initState();
     program = widget.program;
     executor = DartBlockExecutor(program);
+  }
+
+  @override
+  void dispose() {
+    _isolatedContainer?.dispose();
+    super.dispose();
   }
 
   /// The current [DartBlockViewOption] view state of DartBlock.
@@ -168,7 +176,13 @@ class _DartBlockEditorState extends State<DartBlockEditor>
 
   @override
   Widget build(BuildContext context) {
-    return ProviderScope(
+    // Create a completely isolated container with the necessary overrides.
+    // Reason: if this widget is used within an app which also uses flutter_riverpod, and subsequently relies on a ProviderScope,
+    // that parent ProviderScope would interfere with the internal ProviderScope of dartblock, leading to issues finding
+    // the program overrides.
+    // Solution: by manually creating an ProviderContainer, we isolate dartblock's internal scope and avoid any interference
+    // of existing, parent ProviderScopes.
+    _isolatedContainer = ProviderContainer(
       overrides: [
         programProvider.overrideWith(
           () => ProgramNotifier.withProgram(program),
@@ -186,24 +200,14 @@ class _DartBlockEditorState extends State<DartBlockEditor>
           ),
         ),
       ],
+    );
+
+    return UncontrolledProviderScope(
+      container: _isolatedContainer!,
       child: Consumer(
         builder: (context, ref, child) {
-          // Capture the container from Consumer's context to ensure modals
-          // and dialogs opened from within DartBlockEditor use the correct
-          // ProviderScope with overrides, even when the app has its own
-          // root ProviderScope.
-          final container = ProviderScope.containerOf(context);
-
-          // Listen to interaction events and forward to callback (new approach - disabled for now)
-          // ref.listen<DartBlockInteraction?>(interactionEventProvider, (
-          //   previous,
-          //   next,
-          // ) {
-          //   // print(next);
-          //   // if (next != null && widget.onInteraction != null) {
-          //   //   widget.onInteraction!(next);
-          //   // }
-          // });
+          // Get the container from ref which is guaranteed to be our isolated container
+          final container = ref.container;
 
           // Provide the container to all descendants via InheritedWidget
           return DartBlockContainerProvider(
@@ -473,200 +477,186 @@ class _DartBlockEditorState extends State<DartBlockEditor>
     );
   }
 
-  /// Whether the [_DartBlockToolbox] was undocked the last time the user was viewing their [DartBlockProgram] in the [DartBlockViewOption.blocks] mode.
-  ///
-  /// Used to restore the previous docked/undocked state when switching back to [DartBlockViewOption.blocks].
-  bool _wasToolboxPreviouslyDocked = false;
-
   Widget _buildToolbox({
     required BorderRadius borderRadius,
     required ProviderContainer container,
   }) {
-    // Use UncontrolledProviderScope with the container and Consumer for reactivity
-    return UncontrolledProviderScope(
+    // Use a custom ProviderListener that explicitly listens to the passed container
+    return _ProviderScopeConsumer(
       container: container,
-      child: Consumer(
-        builder: (context, ref, child) {
-          // Read values from ref within the correct scope
-          final isDraggingStatement = ref.watch(
-            isDraggingStatementTypeFromToolboxProvider,
-          );
-          final availableFunctions = ref.watch(availableFunctionsProvider([]));
+      builder: (context, container) {
+        // Read values from the container within the correct scope
+        final isDraggingStatement = container.read(
+          isDraggingStatementTypeFromToolboxProvider,
+        );
+        final availableFunctions = container.read(
+          availableFunctionsProvider([]),
+        );
 
-          return DartBlockToolbox(
-            borderRadius: borderRadius,
-            isTransparent: _isDraggingToolbox,
-            isDocked: _isToolboxDocked,
-            canUndock: widget.isDense ? false : true,
-            isShowingCode: viewOption == DartBlockViewOption.script,
-            isExecuting: _isExecuting,
-            showActions: widget.canChange,
-            onToolboxDragStart: !_isToolboxDocked && isDraggingStatement == null
-                ? (details) {
-                    // The user has started dragging the undocked toolbox around (vertically).
-                    DartBlockInteraction.create(
-                      dartBlockInteractionType:
-                          DartBlockInteractionType.startDraggingUndockedToolbox,
-                      content: 'yCoordinate-$_toolboxY',
-                    ).dispatch(context);
-                    setState(() {
-                      _isDraggingToolbox = true;
-                    });
-                  }
-                : null,
-            onToolboxDragEnd: !_isToolboxDocked && isDraggingStatement == null
-                ? (details) {
-                    // The user has finished dragging the undocked toolbox around (vertically).
-                    DartBlockInteraction.create(
-                      dartBlockInteractionType: DartBlockInteractionType
-                          .finishDraggingUndockedToolbox,
-                      content: 'yCoordinate-$_toolboxY',
-                    ).dispatch(context);
-                    setState(() {
-                      _isDraggingToolbox = false;
-                    });
-                  }
-                : null,
-            onToolboxDragUpdate:
-                !_isToolboxDocked && isDraggingStatement == null
-                ? (details) {
-                    setState(() {
-                      _toolboxY += details.delta.dy;
-                      _constrainToolboxY(MediaQuery.of(context).size.height);
-                    });
-                  }
-                : null,
-            onToolboxItemDragStart: (StatementType statementType) {
-              // The user has started dragging a statement type from the toolbox. (docked/undocked)
-
-              /// Do not try dispatching the notification further up the widget tree, as we are at the same context level
-              /// as the NotificationListener itself, meaning the notification would not be captured.
-              _onReceiveDartBlockNotification(
-                DartBlockInteractionNotification(
+        return DartBlockToolbox(
+          borderRadius: borderRadius,
+          isTransparent: _isDraggingToolbox,
+          isDocked: _isToolboxDocked,
+          canUndock: widget.isDense ? false : true,
+          isShowingCode: viewOption == DartBlockViewOption.script,
+          isExecuting: _isExecuting,
+          showActions: widget.canChange,
+          onToolboxDragStart: !_isToolboxDocked && isDraggingStatement == null
+              ? (details) {
+                  // The user has started dragging the undocked toolbox around (vertically).
                   DartBlockInteraction.create(
-                    dartBlockInteractionType: DartBlockInteractionType
-                        .startedDraggingStatementFromToolbox,
-                  ),
-                ),
-              );
-              setState(() {
-                _isToolboxHidden = true;
-
-                ref
-                        .read(
-                          isDraggingStatementTypeFromToolboxProvider.notifier,
-                        )
-                        .state =
-                    statementType;
-              });
-              HapticFeedback.lightImpact();
-            },
-            onToolboxItemDragEnd: (StatementType statementType) {
-              // The user has finished dragging a statement type from the toolbox. (docked/undocked)
-              setState(() {
-                _isToolboxHidden = false;
-                ref
-                        .read(
-                          isDraggingStatementTypeFromToolboxProvider.notifier,
-                        )
-                        .state =
-                    null;
-              });
-            },
-            existingFunctionNames: availableFunctions
-                .map((e) => e.name)
-                .toList(),
-            canAddFunction: widget.canChange,
-            onAction: (extraAction) {
-              switch (extraAction) {
-                case ToolboxExtraAction.console:
-                  _showConsole(context);
-                  break;
-                case ToolboxExtraAction.code:
+                    dartBlockInteractionType:
+                        DartBlockInteractionType.startDraggingUndockedToolbox,
+                    content: 'yCoordinate-$_toolboxY',
+                  ).dispatch(context);
                   setState(() {
-                    if (viewOption == DartBlockViewOption.blocks) {
-                      viewOption = DartBlockViewOption.script;
-                      _wasToolboxPreviouslyDocked = _isToolboxDocked;
-                      _isToolboxDocked = true;
-                    } else {
-                      viewOption = DartBlockViewOption.blocks;
-                      _isToolboxDocked = _wasToolboxPreviouslyDocked;
-                    }
+                    _isDraggingToolbox = true;
                   });
-                  break;
-                case ToolboxExtraAction.help:
-                  _showHelpCenter(context);
-                  break;
-              }
-            },
-            onCodeViewAction: (action) {
-              switch (action) {
-                case CodeViewAction.copy:
-                  _onCopyScript();
-                  break;
-                case CodeViewAction.save:
-                  _onDownloadScript();
-                  break;
-              }
-            },
-            onCreateFunction: (newFunction) {
-              _onCreateFunction(context, ref, newFunction);
-            },
-            onRun: widget.canRun
-                ? () async {
-                    if (!_isExecuting) {
-                      setState(() {
-                        _isExecuting = true;
-                      });
-                      if (widget.maximumExecutionDuration != null) {
-                        await executor.execute(
-                          duration: widget.maximumExecutionDuration!,
-                        );
-                      } else {
-                        await executor.execute();
-                      }
-                      if (executor.thrownException != null) {
-                        /// In case the execution is interrupted by an exception,
-                        /// additionally log this as a pseudo user interaction to best
-                        /// keep track of the user's context.
-                        _onReceiveDartBlockNotification(
-                          DartBlockInteractionNotification(
-                            DartBlockInteraction.create(
-                              dartBlockInteractionType: DartBlockInteractionType
-                                  .executedProgramInterruptedByException,
-                            ),
-                          ),
-                        );
-                      }
-                      _isExecuting = false;
-                      if (context.mounted) {
-                        _showConsole(context);
-                      }
-                      setState(() {});
+                }
+              : null,
+          onToolboxDragEnd: !_isToolboxDocked && isDraggingStatement == null
+              ? (details) {
+                  // The user has finished dragging the undocked toolbox around (vertically).
+                  DartBlockInteraction.create(
+                    dartBlockInteractionType:
+                        DartBlockInteractionType.finishDraggingUndockedToolbox,
+                    content: 'yCoordinate-$_toolboxY',
+                  ).dispatch(context);
+                  setState(() {
+                    _isDraggingToolbox = false;
+                  });
+                }
+              : null,
+          onToolboxDragUpdate: !_isToolboxDocked && isDraggingStatement == null
+              ? (details) {
+                  setState(() {
+                    _toolboxY += details.delta.dy;
+                    _constrainToolboxY(MediaQuery.of(context).size.height);
+                  });
+                }
+              : null,
+          onToolboxItemDragStart: (StatementType statementType) {
+            // The user has started dragging a statement type from the toolbox. (docked/undocked)
+
+            /// Do not try dispatching the notification further up the widget tree, as we are at the same context level
+            /// as the NotificationListener itself, meaning the notification would not be captured.
+            _onReceiveDartBlockNotification(
+              DartBlockInteractionNotification(
+                DartBlockInteraction.create(
+                  dartBlockInteractionType: DartBlockInteractionType
+                      .startedDraggingStatementFromToolbox,
+                ),
+              ),
+            );
+            setState(() {
+              _isToolboxHidden = true;
+
+              container
+                      .read(isDraggingStatementTypeFromToolboxProvider.notifier)
+                      .state =
+                  statementType;
+            });
+            HapticFeedback.lightImpact();
+          },
+          onToolboxItemDragEnd: (StatementType statementType) {
+            // The user has finished dragging a statement type from the toolbox. (docked/undocked)
+            setState(() {
+              _isToolboxHidden = false;
+              container
+                      .read(isDraggingStatementTypeFromToolboxProvider.notifier)
+                      .state =
+                  null;
+            });
+          },
+          existingFunctionNames: availableFunctions.map((e) => e.name).toList(),
+          canAddFunction: widget.canChange,
+          onAction: (extraAction) {
+            switch (extraAction) {
+              case ToolboxExtraAction.console:
+                _showConsole(context);
+                break;
+              case ToolboxExtraAction.code:
+                setState(() {
+                  if (viewOption == DartBlockViewOption.blocks) {
+                    viewOption = DartBlockViewOption.script;
+                    _isToolboxDocked = true;
+                  } else {
+                    viewOption = DartBlockViewOption.blocks;
+                  }
+                });
+                break;
+              case ToolboxExtraAction.help:
+                _showHelpCenter(context);
+                break;
+            }
+          },
+          onCodeViewAction: (action) {
+            switch (action) {
+              case CodeViewAction.copy:
+                _onCopyScript();
+                break;
+              case CodeViewAction.save:
+                _onDownloadScript();
+                break;
+            }
+          },
+          onCreateFunction: (newFunction) {
+            _onCreateFunction(context, container, newFunction);
+          },
+          onRun: widget.canRun
+              ? () async {
+                  if (!_isExecuting) {
+                    setState(() {
+                      _isExecuting = true;
+                    });
+                    if (widget.maximumExecutionDuration != null) {
+                      await executor.execute(
+                        duration: widget.maximumExecutionDuration!,
+                      );
                     } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Your program is already executing..."),
+                      await executor.execute();
+                    }
+                    if (executor.thrownException != null) {
+                      /// In case the execution is interrupted by an exception,
+                      /// additionally log this as a pseudo user interaction to best
+                      /// keep track of the user's context.
+                      _onReceiveDartBlockNotification(
+                        DartBlockInteractionNotification(
+                          DartBlockInteraction.create(
+                            dartBlockInteractionType: DartBlockInteractionType
+                                .executedProgramInterruptedByException,
+                          ),
                         ),
                       );
                     }
+                    _isExecuting = false;
+                    if (context.mounted) {
+                      _showConsole(context);
+                    }
+                    setState(() {});
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Your program is already executing..."),
+                      ),
+                    );
                   }
-                : null,
-          );
-        },
-      ),
+                }
+              : null,
+        );
+      },
     );
   }
 
   void _onCreateFunction(
     BuildContext context,
-    WidgetRef ref,
+    ProviderContainer container,
     DartBlockCustomFunction newFunction,
   ) {
     setState(() {
       program.customFunctions.add(newFunction);
       // notify Riverpod that program has changed
-      ref.read(programProvider.notifier).state = program;
+      container.read(programProvider.notifier).state = program;
     });
     widget.onChanged?.call(program);
 
@@ -829,40 +819,51 @@ class _DartBlockEditorState extends State<DartBlockEditor>
       if (widget.canChange && !widget.isToolboxDockedBottom)
         Row(
           children: [
-            Consumer(
-              builder: (context, ref, child) => TextButton.icon(
-                onPressed: () {
-                  _onReceiveDartBlockNotification(
-                    DartBlockInteractionNotification(
-                      DartBlockInteraction.create(
-                        dartBlockInteractionType: DartBlockInteractionType
-                            .openNewFunctionEditorFromCanvas,
-                      ),
-                    ),
-                  );
-                  final availableFunctions = ref.watch(
-                    availableFunctionsProvider([]),
-                  );
-                  showNewFunctionSheet(
-                    context,
-                    existingFunctionNames: availableFunctions
-                        .map((e) => e.name)
-                        .toList(),
-                    onReceiveDartBlockNotification: (notification) {
-                      _onReceiveDartBlockNotification(notification);
-                    },
-                    onSaved: (newName, newReturnType) {
-                      _onCreateFunction(
+            Builder(
+              builder: (context) {
+                // Get container to avoid scope issues
+                final container = DartBlockContainerProvider.of(context);
+                return Consumer(
+                  builder: (context, ref, child) => TextButton.icon(
+                    onPressed: () {
+                      _onReceiveDartBlockNotification(
+                        DartBlockInteractionNotification(
+                          DartBlockInteraction.create(
+                            dartBlockInteractionType: DartBlockInteractionType
+                                .openNewFunctionEditorFromCanvas,
+                          ),
+                        ),
+                      );
+                      final availableFunctions = ref.watch(
+                        availableFunctionsProvider([]),
+                      );
+                      showNewFunctionSheet(
                         context,
-                        ref,
-                        DartBlockCustomFunction(newName, newReturnType, [], []),
+                        existingFunctionNames: availableFunctions
+                            .map((e) => e.name)
+                            .toList(),
+                        onReceiveDartBlockNotification: (notification) {
+                          _onReceiveDartBlockNotification(notification);
+                        },
+                        onSaved: (newName, newReturnType) {
+                          _onCreateFunction(
+                            context,
+                            container,
+                            DartBlockCustomFunction(
+                              newName,
+                              newReturnType,
+                              [],
+                              [],
+                            ),
+                          );
+                        },
                       );
                     },
-                  );
-                },
-                label: const Text("New Function"),
-                icon: const DartBlockNewFunctionSymbol(),
-              ),
+                    label: const Text("New Function"),
+                    icon: const DartBlockNewFunctionSymbol(),
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -1003,4 +1004,73 @@ void showNewFunctionSheet(
       },
     ),
   );
+}
+
+/// A custom widget that rebuilds when providers in the given container change.
+/// This is needed because UncontrolledProviderScope doesn't make Consumer use its container.
+class _ProviderScopeConsumer extends StatefulWidget {
+  final ProviderContainer container;
+  final Widget Function(BuildContext context, ProviderContainer container)
+  builder;
+
+  const _ProviderScopeConsumer({
+    required this.container,
+    required this.builder,
+  });
+
+  @override
+  State<_ProviderScopeConsumer> createState() => _ProviderScopeConsumerState();
+}
+
+class _ProviderScopeConsumerState extends State<_ProviderScopeConsumer> {
+  final List<ProviderSubscription> _subscriptions = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _setupListeners();
+  }
+
+  @override
+  void didUpdateWidget(_ProviderScopeConsumer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.container != widget.container) {
+      _clearListeners();
+      _setupListeners();
+    }
+  }
+
+  void _setupListeners() {
+    // Listen to the providers we care about
+    _subscriptions.add(
+      widget.container.listen(
+        isDraggingStatementTypeFromToolboxProvider,
+        (previous, next) => setState(() {}),
+      ),
+    );
+    _subscriptions.add(
+      widget.container.listen(
+        availableFunctionsProvider([]),
+        (previous, next) => setState(() {}),
+      ),
+    );
+  }
+
+  void _clearListeners() {
+    for (final subscription in _subscriptions) {
+      subscription.close();
+    }
+    _subscriptions.clear();
+  }
+
+  @override
+  void dispose() {
+    _clearListeners();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.builder(context, widget.container);
+  }
 }
