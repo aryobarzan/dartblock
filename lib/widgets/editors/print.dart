@@ -65,6 +65,8 @@ class _PrintStatementEditorState extends State<PrintStatementEditor> {
         ConcatenationValueComposer(
           value: concatenationValue,
           variableDefinitions: widget.existingVariableDefinitions,
+          valueLabel: "Value to print:",
+          // TODO
           onInteract: () {},
           onChange: (newValue) {
             setState(() {

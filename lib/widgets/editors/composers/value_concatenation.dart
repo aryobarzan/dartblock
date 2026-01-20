@@ -691,6 +691,7 @@ class _ConcatenationValueComposerState
     final child = Container(
       // Necessary, as otherwise it will not take up the full available height in the ReorderableListView (32 based on the ConstrainedBox), when placed inside a Stack.
       height: double.infinity,
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.horizontal(

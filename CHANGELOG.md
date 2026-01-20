@@ -1,3 +1,35 @@
+## 3.0.0
+
+- Revamped "Number Composer" UI
+  - Includes a full refresh of the buttons' sizing, colors and spacing.
+  - A new clear ("C") button has been added.
+- Revamped "Boolean Composer" UI
+  - Re-arranged the buttons, with the inclusion of a new button group ("Logic", "Math", "Text") based on Material 3 Expressive.
+  - Number comparison operators (>=, >, <, <=) are now included under the "Math" tab.
+  - Boolean constants (true, false) are now included under the "Logic" tab.
+- Revamped "String Composer" UI
+  - New button group design based on Material 3 Expressive.
+- All value composers now rely on horizontal scrolling for the display of their values. (previously based on vertical wrapping)
+- Revamped "Variable Picker"
+  - Available variables are now grouped by type.
+- DartBlock's color set can now be customized, though a default set of colors is included.
+  - Custom colors can be provided via the new `colors` parameter of `DartBlockEditor`.
+- DartBlock values' visualization has been revamped, with a lessened emphasis on various colors to reduce visual overload.
+  - Additionally, instead of the usage of padding and elevation, parts of an expression are now delimited using paranthesis.
+- Revamped "Toolbox"
+  - Removed "docking" mechanism.
+  - The toolbox can now be placed either above or below the canvas using the new parameter `isToolboxDockedBottom` for `DartBlockEditor`.
+  - Refreshed look.
+- Various riverpod-related fixes to ensure the integration of `DartBlockEditor` inside an app does not lead to interference with the host app's `ProviderScope`.
+- Revamped function header and body UI
+- Fixed condition operators being erroneously interactible when displayed in the canvas.
+- Functions in the function picker are now sorted alphabetically.
+- Increased spacing between statements and functions.
+- Adjusted the `example/` app to migrate its usage of the deprecated `AssetManifest.json` file.
+- 3rd-party package `code_text_editor` replaced with `flutter_code_editor`.
+- 3rd-party package `reorderables` removed.
+- Updated 3rd-party packages.
+
 ## 2.0.0
 
 Introducing native functions (min, max, startsWith, ...)!
