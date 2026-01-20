@@ -30,13 +30,11 @@ class _RootPageState extends State<RootPage> {
   Future<List<DartBlockSampleProgram>> _loadSamplesFromDisk() async {
     List<DartBlockSampleProgram> programs = [];
     try {
-      final manifestJson = await DefaultAssetBundle.of(
-        context,
-      ).loadString('AssetManifest.json');
-      final filePaths = json
-          .decode(manifestJson)
-          .keys
-          .where((String key) => key.startsWith('assets/dartblockSamples'));
+      final assetManifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+      final assets = assetManifest.listAssets();
+      final filePaths = assets.where(
+        (String key) => key.startsWith('assets/dartblockSamples'),
+      );
       for (final filePath in filePaths) {
         final program = DartBlockSampleProgram.fromJson(
           jsonDecode(await rootBundle.loadString(filePath)),
