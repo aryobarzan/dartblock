@@ -20,6 +20,7 @@ class NumberValueComposer extends ConsumerStatefulWidget {
   final bool showUndoRedoButton;
   final bool showBackspaceButton;
   final bool showValue;
+  final String? valueLabel;
   NumberValueComposer({
     super.key,
     this.value,
@@ -29,6 +30,7 @@ class NumberValueComposer extends ConsumerStatefulWidget {
     this.showUndoRedoButton = true,
     this.showBackspaceButton = true,
     this.showValue = true,
+    this.valueLabel,
   }) : variableDefinitions = variableDefinitions
            .where(
              (element) =>
@@ -96,66 +98,94 @@ class _NumberValueComposerState extends ConsumerState<NumberValueComposer> {
                         selectedNodeKey = null;
                       });
                     }
-                  : () {},
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(minHeight: 42, maxHeight: 60),
-                child: Center(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: (value != null)
-                        ? Padding(
-                            padding: const EdgeInsetsGeometry.symmetric(
-                              vertical: 12,
-                              horizontal: 12,
-                            ),
-                            child: ValueCompositionNumberNodeWidget(
-                              node: value!,
-                              selectedNodeKey: selectedNodeKey,
-                              includeBorder: false,
-                              onTap: (tappedNode) {
-                                setState(() {
-                                  if (selectedNodeKey == tappedNode.nodeKey) {
-                                    DartBlockInteraction.create(
-                                      dartBlockInteractionType:
-                                          DartBlockInteractionType
-                                              .deselectNumberComposerValueNode,
-                                    ).dispatch(context);
-                                    selectedNodeKey = null;
-                                  } else {
-                                    DartBlockInteraction.create(
-                                      dartBlockInteractionType:
-                                          DartBlockInteractionType
-                                              .selectNumberComposerValueNode,
-                                    ).dispatch(context);
-                                    selectedNodeKey = tappedNode.nodeKey;
-                                  }
-                                });
-                              },
-                              onChangeOperator:
-                                  (arithmeticOperatorNode, newOperator) {
-                                    if (arithmeticOperatorNode.operator !=
-                                        newOperator) {
-                                      undoHistory.add(value?.copy());
-                                      setState(() {
-                                        DartBlockInteraction.create(
-                                          dartBlockInteractionType:
-                                              DartBlockInteractionType
-                                                  .changeNumberComposerOperatorThroughNode,
-                                        ).dispatch(context);
-                                        arithmeticOperatorNode.operator =
-                                            newOperator;
-                                        _updateValue(value);
-                                      });
-                                    }
-                                  },
-                            ),
-                          )
-                        : Text(
-                            'null',
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.apply(fontStyle: FontStyle.italic),
-                          ),
+                  : null,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outline,
+                    width: 1,
                   ),
+                ),
+                child: Stack(
+                  children: [
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minHeight: 42,
+                        maxHeight: 60,
+                      ),
+                      child: Center(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: (value != null)
+                              ? Padding(
+                                  padding: EdgeInsetsGeometry.only(
+                                    bottom: 12,
+                                    top: widget.valueLabel != null ? 20 : 12,
+                                    left: 12,
+                                    right: 12,
+                                  ),
+                                  child: ValueCompositionNumberNodeWidget(
+                                    node: value!,
+                                    selectedNodeKey: selectedNodeKey,
+                                    includeBorder: false,
+                                    onTap: (tappedNode) {
+                                      setState(() {
+                                        if (selectedNodeKey ==
+                                            tappedNode.nodeKey) {
+                                          DartBlockInteraction.create(
+                                            dartBlockInteractionType:
+                                                DartBlockInteractionType
+                                                    .deselectNumberComposerValueNode,
+                                          ).dispatch(context);
+                                          selectedNodeKey = null;
+                                        } else {
+                                          DartBlockInteraction.create(
+                                            dartBlockInteractionType:
+                                                DartBlockInteractionType
+                                                    .selectNumberComposerValueNode,
+                                          ).dispatch(context);
+                                          selectedNodeKey = tappedNode.nodeKey;
+                                        }
+                                      });
+                                    },
+                                    onChangeOperator:
+                                        (arithmeticOperatorNode, newOperator) {
+                                          if (arithmeticOperatorNode.operator !=
+                                              newOperator) {
+                                            undoHistory.add(value?.copy());
+                                            setState(() {
+                                              DartBlockInteraction.create(
+                                                dartBlockInteractionType:
+                                                    DartBlockInteractionType
+                                                        .changeNumberComposerOperatorThroughNode,
+                                              ).dispatch(context);
+                                              arithmeticOperatorNode.operator =
+                                                  newOperator;
+                                              _updateValue(value);
+                                            });
+                                          }
+                                        },
+                                  ),
+                                )
+                              : Text(
+                                  'null',
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.apply(fontStyle: FontStyle.italic),
+                                ),
+                        ),
+                      ),
+                    ),
+                    if (widget.valueLabel != null)
+                      Positioned(
+                        top: 2,
+                        left: 4,
+                        child: Text(
+                          widget.valueLabel!,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),

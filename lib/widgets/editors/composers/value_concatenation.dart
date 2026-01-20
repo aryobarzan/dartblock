@@ -21,12 +21,14 @@ class ConcatenationValueComposer extends ConsumerStatefulWidget {
   final List<DartBlockVariableDefinition> variableDefinitions;
   final Function(DartBlockConcatenationValue?) onChange;
   final Function() onInteract;
+  final String? valueLabel;
   const ConcatenationValueComposer({
     super.key,
     this.value,
     required this.variableDefinitions,
     required this.onChange,
     required this.onInteract,
+    this.valueLabel,
   });
 
   @override
@@ -87,6 +89,8 @@ class _ConcatenationValueComposerState
 
   @override
   Widget build(BuildContext context) {
+    final fullRadius = 24.0;
+    final halfRadius = 12.0;
     return ConstrainedBox(
       constraints: BoxConstraints(
         minHeight: MediaQuery.of(context).viewInsets.bottom == 0 ? 480 : 0,
@@ -96,123 +100,123 @@ class _ConcatenationValueComposerState
         children: [
           _buildItems(),
           const SizedBox(height: 16),
-          SizedBox(
-            height: 40,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              spacing: 12,
-              children: [
-                if (_selectedIndex != null)
-                  ComposerCommonButton(
-                    onTap: () {
-                      DartBlockInteraction.create(
-                        dartBlockInteractionType: DartBlockInteractionType
-                            .deselectConcatenationValueComposerValueNode,
-                        content: 'TappedButton',
-                      ).dispatch(context);
-                      widget.onInteract();
-                      setState(() {
-                        _selectedIndex = null;
-                        _concatenationValueType = null;
-                      });
-                    },
-                    tooltipMessage: "Deselect",
-                    child: Icon(Icons.deselect),
-                  )
-                else
-                  SizedBox(),
+          GridView.count(
+            shrinkWrap: true,
+            primary: false,
+            padding: EdgeInsets.zero,
+            crossAxisSpacing: 4,
+            mainAxisSpacing: 4,
+            crossAxisCount: 4,
+            childAspectRatio: 4 / 2.25,
+            children: [
+              if (_concatenationValueType != null)
                 ComposerCommonButton(
-                  onTap: undoHistory.isNotEmpty
-                      ? () {
-                          DartBlockInteraction.create(
-                            dartBlockInteractionType: DartBlockInteractionType
-                                .tapConcatenationValueComposerUndo,
-                          ).dispatch(context);
-                          widget.onInteract();
-                          HapticFeedback.lightImpact();
-                          _undo();
-                        }
-                      : null,
-                  tooltipMessage: "Undo",
-                  child: Icon(Icons.undo),
-                ),
-
-                ComposerCommonButton(
-                  onTap: redoHistory.isNotEmpty
-                      ? () {
-                          DartBlockInteraction.create(
-                            dartBlockInteractionType: DartBlockInteractionType
-                                .tapConcatenationValueComposerRedo,
-                          ).dispatch(context);
-                          widget.onInteract();
-                          HapticFeedback.lightImpact();
-                          _redo();
-                        }
-                      : null,
-                  tooltipMessage: "Redo",
-                  child: Icon(Icons.redo),
-                ),
-                ComposerCommonButton(
-                  onTap: value.values.isNotEmpty
-                      ? () {
-                          DartBlockInteraction.create(
-                            dartBlockInteractionType: DartBlockInteractionType
-                                .tapConcatenationValueComposerBackspace,
-                          ).dispatch(context);
-                          widget.onInteract();
-                          HapticFeedback.lightImpact();
-                          setState(() {
-                            undoHistory.add(value.copy());
-                            if (_selectedIndex != null &&
-                                _isEditingLastDeletedIndex &&
-                                _selectedIndex! >= 1 &&
-                                _selectedIndex! <= value.values.length &&
-                                value.values.isNotEmpty) {
-                              value.values.removeAt(_selectedIndex! - 1);
-                              _selectedIndex = max(0, _selectedIndex! - 1);
-                            } else if (_selectedIndex != null &&
-                                getSelectedValue() != null) {
-                              value.values.removeAt(_selectedIndex!);
-                              if (value.values.isNotEmpty &&
-                                  _selectedIndex! <= value.values.length) {
-                                _isEditingLastDeletedIndex = true;
-                                if (_selectedIndex! == value.values.length) {
-                                  _selectedIndex = _selectedIndex! + 1;
-                                }
-                              } else {
-                                _selectedIndex = max(0, _selectedIndex! - 1);
+                  onTap: () {
+                    DartBlockInteraction.create(
+                      dartBlockInteractionType: DartBlockInteractionType
+                          .deselectConcatenationValueComposerValueNode,
+                      content: 'TappedButton',
+                    ).dispatch(context);
+                    widget.onInteract();
+                    setState(() {
+                      _selectedIndex = null;
+                      _concatenationValueType = null;
+                      _isAddingNewValue = false;
+                    });
+                  },
+                  tooltipMessage: "Deselect",
+                  child: Icon(Icons.deselect),
+                )
+              else
+                SizedBox(),
+              ComposerCommonButton(
+                onTap: undoHistory.isNotEmpty
+                    ? () {
+                        DartBlockInteraction.create(
+                          dartBlockInteractionType: DartBlockInteractionType
+                              .tapConcatenationValueComposerUndo,
+                        ).dispatch(context);
+                        widget.onInteract();
+                        HapticFeedback.lightImpact();
+                        _undo();
+                      }
+                    : null,
+                tooltipMessage: "Undo",
+                child: Icon(Icons.undo),
+              ),
+              ComposerCommonButton(
+                onTap: redoHistory.isNotEmpty
+                    ? () {
+                        DartBlockInteraction.create(
+                          dartBlockInteractionType: DartBlockInteractionType
+                              .tapConcatenationValueComposerRedo,
+                        ).dispatch(context);
+                        widget.onInteract();
+                        HapticFeedback.lightImpact();
+                        _redo();
+                      }
+                    : null,
+                tooltipMessage: "Redo",
+                child: Icon(Icons.redo),
+              ),
+              ComposerCommonButton(
+                onTap: value.values.isNotEmpty
+                    ? () {
+                        DartBlockInteraction.create(
+                          dartBlockInteractionType: DartBlockInteractionType
+                              .tapConcatenationValueComposerBackspace,
+                        ).dispatch(context);
+                        widget.onInteract();
+                        HapticFeedback.lightImpact();
+                        setState(() {
+                          undoHistory.add(value.copy());
+                          if (_selectedIndex != null &&
+                              _isEditingLastDeletedIndex &&
+                              _selectedIndex! >= 1 &&
+                              _selectedIndex! <= value.values.length &&
+                              value.values.isNotEmpty) {
+                            value.values.removeAt(_selectedIndex! - 1);
+                            _selectedIndex = max(0, _selectedIndex! - 1);
+                          } else if (_selectedIndex != null &&
+                              getSelectedValue() != null) {
+                            value.values.removeAt(_selectedIndex!);
+                            if (value.values.isNotEmpty &&
+                                _selectedIndex! <= value.values.length) {
+                              _isEditingLastDeletedIndex = true;
+                              if (_selectedIndex! == value.values.length) {
+                                _selectedIndex = _selectedIndex! + 1;
                               }
                             } else {
-                              value.values.removeLast();
+                              _selectedIndex = max(0, _selectedIndex! - 1);
                             }
+                          } else {
+                            value.values.removeLast();
+                          }
 
-                            if (_selectedIndex != null) {
-                              if (_selectedIndex! >= value.values.length) {
-                                _selectedIndex = _selectedIndex! - 1;
-                              }
-                              if (value.values.isEmpty) {
-                                _selectedIndex = null;
-                                _isEditingLastDeletedIndex = false;
-                              }
-                              _updateActiveConcatenationValueType();
+                          if (_selectedIndex != null) {
+                            if (_selectedIndex! >= value.values.length) {
+                              _selectedIndex = _selectedIndex! - 1;
                             }
-                          });
-                          _updateValue();
-                        }
-                      : null,
-                  tooltipMessage: "Delete",
-                  child: Icon(Icons.backspace_outlined),
-                ),
-              ].map((child) => Expanded(child: child)).toList(),
-            ),
+                            if (value.values.isEmpty) {
+                              _selectedIndex = null;
+                              _isEditingLastDeletedIndex = false;
+                            }
+                            _updateActiveConcatenationValueType();
+                          }
+                        });
+                        _updateValue();
+                      }
+                    : null,
+                tooltipMessage: "Delete",
+                child: Icon(Icons.backspace_outlined),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Wrap(
-              spacing: 1,
+              spacing: 2,
               children: _ConcatenationValueType.values
                   .mapIndexed(
                     (idx, elem) => Tooltip(
@@ -222,8 +226,25 @@ class _ConcatenationValueComposerState
                         isSelected: _concatenationValueType == elem,
                         isEnabled: true,
                         borderRadius: _concatenationValueType == elem
-                            ? BorderRadius.circular(24)
-                            : BorderRadius.all(Radius.zero),
+                            ? BorderRadius.circular(fullRadius)
+                            : idx == 0
+                            ? BorderRadius.only(
+                                topLeft: Radius.circular(fullRadius),
+                                bottomLeft: Radius.circular(fullRadius),
+                                topRight: Radius.circular(halfRadius),
+                                bottomRight: Radius.circular(halfRadius),
+                              )
+                            : idx ==
+                                      _ConcatenationValueType.values.length -
+                                          1 &&
+                                  _ConcatenationValueType.values.length > 1
+                            ? BorderRadius.only(
+                                topRight: Radius.circular(fullRadius),
+                                bottomRight: Radius.circular(fullRadius),
+                                topLeft: Radius.circular(halfRadius),
+                                bottomLeft: Radius.circular(halfRadius),
+                              )
+                            : BorderRadius.circular(halfRadius),
                         onTap: () {
                           widget.onInteract();
                           HapticFeedback.lightImpact();
@@ -349,6 +370,7 @@ class _ConcatenationValueComposerState
   }
 
   Widget _buildItems() {
+    Widget child;
     if (value.values.isNotEmpty) {
       List<Widget> children = [];
       for (int index = 0; index < value.values.length; index++) {
@@ -360,7 +382,6 @@ class _ConcatenationValueComposerState
               key: ValueKey("cursor_$index"),
               child: IgnorePointer(
                 child: GestureDetector(
-                  onLongPress: () {},
                   child: AnimatedBuilder(
                     animation: _colorTween,
                     builder: (context, child) => Container(
@@ -396,86 +417,126 @@ class _ConcatenationValueComposerState
         }
         children.add(_buildItem(index, value.values[index]));
       }
-      return ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 32, maxHeight: 32),
-        child: ReorderableListView(
-          buildDefaultDragHandles: false,
-          scrollDirection: Axis.horizontal,
-          children: children,
-          onReorder: (oldIndex, newIndex) {
-            // If the user is trying to reorder the 'cursor' tile, ignore.
-            if (_selectedIndex != null &&
-                _isEditingLastDeletedIndex &&
-                oldIndex == _selectedIndex) {
-              // Do nothing
-            } else {
-              DartBlockInteraction.create(
-                dartBlockInteractionType: DartBlockInteractionType
-                    .reorderConcatenationValueComposerValueNode,
-              ).dispatch(context);
-              setState(() {
-                if (oldIndex < newIndex) {
-                  newIndex -= 1;
-                }
 
-                // If the 'cursor' tile is visible, adjust the indices accordingly.
-                if (_selectedIndex != null && _isEditingLastDeletedIndex) {
-                  final adjustedOldIndex = oldIndex > _selectedIndex!
-                      ? oldIndex - 1
-                      : oldIndex;
-                  final adjustedNewIndex = newIndex > _selectedIndex!
-                      ? newIndex - 1
-                      : newIndex;
+      child = ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 42, maxHeight: 60),
+        child: Padding(
+          padding: EdgeInsetsGeometry.only(
+            bottom: 12,
+            top: widget.valueLabel != null ? 20 : 12,
+            left: 12,
+            right: 12,
+          ),
+          child: ReorderableListView(
+            buildDefaultDragHandles: false,
+            scrollDirection: Axis.horizontal,
+            children: children,
+            onReorder: (oldIndex, newIndex) {
+              // If the user is trying to reorder the 'cursor' tile, ignore.
+              if (_selectedIndex != null &&
+                  _isEditingLastDeletedIndex &&
+                  oldIndex == _selectedIndex) {
+                // Do nothing
+              } else {
+                DartBlockInteraction.create(
+                  dartBlockInteractionType: DartBlockInteractionType
+                      .reorderConcatenationValueComposerValueNode,
+                ).dispatch(context);
+                setState(() {
+                  if (oldIndex < newIndex) {
+                    newIndex -= 1;
+                  }
 
-                  final item = value.values.removeAt(adjustedOldIndex);
-                  value.values.insert(adjustedNewIndex, item);
-                }
-                // 'Cursor' tile is not visible, no index adjustment required.
-                else {
-                  final item = value.values.removeAt(oldIndex);
-                  value.values.insert(newIndex, item);
+                  // If the 'cursor' tile is visible, adjust the indices accordingly.
+                  if (_selectedIndex != null && _isEditingLastDeletedIndex) {
+                    final adjustedOldIndex = oldIndex > _selectedIndex!
+                        ? oldIndex - 1
+                        : oldIndex;
+                    final adjustedNewIndex = newIndex > _selectedIndex!
+                        ? newIndex - 1
+                        : newIndex;
 
-                  // If the user has reordered the element that was previously selected,
-                  // or reordered other elements around it, adjust the selected index.
-                  if (_selectedIndex != null) {
-                    if (_selectedIndex == oldIndex) {
-                      _selectedIndex = newIndex;
-                    } else if (oldIndex < _selectedIndex! &&
-                        newIndex >= _selectedIndex!) {
-                      _selectedIndex = _selectedIndex! - 1;
-                    } else if (oldIndex > _selectedIndex! &&
-                        newIndex <= _selectedIndex!) {
-                      _selectedIndex = _selectedIndex! + 1;
+                    final item = value.values.removeAt(adjustedOldIndex);
+                    value.values.insert(adjustedNewIndex, item);
+                  }
+                  // 'Cursor' tile is not visible, no index adjustment required.
+                  else {
+                    final item = value.values.removeAt(oldIndex);
+                    value.values.insert(newIndex, item);
+
+                    // If the user has reordered the element that was previously selected,
+                    // or reordered other elements around it, adjust the selected index.
+                    if (_selectedIndex != null) {
+                      if (_selectedIndex == oldIndex) {
+                        _selectedIndex = newIndex;
+                      } else if (oldIndex < _selectedIndex! &&
+                          newIndex >= _selectedIndex!) {
+                        _selectedIndex = _selectedIndex! - 1;
+                      } else if (oldIndex > _selectedIndex! &&
+                          newIndex <= _selectedIndex!) {
+                        _selectedIndex = _selectedIndex! + 1;
+                      }
                     }
                   }
-                }
 
-                // Hide the 'cursor' tile.
-                _isEditingLastDeletedIndex = false;
-                // If the selected index is no longer valid, void it.
-                if (_selectedIndex != null &&
-                    _selectedIndex! >= value.values.length) {
-                  _selectedIndex = null;
-                }
-              });
-            }
-          },
+                  // Hide the 'cursor' tile.
+                  _isEditingLastDeletedIndex = false;
+                  // If the selected index is no longer valid, void it.
+                  if (_selectedIndex != null &&
+                      _selectedIndex! >= value.values.length) {
+                    _selectedIndex = null;
+                  }
+                });
+              }
+            },
+          ),
         ),
       );
     } else {
       // ConstrainedBox ensures the UI does not shift downwards/upwards when the user adds a value.
-      return ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 32),
-        child: Center(
-          child: Text(
-            "null",
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.apply(fontStyle: FontStyle.italic),
+      child = ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 42, maxHeight: 60),
+        child: Padding(
+          padding: EdgeInsetsGeometry.only(
+            bottom: 12,
+            top: widget.valueLabel != null ? 20 : 12,
+            left: 12,
+            right: 12,
+          ),
+          child: Center(
+            child: Text(
+              "null",
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.apply(fontStyle: FontStyle.italic),
+            ),
           ),
         ),
       );
     }
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline,
+          width: 1,
+        ),
+      ),
+      child: Stack(
+        children: [
+          child,
+          if (widget.valueLabel != null)
+            Positioned(
+              top: 2,
+              left: 4,
+              child: Text(
+                widget.valueLabel!,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+        ],
+      ),
+    );
   }
 
   void _updateActiveConcatenationValueType() {
@@ -579,33 +640,40 @@ class _ConcatenationValueComposerState
         child = const SizedBox();
         break;
     }
-    return ReorderableDragStartListener(
+    // We use the delayed variant to avoid interfering with the horizontal scrolling nature
+    // of the parent ReorderableListView.
+    return ReorderableDelayedDragStartListener(
       index: index,
       key: ValueKey("item_$index"),
-      child: InkWell(
-        onTap: () {
-          setState(() {
-            widget.onInteract();
-            if (getSelectedValue() == item) {
-              DartBlockInteraction.create(
-                dartBlockInteractionType: DartBlockInteractionType
-                    .deselectConcatenationValueComposerValueNode,
-              ).dispatch(context);
-              _selectedIndex = null;
-              _concatenationValueType = null;
-            } else {
-              DartBlockInteraction.create(
-                dartBlockInteractionType: DartBlockInteractionType
-                    .selectConcatenationValueComposerValueNode,
-              ).dispatch(context);
-              _selectedIndex = index;
-              _concatenationValueType = concatenationValueType;
-            }
-            _isEditingLastDeletedIndex = false;
-            _isAddingNewValue = false; // Reset when switching selection
-          });
-        },
-        child: child,
+      child: Padding(
+        padding: EdgeInsetsGeometry.only(
+          right: index == value.values.length - 1 ? 0 : 2,
+        ),
+        child: InkWell(
+          onTap: () {
+            setState(() {
+              widget.onInteract();
+              if (getSelectedValue() == item) {
+                DartBlockInteraction.create(
+                  dartBlockInteractionType: DartBlockInteractionType
+                      .deselectConcatenationValueComposerValueNode,
+                ).dispatch(context);
+                _selectedIndex = null;
+                _concatenationValueType = null;
+              } else {
+                DartBlockInteraction.create(
+                  dartBlockInteractionType: DartBlockInteractionType
+                      .selectConcatenationValueComposerValueNode,
+                ).dispatch(context);
+                _selectedIndex = index;
+                _concatenationValueType = concatenationValueType;
+              }
+              _isEditingLastDeletedIndex = false;
+              _isAddingNewValue = false; // Reset when switching selection
+            });
+          },
+          child: child,
+        ),
       ),
     );
   }
@@ -641,7 +709,8 @@ class _ConcatenationValueComposerState
       ),
     );
 
-    if (itemIndex == _selectedIndex && !_isEditingLastDeletedIndex) {
+    if ((itemIndex == _selectedIndex && !_isEditingLastDeletedIndex) ||
+        (_isAddingNewValue && itemIndex == value.values.length - 1)) {
       // Arrow indicator for the selected item
       // Badge is not used, as it interferes with the height of the item.
       return Stack(
@@ -933,7 +1002,7 @@ class _ConcatenationValueTypeButton extends ConsumerWidget {
                 borderRadius: borderRadius ?? BorderRadius.circular(24),
               ),
               width: 80,
-              height: 40,
+              height: 48,
               child: _buildTypeLabel(
                 context,
                 _getTypeOnColorContainer(context, ref),
@@ -949,7 +1018,7 @@ class _ConcatenationValueTypeButton extends ConsumerWidget {
           ),
           Text(
             concatenationValueType.toString(),
-            style: Theme.of(context).textTheme.bodySmall?.apply(
+            style: Theme.of(context).textTheme.bodyMedium?.apply(
               color: _getTypeColor(ref, concatenationValueType),
             ),
           ),

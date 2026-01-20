@@ -141,14 +141,12 @@ class _VariableDeclarationEditorState extends State<VariableDeclarationEditor> {
             ],
           ),
           const SizedBox(height: 8),
-          // const Divider(),
-          const Text("Initial value (optional):"),
-          const SizedBox(height: 4),
           if (dataType == DartBlockDataType.integerType ||
               dataType == DartBlockDataType.doubleType)
             NumberValueComposer(
               value: _getIntegerDoubleValue()?.compositionNode,
               variableDefinitions: widget.existingVariableDefinitions,
+              valueLabel: "Initial value (optional):",
               onChange: (newValue) {
                 valuesByType[DartBlockDataType.integerType] = newValue != null
                     ? DartBlockAlgebraicExpression.init(newValue)
@@ -162,6 +160,7 @@ class _VariableDeclarationEditorState extends State<VariableDeclarationEditor> {
             BooleanValueComposer(
               value: _getBooleanValue()?.compositionNode,
               variableDefinitions: widget.existingVariableDefinitions,
+              valueLabel: "Initial value (optional):",
               onChange: (newValue) {
                 valuesByType[DartBlockDataType.booleanType] = newValue != null
                     ? DartBlockBooleanExpression.init(newValue)
@@ -172,6 +171,7 @@ class _VariableDeclarationEditorState extends State<VariableDeclarationEditor> {
             ConcatenationValueComposer(
               value: _getStringValue(),
               variableDefinitions: widget.existingVariableDefinitions,
+              valueLabel: "Initial value (optional):",
               onInteract: () {
                 variableNameTECFocusNode.unfocus();
               },
