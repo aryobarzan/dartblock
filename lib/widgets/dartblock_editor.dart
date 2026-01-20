@@ -482,20 +482,16 @@ class _DartBlockEditorState extends State<DartBlockEditor>
     required BorderRadius borderRadius,
     required ProviderContainer container,
   }) {
-    // Read directly from the passed container to avoid any scope issues
-    final isDraggingStatement = container.read(
-      isDraggingStatementTypeFromToolboxProvider,
-    );
-    final availableFunctions = container.read(availableFunctionsProvider([]));
-
     // Use UncontrolledProviderScope with the container and Consumer for reactivity
     return UncontrolledProviderScope(
       container: container,
       child: Consumer(
         builder: (context, ref, child) {
-          // Watch for changes to trigger rebuilds
-          ref.watch(isDraggingStatementTypeFromToolboxProvider);
-          ref.watch(availableFunctionsProvider([]));
+          // Read values from ref within the correct scope
+          final isDraggingStatement = ref.watch(
+            isDraggingStatementTypeFromToolboxProvider,
+          );
+          final availableFunctions = ref.watch(availableFunctionsProvider([]));
 
           return DartBlockToolbox(
             borderRadius: borderRadius,
