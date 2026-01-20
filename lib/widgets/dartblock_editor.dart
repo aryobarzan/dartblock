@@ -469,16 +469,25 @@ class _DartBlockEditorState extends State<DartBlockEditor>
       builder: (context) {
         // Get the container explicitly to ensure we use DartBlockEditor's ProviderScope
         final container = DartBlockContainerProvider.of(context);
+
+        // Read values directly from the container instead of using Consumer
+        // This ensures we're using the correct ProviderScope with overrides
+        final isDraggingStatement = container.read(
+          isDraggingStatementTypeFromToolboxProvider,
+        );
+        final availableFunctions = container.read(
+          availableFunctionsProvider([]),
+        );
+
+        // Listen to changes and rebuild when needed
         return UncontrolledProviderScope(
           container: container,
           child: Consumer(
             builder: (context, ref, child) {
-              final isDraggingStatement = ref.watch(
-                isDraggingStatementTypeFromToolboxProvider,
-              );
-              final availableFunctions = ref.watch(
-                availableFunctionsProvider([]),
-              );
+              // Watch providers within the correct scope
+              ref.watch(isDraggingStatementTypeFromToolboxProvider);
+              ref.watch(availableFunctionsProvider([]));
+
               return DartBlockToolbox(
                 borderRadius: borderRadius,
                 isTransparent: _isDraggingToolbox,
