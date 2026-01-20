@@ -170,14 +170,17 @@ class _NumberValueComposerState extends ConsumerState<NumberValueComposer> {
           crossAxisCount: 4,
           childAspectRatio: 4 / 2.25,
           children: [
-            widget.showFunctionVariableButton
-                ? _buildFunctionComposerButton()
-                : const SizedBox(),
-            widget.showFunctionVariableButton
-                ? _buildVariablePickerButton()
-                : const SizedBox(),
-            widget.showUndoRedoButton ? _buildUndoButton() : const SizedBox(),
-            widget.showUndoRedoButton ? _buildRedoButton() : const SizedBox(),
+            if (widget.showFunctionVariableButton ||
+                widget.showUndoRedoButton) ...[
+              widget.showFunctionVariableButton
+                  ? _buildFunctionComposerButton()
+                  : const SizedBox(),
+              widget.showFunctionVariableButton
+                  ? _buildVariablePickerButton()
+                  : const SizedBox(),
+              widget.showUndoRedoButton ? _buildUndoButton() : const SizedBox(),
+              widget.showUndoRedoButton ? _buildRedoButton() : const SizedBox(),
+            ],
             const SizedBox(),
             _buildClearButton(),
             widget.showBackspaceButton

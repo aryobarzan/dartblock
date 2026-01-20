@@ -1,4 +1,3 @@
-import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:dartblock_code/widgets/editors/composers/components/button_group.dart';
 import 'package:dartblock_code/widgets/editors/composers/components/composer_common_button.dart';
 import 'package:dartblock_code/widgets/editors/composers/components/function_composer_button.dart';
@@ -10,7 +9,6 @@ import 'package:dartblock_code/models/dartblock_interaction.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/widgets/editors/composers/number_value.dart';
 import 'package:dartblock_code/widgets/editors/composers/string_value.dart';
-import 'package:dartblock_code/widgets/editors/misc.dart';
 import 'package:dartblock_code/widgets/dartblock_value_widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -202,10 +200,10 @@ class _BooleanValueComposerState extends ConsumerState<BooleanValueComposer> {
               shrinkWrap: true,
               primary: false,
               padding: EdgeInsets.zero,
-              crossAxisSpacing: 2,
-              mainAxisSpacing: 2,
+              crossAxisSpacing: 4,
+              mainAxisSpacing: 4,
               crossAxisCount: 5,
-              childAspectRatio: 2 / 1.25,
+              childAspectRatio: 2 / 1.4,
               children: [
                 _buildFunctionComposerButton(),
                 _buildVariablePickerButton(),
@@ -214,15 +212,15 @@ class _BooleanValueComposerState extends ConsumerState<BooleanValueComposer> {
                 _buildBackspaceButton(),
               ],
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 4),
             GridView.count(
               shrinkWrap: true,
               primary: false,
               padding: EdgeInsets.zero,
-              crossAxisSpacing: 2,
-              mainAxisSpacing: 2,
+              crossAxisSpacing: 4,
+              mainAxisSpacing: 4,
               crossAxisCount: 4,
-              childAspectRatio: 2 / 1,
+              childAspectRatio: 4 / 2.25,
               children: [
                 _buildLogicalOperatorButton(DartBlockBooleanOperator.and),
                 _buildLogicalOperatorButton(DartBlockBooleanOperator.or),
@@ -310,32 +308,60 @@ class _BooleanValueComposerState extends ConsumerState<BooleanValueComposer> {
   }
 
   Widget _buildActiveComposer() {
-    final settings = ref.watch(settingsProvider);
     return switch (_booleanComposerActiveComposerType) {
       null => const SizedBox(height: 16),
       _BooleanComposerActiveComposerType.logic => GridView.count(
         shrinkWrap: true,
         primary: false,
         padding: EdgeInsets.zero,
-        crossAxisSpacing: 2,
-        mainAxisSpacing: 2,
+        crossAxisSpacing: 4,
+        mainAxisSpacing: 4,
         crossAxisCount: 2,
         childAspectRatio: 4 / 1,
         children: [_buildConstantButton(true), _buildConstantButton(false)],
       ),
-      _BooleanComposerActiveComposerType.math => NumberValueComposer(
-        key: ValueKey(
-          "NumberValueComposer-${_getCurrentAlgebraicNode().hashCode}",
-        ),
-        value: _getCurrentAlgebraicNode(),
-        variableDefinitions: widget.variableDefinitions,
-        showValue: false,
-        showBackspaceButton: false,
-        showFunctionVariableButton: false,
-        showUndoRedoButton: false,
-        onChange: (neoValueAlgebraicNode) {
-          _onReceiveNeoValueAlgebraicNode(neoValueAlgebraicNode);
-        },
+      _BooleanComposerActiveComposerType.math => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GridView.count(
+            shrinkWrap: true,
+            primary: false,
+            padding: EdgeInsets.zero,
+            crossAxisSpacing: 4,
+            mainAxisSpacing: 4,
+            crossAxisCount: 4,
+            childAspectRatio: 4 / 2.25,
+            children: [
+              _buildNumberComparisonOperatorButton(
+                DartBlockNumberComparisonOperator.greater,
+              ),
+              _buildNumberComparisonOperatorButton(
+                DartBlockNumberComparisonOperator.greaterOrEqual,
+              ),
+              _buildNumberComparisonOperatorButton(
+                DartBlockNumberComparisonOperator.lessOrEqual,
+              ),
+              _buildNumberComparisonOperatorButton(
+                DartBlockNumberComparisonOperator.less,
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          NumberValueComposer(
+            key: ValueKey(
+              "NumberValueComposer-${_getCurrentAlgebraicNode().hashCode}",
+            ),
+            value: _getCurrentAlgebraicNode(),
+            variableDefinitions: widget.variableDefinitions,
+            showValue: false,
+            showBackspaceButton: false,
+            showFunctionVariableButton: false,
+            showUndoRedoButton: false,
+            onChange: (neoValueAlgebraicNode) {
+              _onReceiveNeoValueAlgebraicNode(neoValueAlgebraicNode);
+            },
+          ),
+        ],
       ),
       _BooleanComposerActiveComposerType.text => StringValueComposer(
         value: _getCurrentStringValue(),
@@ -350,77 +376,6 @@ class _BooleanValueComposerState extends ConsumerState<BooleanValueComposer> {
     return selectedNodeKey != null
         ? value?.findNodeByKey(selectedNodeKey!)
         : null;
-  }
-
-  Widget _buildNumberComparisonOperatorSplitButton(
-    DartBlockNumberComparisonOperator leftOperator,
-    DartBlockNumberComparisonOperator rightOperator,
-  ) {
-    final settings = ref.watch(settingsProvider);
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: Tooltip(
-            message: leftOperator.describeVerbal(),
-            child: FilledButton(
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                _onTapNumberComparisonOperator(leftOperator);
-              },
-              style: FilledButton.styleFrom(
-                backgroundColor: settings.colorFamily.number.color,
-                padding: const EdgeInsets.only(left: 2),
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(24),
-                    bottomLeft: Radius.circular(24),
-                  ),
-                ),
-              ),
-              child: Text(
-                leftOperator.toScript(),
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.apply(color: Colors.white),
-              ),
-            ),
-          ),
-        ),
-        VerticalDivider(
-          width: 1,
-          thickness: 1,
-          color: Theme.of(context).colorScheme.outline,
-        ),
-        Expanded(
-          child: Tooltip(
-            message: rightOperator.describeVerbal(),
-            child: FilledButton(
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                _onTapNumberComparisonOperator(rightOperator);
-              },
-              style: FilledButton.styleFrom(
-                backgroundColor: settings.colorFamily.number.color,
-                padding: const EdgeInsets.only(right: 2),
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(24),
-                    bottomRight: Radius.circular(24),
-                  ),
-                ),
-              ),
-              child: Text(
-                rightOperator.toScript(),
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.apply(color: Colors.white),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
   }
 
   void _onTapNumberComparisonOperator(
@@ -709,6 +664,32 @@ class _BooleanValueComposerState extends ConsumerState<BooleanValueComposer> {
     );
   }
 
+  Widget _buildNumberComparisonOperatorButton(
+    DartBlockNumberComparisonOperator operator,
+  ) {
+    return ComposerCommonButton(
+      tooltipMessage: operator.describeVerbal(),
+      backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+      foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
+      onTap: () {
+        DartBlockInteraction.create(
+          dartBlockInteractionType: DartBlockInteractionType
+              .tapBooleanComposerNumberComparisonOperator,
+          content: 'Operator-${operator.name}',
+        ).dispatch(context);
+        HapticFeedback.lightImpact();
+        _onTapNumberComparisonOperator(operator);
+      },
+      child: Text(
+        operator.toScript(),
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.onTertiaryContainer,
+        ),
+      ),
+    );
+  }
+
   Widget _buildEqualityOperatorButton(DartBlockEqualityOperator operator) {
     return ComposerCommonButton(
       tooltipMessage: operator.describeVerbal(),
@@ -730,86 +711,6 @@ class _BooleanValueComposerState extends ConsumerState<BooleanValueComposer> {
           color: Theme.of(context).colorScheme.onTertiaryContainer,
         ),
       ),
-    );
-  }
-
-  Widget _buildEqualityOperatorSplitButton() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: Tooltip(
-            message: DartBlockEqualityOperator.equal.describeVerbal(),
-            child: FilledButton(
-              onPressed: () {
-                DartBlockInteraction.create(
-                  dartBlockInteractionType: DartBlockInteractionType
-                      .tapBooleanComposerEqualityOperator,
-                  content: 'Operator-${DartBlockEqualityOperator.equal.name}',
-                ).dispatch(context);
-                HapticFeedback.lightImpact();
-                _onReceiveEqualityOperator(DartBlockEqualityOperator.equal);
-              },
-              style: FilledButton.styleFrom(
-                // backgroundColor: NeoTechColors.number,
-                padding: const EdgeInsets.only(left: 2),
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(24),
-                    bottomLeft: Radius.circular(24),
-                  ),
-                ),
-              ),
-              child: Text(
-                "==",
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-              ),
-            ),
-          ),
-        ),
-        VerticalDivider(
-          width: 1,
-          thickness: 1,
-          color: Theme.of(context).colorScheme.onPrimary,
-        ),
-        Expanded(
-          child: Tooltip(
-            message: DartBlockEqualityOperator.notEqual.describeVerbal(),
-            child: FilledButton(
-              onPressed: () {
-                DartBlockInteraction.create(
-                  dartBlockInteractionType: DartBlockInteractionType
-                      .tapBooleanComposerEqualityOperator,
-                  content:
-                      'Operator-${DartBlockEqualityOperator.notEqual.name}',
-                ).dispatch(context);
-                HapticFeedback.lightImpact();
-                _onReceiveEqualityOperator(DartBlockEqualityOperator.notEqual);
-              },
-              style: FilledButton.styleFrom(
-                // backgroundColor: NeoTechColors.number,
-                padding: const EdgeInsets.only(right: 2),
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(24),
-                    bottomRight: Radius.circular(24),
-                  ),
-                ),
-              ),
-              child: Text(
-                "!=",
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -894,85 +795,6 @@ class _BooleanValueComposerState extends ConsumerState<BooleanValueComposer> {
     widget.onChange(value);
   }
 
-  Widget _buildStringValueComposerButton() {
-    final bool isActive =
-        _booleanComposerActiveComposerType ==
-        _BooleanComposerActiveComposerType.text;
-    final settings = ref.watch(settingsProvider);
-    return InkWell(
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(24),
-        topRight: Radius.circular(24),
-      ),
-      onTap: () {
-        HapticFeedback.lightImpact();
-        setState(() {
-          if (_booleanComposerActiveComposerType ==
-              _BooleanComposerActiveComposerType.text) {
-            DartBlockInteraction.create(
-              dartBlockInteractionType:
-                  DartBlockInteractionType.tapBooleanComposerTextToggleToHide,
-            ).dispatch(context);
-            _booleanComposerActiveComposerType = null;
-          } else {
-            DartBlockInteraction.create(
-              dartBlockInteractionType:
-                  DartBlockInteractionType.tapBooleanComposerTextToggleToShow,
-            ).dispatch(context);
-            _booleanComposerActiveComposerType =
-                _BooleanComposerActiveComposerType.text;
-          }
-        });
-      },
-      child: Container(
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: isActive ? settings.colorFamily.string.color : null,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(24),
-            topRight: Radius.circular(24),
-          ),
-          border: isActive
-              ? Border(
-                  top: BorderSide(color: Theme.of(context).colorScheme.outline),
-                  left: BorderSide(
-                    color: Theme.of(context).colorScheme.outline,
-                  ),
-                  right: BorderSide(
-                    color: Theme.of(context).colorScheme.outline,
-                  ),
-                )
-              : Border.all(color: settings.colorFamily.string.color, width: 2),
-        ),
-        child: Stack(
-          alignment: Alignment.center,
-          // mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "Text",
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: isActive
-                    ? Colors.white
-                    : Theme.of(context).colorScheme.onSurface,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Icon(
-                isActive ? Icons.expand_less : Icons.expand_more,
-                size: 18,
-                color: isActive
-                    ? Colors.white
-                    : Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   void _onReceiveStringValue(DartBlockStringValue? stringValue) {
     final selectedNode = getSelectedNode();
     undoHistory.add(value?.copy());
@@ -1025,85 +847,6 @@ class _BooleanValueComposerState extends ConsumerState<BooleanValueComposer> {
       return lastValueInConcatenationValue;
     }
     return null;
-  }
-
-  Widget _buildNumberComposerButton() {
-    final bool isActive =
-        _booleanComposerActiveComposerType ==
-        _BooleanComposerActiveComposerType.math;
-    final settings = ref.watch(settingsProvider);
-    return InkWell(
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(24),
-        topRight: Radius.circular(24),
-      ),
-      onTap: () {
-        HapticFeedback.lightImpact();
-        setState(() {
-          if (_booleanComposerActiveComposerType ==
-              _BooleanComposerActiveComposerType.math) {
-            DartBlockInteraction.create(
-              dartBlockInteractionType:
-                  DartBlockInteractionType.tapBooleanComposerNumberToggleToHide,
-            ).dispatch(context);
-            _booleanComposerActiveComposerType = null;
-          } else {
-            DartBlockInteraction.create(
-              dartBlockInteractionType:
-                  DartBlockInteractionType.tapBooleanComposerNumberToggleToShow,
-            ).dispatch(context);
-            _booleanComposerActiveComposerType =
-                _BooleanComposerActiveComposerType.math;
-          }
-        });
-      },
-      child: Container(
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: isActive ? settings.colorFamily.number.color : null,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(24),
-            topRight: Radius.circular(24),
-          ),
-          border: isActive
-              ? Border(
-                  top: BorderSide(color: Theme.of(context).colorScheme.outline),
-                  left: BorderSide(
-                    color: Theme.of(context).colorScheme.outline,
-                  ),
-                  right: BorderSide(
-                    color: Theme.of(context).colorScheme.outline,
-                  ),
-                )
-              : Border.all(color: settings.colorFamily.number.color, width: 2),
-        ),
-        child: Stack(
-          alignment: Alignment.center,
-          // mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "123",
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: isActive
-                    ? Colors.white
-                    : Theme.of(context).colorScheme.onSurface,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Icon(
-                isActive ? Icons.expand_less : Icons.expand_more,
-                size: 18,
-                color: isActive
-                    ? Colors.white
-                    : Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   DartBlockValueTreeAlgebraicNode? _getCurrentAlgebraicNode() {
