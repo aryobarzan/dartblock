@@ -481,19 +481,18 @@ class _DartBlockEditorState extends State<DartBlockEditor>
     required BorderRadius borderRadius,
     required ProviderContainer container,
   }) {
-    // Use a custom ProviderListener that explicitly listens to the passed container
-    return _ProviderScopeConsumer(
+    // Wrap with UncontrolledProviderScope to ensure Consumer uses the correct container
+    return UncontrolledProviderScope(
       container: container,
-      builder: (context, container) {
-        // Read values from the container within the correct scope
-        final isDraggingStatement = container.read(
-          isDraggingStatementTypeFromToolboxProvider,
-        );
-        final availableFunctions = container.read(
-          availableFunctionsProvider([]),
-        );
+      child: Consumer(
+        builder: (context, ref, child) {
+          // Read values from ref within the correct scope
+          final isDraggingStatement = ref.watch(
+            isDraggingStatementTypeFromToolboxProvider,
+          );
+          final availableFunctions = ref.watch(availableFunctionsProvider([]));
 
-        return DartBlockToolbox(
+          return DartBlockToolbox(
           borderRadius: borderRadius,
           isTransparent: _isDraggingToolbox,
           isDocked: _isToolboxDocked,
@@ -643,8 +642,9 @@ class _DartBlockEditorState extends State<DartBlockEditor>
                   }
                 }
               : null,
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -1004,73 +1004,4 @@ void showNewFunctionSheet(
       },
     ),
   );
-}
-
-/// A custom widget that rebuilds when providers in the given container change.
-/// This is needed because UncontrolledProviderScope doesn't make Consumer use its container.
-class _ProviderScopeConsumer extends StatefulWidget {
-  final ProviderContainer container;
-  final Widget Function(BuildContext context, ProviderContainer container)
-  builder;
-
-  const _ProviderScopeConsumer({
-    required this.container,
-    required this.builder,
-  });
-
-  @override
-  State<_ProviderScopeConsumer> createState() => _ProviderScopeConsumerState();
-}
-
-class _ProviderScopeConsumerState extends State<_ProviderScopeConsumer> {
-  final List<ProviderSubscription> _subscriptions = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _setupListeners();
-  }
-
-  @override
-  void didUpdateWidget(_ProviderScopeConsumer oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.container != widget.container) {
-      _clearListeners();
-      _setupListeners();
-    }
-  }
-
-  void _setupListeners() {
-    // Listen to the providers we care about
-    _subscriptions.add(
-      widget.container.listen(
-        isDraggingStatementTypeFromToolboxProvider,
-        (previous, next) => setState(() {}),
-      ),
-    );
-    _subscriptions.add(
-      widget.container.listen(
-        availableFunctionsProvider([]),
-        (previous, next) => setState(() {}),
-      ),
-    );
-  }
-
-  void _clearListeners() {
-    for (final subscription in _subscriptions) {
-      subscription.close();
-    }
-    _subscriptions.clear();
-  }
-
-  @override
-  void dispose() {
-    _clearListeners();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return widget.builder(context, widget.container);
-  }
 }
