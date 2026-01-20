@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:dartblock_code/widgets/dartblock_colors.dart';
 import 'package:dartblock_code/widgets/helpers/adaptive_display.dart';
+import 'package:dartblock_code/widgets/helpers/dartblock_container_provider.dart';
 import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_code_editor/flutter_code_editor.dart';
@@ -187,6 +188,12 @@ class _DartBlockEditorState extends State<DartBlockEditor>
       ],
       child: Consumer(
         builder: (context, ref, child) {
+          // Capture the container from Consumer's context to ensure modals
+          // and dialogs opened from within DartBlockEditor use the correct
+          // ProviderScope with overrides, even when the app has its own
+          // root ProviderScope.
+          final container = ProviderScope.containerOf(context);
+
           // Listen to interaction events and forward to callback (new approach - disabled for now)
           // ref.listen<DartBlockInteraction?>(interactionEventProvider, (
           //   previous,
@@ -198,7 +205,11 @@ class _DartBlockEditorState extends State<DartBlockEditor>
           //   // }
           // });
 
-          return child!;
+          // Provide the container to all descendants via InheritedWidget
+          return DartBlockContainerProvider(
+            container: container,
+            child: child!,
+          );
         },
         child: NotificationListener<DartBlockNotification>(
           onNotification: (notification) {

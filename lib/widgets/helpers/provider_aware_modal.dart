@@ -1,12 +1,36 @@
+import 'package:dartblock_code/widgets/helpers/dartblock_container_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Extension on BuildContext to show modals that maintain provider access.
 extension ProviderAwareModal on BuildContext {
+  /// Gets the correct ProviderContainer for modals and dialogs.
+  ///
+  /// Tries to get DartBlockEditor's container first (via DartBlockContainerProvider),
+  /// then falls back to the nearest ProviderScope's container.
+  ///
+  /// This ensures that modals opened from within DartBlockEditor always have access
+  /// to the correct providers with overrides, even when the app has its own
+  /// root-level ProviderScope.
+  ProviderContainer _getProviderContainer() {
+    // First, try to find DartBlockEditor's container from InheritedWidget
+    final dartBlockContainer = DartBlockContainerProvider.maybeOf(this);
+    if (dartBlockContainer != null) {
+      return dartBlockContainer;
+    }
+
+    // Fall back to the nearest ProviderScope's container
+    // This happens when the modal is not opened from within DartBlockEditor
+    return ProviderScope.containerOf(this);
+  }
+
   /// Shows a modal bottom sheet that maintains access to Riverpod providers.
   ///
   /// This automatically wraps the builder content in an UncontrolledProviderScope
   /// so that widgets inside the modal can access providers from the parent context.
+  ///
+  /// When called from within DartBlockEditor, it uses DartBlockEditor's provider
+  /// container (with overrides). Otherwise, it uses the nearest ProviderScope's container.
   Future<T?> showProviderAwareBottomSheet<T>({
     required Widget Function(BuildContext) builder,
     bool isScrollControlled = true,
@@ -38,7 +62,7 @@ extension ProviderAwareModal on BuildContext {
       routeSettings: routeSettings,
       builder: (modalContext) {
         return UncontrolledProviderScope(
-          container: ProviderScope.containerOf(this),
+          container: _getProviderContainer(),
           child: builder(modalContext),
         );
       },
@@ -49,6 +73,9 @@ extension ProviderAwareModal on BuildContext {
   ///
   /// This automatically wraps the builder content in an UncontrolledProviderScope
   /// so that widgets inside the dialog can access providers from the parent context.
+  ///
+  /// When called from within DartBlockEditor, it uses DartBlockEditor's provider
+  /// container (with overrides). Otherwise, it uses the nearest ProviderScope's container.
   Future<T?> showProviderAwareDialog<T>({
     required Widget Function(BuildContext) builder,
     bool barrierDismissible = true,
@@ -72,7 +99,7 @@ extension ProviderAwareModal on BuildContext {
       traversalEdgeBehavior: traversalEdgeBehavior,
       builder: (dialogContext) {
         return UncontrolledProviderScope(
-          container: ProviderScope.containerOf(this),
+          container: _getProviderContainer(),
           child: builder(dialogContext),
         );
       },
