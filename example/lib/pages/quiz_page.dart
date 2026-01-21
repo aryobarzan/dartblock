@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:dartblock_code/widgets/dartblock_colors.dart';
 import 'package:example/misc/dartblock_sample_program.dart';
+import 'package:example/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dartblock_code/core/dartblock_program.dart';
@@ -110,8 +112,17 @@ class _QuizPageState extends State<QuizPage> {
                       userSolution = changedDartBlockProgram;
                     });
                   },
+                  colors: DartBlockColors(
+                    number: MaterialTheme.number,
+                    boolean: MaterialTheme.boolean,
+                    variable: MaterialTheme.variable,
+                    function: MaterialTheme.function,
+                    string: MaterialTheme.string,
+                  ),
                 ),
               ),
+              if (!userSolution.isEmpty())
+                SliverToBoxAdapter(child: SizedBox(height: 80)),
             ],
           ),
           if (!userSolution.isEmpty())
@@ -181,7 +192,16 @@ class _QuizPageState extends State<QuizPage> {
                         /// We use the natively provided widget for visualizing the evaluation results.
                         ///
                         /// However, you can also create your own custom widget to visualize the [DartBlockEvaluationResult].
-                        DartBlockEvaluationResultWidget(result: snapshot.data!),
+                        DartBlockEvaluationResultWidget(
+                          result: snapshot.data!,
+                          colors: DartBlockColors(
+                            number: MaterialTheme.number,
+                            boolean: MaterialTheme.boolean,
+                            variable: MaterialTheme.variable,
+                            function: MaterialTheme.function,
+                            string: MaterialTheme.string,
+                          ),
+                        ),
                       ],
                     ),
                   );

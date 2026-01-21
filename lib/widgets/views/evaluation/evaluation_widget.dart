@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:dartblock_code/widgets/dartblock_colors.dart';
 import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/models/evaluator.dart';
@@ -59,65 +60,113 @@ class _CustomExpansionTileState extends State<_CustomExpansionTile> {
   }
 }
 
-class DartBlockEvaluationResultWidget extends StatelessWidget {
+class DartBlockEvaluationResultWidget extends StatefulWidget {
   final DartBlockEvaluationResult result;
-  const DartBlockEvaluationResultWidget({super.key, required this.result});
+  final DartBlockColors? colors;
+
+  const DartBlockEvaluationResultWidget({
+    super.key,
+    required this.result,
+    this.colors,
+  });
+
+  @override
+  State<DartBlockEvaluationResultWidget> createState() =>
+      _DartBlockEvaluationResultWidgetState();
+}
+
+class _DartBlockEvaluationResultWidgetState
+    extends State<DartBlockEvaluationResultWidget> {
+  late final ProviderContainer _isolatedContainer;
+
+  @override
+  void initState() {
+    super.initState();
+    // Create an isolated container with the necessary overrides.
+    // This allows DartBlockEvaluationResultWidget to be used standalone
+    // without requiring a parent ProviderScope with overrides.
+    // This is similar to the approach taken for DartBlockEditor.
+    _isolatedContainer = ProviderContainer(
+      overrides: [
+        settingsProvider.overrideWith(
+          (ref) => DartBlockSettings.fromBrightness(
+            canChange: false,
+            canDelete: false,
+            canReorder: false,
+            allowedNativeFunctionCategories: [],
+            allowedNativeFunctionTypes: [],
+            colors: widget.colors,
+            brightness: MediaQuery.platformBrightnessOf(context),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  void dispose() {
+    _isolatedContainer.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final neoTechException = result.evaluations
+    final dartBlockException = widget.result.evaluations
         .firstWhereOrNull((evaluation) => evaluation.dartBlockException != null)
         ?.dartBlockException;
 
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Theme.of(context).colorScheme.outline),
-      ),
-      child: _CustomExpansionTile(
-        titleBackgroundColor: result.isCorrect()
-            ? Colors.green
-            : Theme.of(context).colorScheme.errorContainer,
-        titleStyle:
-            Theme.of(context).textTheme.titleLarge?.apply(
-              color: result.isCorrect()
-                  ? Colors.white
-                  : Theme.of(context).colorScheme.onErrorContainer,
-            ) ??
-            TextStyle(),
-        title: result.isCorrect() ? "Correct!" : "Wrong!",
-        subtitle:
-            "${result.evaluations.where((elem) => elem.isCorrect).length}/${result.evaluations.length} evaluation${result.evaluations.length == 1 ? '' : 's'} correct${neoTechException != null ? " & exception" : ""}.",
-        subtitleStyle:
-            Theme.of(context).textTheme.bodyMedium?.apply(
-              color: result.isCorrect()
-                  ? Colors.white
-                  : Theme.of(context).colorScheme.onErrorContainer,
-            ) ??
-            TextStyle(),
-        trailingIconColor: result.isCorrect()
-            ? Colors.white
-            : Theme.of(context).colorScheme.onErrorContainer,
-        children: [
-          if (neoTechException != null)
-            DartBlockExceptionWidget(dartblockException: neoTechException),
-          ..._buildEvaluationChildren(),
-        ],
+    return UncontrolledProviderScope(
+      container: _isolatedContainer,
+      child: Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Theme.of(context).colorScheme.outline),
+        ),
+        child: _CustomExpansionTile(
+          titleBackgroundColor: widget.result.isCorrect()
+              ? Colors.green
+              : Theme.of(context).colorScheme.errorContainer,
+          titleStyle:
+              Theme.of(context).textTheme.titleLarge?.apply(
+                color: widget.result.isCorrect()
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onErrorContainer,
+              ) ??
+              TextStyle(),
+          title: widget.result.isCorrect() ? "Correct!" : "Wrong!",
+          subtitle:
+              "${widget.result.evaluations.where((elem) => elem.isCorrect).length}/${widget.result.evaluations.length} evaluation${widget.result.evaluations.length == 1 ? '' : 's'} correct${dartBlockException != null ? " & exception" : ""}.",
+          subtitleStyle:
+              Theme.of(context).textTheme.bodyMedium?.apply(
+                color: widget.result.isCorrect()
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onErrorContainer,
+              ) ??
+              TextStyle(),
+          trailingIconColor: widget.result.isCorrect()
+              ? Colors.white
+              : Theme.of(context).colorScheme.onErrorContainer,
+          children: [
+            if (dartBlockException != null)
+              DartBlockExceptionWidget(dartblockException: dartBlockException),
+            ..._buildEvaluationChildren(),
+          ],
+        ),
       ),
     );
   }
 
   List<Widget> _buildEvaluationChildren() {
     List<Widget> children = [];
-    for (int i = 0; i < result.evaluations.length; i++) {
+    for (int i = 0; i < widget.result.evaluations.length; i++) {
       children.add(
         DartBlockEvaluationWidget(
-          evaluation: result.evaluations[i],
+          evaluation: widget.result.evaluations[i],
           index: i + 1,
         ),
       );
-      if (i != result.evaluations.length - 1) {
+      if (i != widget.result.evaluations.length - 1) {
         children.add(Divider());
       }
     }

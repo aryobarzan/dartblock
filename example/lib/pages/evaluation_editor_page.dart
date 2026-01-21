@@ -1,3 +1,5 @@
+import 'package:dartblock_code/widgets/dartblock_colors.dart';
+import 'package:example/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/core/dartblock_program.dart';
 import 'package:dartblock_code/models/evaluator.dart';
@@ -30,15 +32,6 @@ class _EvaluationEditorPageState extends State<EvaluationEditorPage> {
           ),
         ],
       ),
-      floatingActionButton: evaluator != null
-          ? FloatingActionButton.extended(
-              onPressed: () {
-                _showEvaluation();
-              },
-              label: Text("Evaluate"),
-              icon: Icon(Icons.checklist),
-            )
-          : null,
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: CustomScrollView(
@@ -63,9 +56,28 @@ class _EvaluationEditorPageState extends State<EvaluationEditorPage> {
                     this.evaluator = evaluator;
                   });
                 },
+                colors: DartBlockColors(
+                  number: MaterialTheme.number,
+                  boolean: MaterialTheme.boolean,
+                  variable: MaterialTheme.variable,
+                  function: MaterialTheme.function,
+                  string: MaterialTheme.string,
+                ),
               ),
             ),
-
+            if (evaluator != null)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsetsGeometry.only(top: 8),
+                  child: FilledButton.icon(
+                    onPressed: () {
+                      _showEvaluation();
+                    },
+                    label: Text("Evaluate"),
+                    icon: Icon(Icons.checklist),
+                  ),
+                ),
+              ),
             SliverToBoxAdapter(child: SizedBox(height: 24)),
             SliverToBoxAdapter(child: Divider()),
             SliverToBoxAdapter(
@@ -83,7 +95,14 @@ class _EvaluationEditorPageState extends State<EvaluationEditorPage> {
                 canDelete: false,
                 canReorder: false,
                 canRun: true,
-                onChanged: (updatedNeoTechCore) {},
+                onChanged: (updatedProgram) {},
+                colors: DartBlockColors(
+                  number: MaterialTheme.number,
+                  boolean: MaterialTheme.boolean,
+                  variable: MaterialTheme.variable,
+                  function: MaterialTheme.function,
+                  string: MaterialTheme.string,
+                ),
               ),
             ),
           ],
@@ -94,6 +113,10 @@ class _EvaluationEditorPageState extends State<EvaluationEditorPage> {
 
   void _showEvaluation() {
     if (evaluator != null) {
+      final evaluationFuture = evaluator!.evaluate(
+        widget.sampleSolution,
+        widget.sampleSolution,
+      );
       showModalBottomSheet(
         isScrollControlled: true,
         showDragHandle: true,
@@ -104,16 +127,13 @@ class _EvaluationEditorPageState extends State<EvaluationEditorPage> {
           ),
           child: SingleChildScrollView(
             child: FutureBuilder(
-              future: evaluator!.evaluate(
-                widget.sampleSolution,
-                widget.sampleSolution,
-              ),
+              future: evaluationFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.active ||
                     snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -139,7 +159,16 @@ class _EvaluationEditorPageState extends State<EvaluationEditorPage> {
                           "Note that for demonstration purposes, the sample solution itself is being used as the input program for the evaluator. Hence, the evaluation will always be correct!",
                         ),
                         SizedBox(height: 8),
-                        DartBlockEvaluationResultWidget(result: snapshot.data!),
+                        DartBlockEvaluationResultWidget(
+                          result: snapshot.data!,
+                          colors: DartBlockColors(
+                            number: MaterialTheme.number,
+                            boolean: MaterialTheme.boolean,
+                            variable: MaterialTheme.variable,
+                            function: MaterialTheme.function,
+                            string: MaterialTheme.string,
+                          ),
+                        ),
                       ],
                     ),
                   );

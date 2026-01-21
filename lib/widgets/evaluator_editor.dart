@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:dartblock_code/widgets/dartblock_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dartblock_code/core/dartblock_program.dart';
@@ -14,11 +15,13 @@ class DartBlockEvaluatorEditor extends StatefulWidget {
   final DartBlockEvaluator? evaluator;
   final DartBlockProgram sampleSolution;
   final Function(DartBlockEvaluator evaluator) onChange;
+  final DartBlockColors? colors;
   const DartBlockEvaluatorEditor({
     super.key,
     this.evaluator,
     required this.sampleSolution,
     required this.onChange,
+    this.colors,
   });
 
   @override
@@ -28,168 +31,188 @@ class DartBlockEvaluatorEditor extends StatefulWidget {
 
 class _DartBlockEvaluatorEditorState extends State<DartBlockEvaluatorEditor> {
   List<DartBlockEvaluationSchema> schemas = [];
+  late final ProviderContainer _isolatedContainer;
   @override
   void initState() {
     super.initState();
     if (widget.evaluator != null) {
       schemas = List.from(widget.evaluator!.schemas);
     }
+    // Create a completely isolated container with the necessary overrides.
+    // Reason: if this widget is used within an app which also uses flutter_riverpod, and subsequently relies on a ProviderScope,
+    // that parent ProviderScope would interfere with the internal ProviderScope of dartblock, leading to issues finding
+    // the program overrides.
+    // Solution: by manually creating an ProviderContainer, we isolate dartblock's internal scope and avoid any interference
+    // of existing, parent ProviderScopes.
+    _isolatedContainer = ProviderContainer(
+      overrides: [
+        programProvider.overrideWith(
+          () => ProgramNotifier.withProgram(widget.sampleSolution),
+        ),
+        settingsProvider.overrideWith(
+          (ref) => DartBlockSettings.fromBrightness(
+            canChange: false,
+            canDelete: false,
+            canReorder: false,
+            colors: widget.colors,
+            brightness: Theme.of(context).brightness,
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  void dispose() {
+    _isolatedContainer.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            PopupMenuButton(
-              borderRadius: BorderRadius.circular(24),
-              tooltip: "Add an evaluation schema...",
-              onSelected: (value) {
+    return UncontrolledProviderScope(
+      container: _isolatedContainer,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              PopupMenuButton(
+                borderRadius: BorderRadius.circular(24),
+                tooltip: "Add an evaluation schema...",
+                onSelected: (value) {
+                  setState(() {
+                    switch (value) {
+                      case DartBlockEvaluationSchemaType.functionDefinition:
+                        schemas.add(
+                          DartBlockFunctionDefinitionEvaluationSchema(true, []),
+                        );
+                        break;
+                      case DartBlockEvaluationSchemaType.functionOutput:
+                        schemas.add(
+                          DartBlockFunctionOutputEvaluationSchema(true, []),
+                        );
+                        break;
+                      case DartBlockEvaluationSchemaType.script:
+                        schemas.add(DartBlockScriptEvaluationSchema(true, 1.0));
+                        break;
+                      case DartBlockEvaluationSchemaType.variableCount:
+                        schemas.add(
+                          DartBlockVariableCountEvaluationSchema(true, true),
+                        );
+                        break;
+                      case DartBlockEvaluationSchemaType.environment:
+                        schemas.add(
+                          DartBlockEnvironmentEvaluationSchema(true, true),
+                        );
+                        break;
+                      case DartBlockEvaluationSchemaType.print:
+                        schemas.add(DartBlockPrintEvaluationSchema(true, 1.0));
+                        break;
+                    }
+                  });
+                  widget.onChange(DartBlockEvaluator(schemas));
+                },
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.9,
+                ),
+                itemBuilder: (context) => DartBlockEvaluationSchemaType.values
+                    .map(
+                      (e) => PopupMenuItem(
+                        enabled:
+                            schemas.firstWhereOrNull(
+                              (element) => element.schemaType == e,
+                            ) ==
+                            null,
+                        value: e,
+                        child: ListTile(
+                          title: Text(
+                            e.toString(),
+                            maxLines: 1,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.apply(
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(
+                                        alpha:
+                                            schemas.firstWhereOrNull(
+                                                  (element) =>
+                                                      element.schemaType == e,
+                                                ) ==
+                                                null
+                                            ? 1.0
+                                            : 0.5,
+                                      ),
+                                ),
+                          ),
+                          leading: _buildInfoButton(e),
+                        ),
+                      ),
+                    )
+                    .toList(),
+                child: IgnorePointer(
+                  child: TextButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.add),
+                    label: const Text("Schema"),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          ...schemas.mapIndexed(
+            (index, element) => Dismissible(
+              key: ValueKey("EvaluationSchema-${element.schemaType}-$index"),
+              onDismissed: (direction) {
                 setState(() {
-                  switch (value) {
-                    case DartBlockEvaluationSchemaType.functionDefinition:
-                      schemas.add(
-                        DartBlockFunctionDefinitionEvaluationSchema(true, []),
-                      );
-                      break;
-                    case DartBlockEvaluationSchemaType.functionOutput:
-                      schemas.add(
-                        DartBlockFunctionOutputEvaluationSchema(true, []),
-                      );
-                      break;
-                    case DartBlockEvaluationSchemaType.script:
-                      schemas.add(DartBlockScriptEvaluationSchema(true, 1.0));
-                      break;
-                    case DartBlockEvaluationSchemaType.variableCount:
-                      schemas.add(
-                        DartBlockVariableCountEvaluationSchema(true, true),
-                      );
-                      break;
-                    case DartBlockEvaluationSchemaType.environment:
-                      schemas.add(
-                        DartBlockEnvironmentEvaluationSchema(true, true),
-                      );
-                      break;
-                    case DartBlockEvaluationSchemaType.print:
-                      schemas.add(DartBlockPrintEvaluationSchema(true, 1.0));
-                      break;
-                  }
+                  schemas.removeAt(index);
                 });
                 widget.onChange(DartBlockEvaluator(schemas));
               },
-              constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width * 0.9,
-              ),
-              itemBuilder: (context) => DartBlockEvaluationSchemaType.values
-                  .map(
-                    (e) => PopupMenuItem(
-                      enabled:
-                          schemas.firstWhereOrNull(
-                            (element) => element.schemaType == e,
-                          ) ==
-                          null,
-                      value: e,
-                      child: ListTile(
-                        title: Text(
-                          e.toString(),
-                          maxLines: 1,
-                          style: Theme.of(context).textTheme.titleMedium?.apply(
-                            color: Theme.of(context).colorScheme.onSurface
-                                .withValues(
-                                  alpha:
-                                      schemas.firstWhereOrNull(
-                                            (element) =>
-                                                element.schemaType == e,
-                                          ) ==
-                                          null
-                                      ? 1.0
-                                      : 0.5,
-                                ),
-                          ),
-                        ),
-                        leading: _buildInfoButton(e),
+              confirmDismiss: (direction) async {
+                return await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text("Delete"),
+                    content: const Text("Delete the evaluation schema?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(false);
+                        },
+                        child: const Text("Cancel"),
                       ),
-                    ),
-                  )
-                  .toList(),
-              child: IgnorePointer(
-                child: TextButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.add),
-                  label: const Text("Schema"),
-                ),
-              ),
-            ),
-          ],
-        ),
-        ...schemas.mapIndexed(
-          (index, element) => Dismissible(
-            key: ValueKey("EvaluationSchema-${element.schemaType}-$index"),
-            onDismissed: (direction) {
-              setState(() {
-                schemas.removeAt(index);
-              });
-              widget.onChange(DartBlockEvaluator(schemas));
-            },
-            confirmDismiss: (direction) async {
-              return await showDialog<bool>(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text("Delete"),
-                  content: const Text("Delete the evaluation schema?"),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(false);
-                      },
-                      child: const Text("Cancel"),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(true);
-                      },
-                      child: const Text("Delete"),
-                    ),
-                  ],
-                ),
-              );
-            },
-            child: Card(
-              elevation: element.isEnabled ? 8 : 1,
-              child: ListTile(
-                leading: _buildInfoButton(element.schemaType),
-                // trailing: Tooltip(
-                //   message: "Enabled",
-                //   child: Checkbox(
-                //     value: element.isEnabled,
-                //     onChanged: (value) {
-                //       if (value != null) {
-                //         setState(() {
-                //           schemas[index].isEnabled = value;
-                //         });
-                //       }
-                //     },
-                //   ),
-                // ),
-                title: Text(element.schemaType.toString()),
-                subtitle: DartBlockEvaluationSchemaEditor(
-                  evaluationSchema: element,
-                  program: widget.sampleSolution,
-                  onChange: (newSchema) {
-                    setState(() {
-                      schemas[index] = newSchema;
-                    });
-                    widget.onChange(DartBlockEvaluator(schemas));
-                  },
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(true);
+                        },
+                        child: const Text("Delete"),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              child: Card(
+                elevation: element.isEnabled ? 8 : 1,
+                child: ListTile(
+                  leading: _buildInfoButton(element.schemaType),
+                  title: Text(element.schemaType.toString()),
+                  subtitle: DartBlockEvaluationSchemaEditor(
+                    evaluationSchema: element,
+                    program: widget.sampleSolution,
+                    onChange: (newSchema) {
+                      setState(() {
+                        schemas[index] = newSchema;
+                      });
+                      widget.onChange(DartBlockEvaluator(schemas));
+                    },
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
