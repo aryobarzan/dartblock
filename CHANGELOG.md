@@ -1,5 +1,9 @@
 ## 3.0.1
 
+- Fixed: `file_picker`-related issue
+
+## 3.0.1
+
 - Fixed: `DartBlockEvaluationResultWidget` and `DartBlockEvaluatorEditor` had faulty ProviderSccope setups
 - Fixed: `DartBlockEditor` had a memory leak related to its isolated ProviderScope container
 
