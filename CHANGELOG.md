@@ -1,4 +1,4 @@
-## 3.0.1
+## 3.0.2
 
 - Fixed: `file_picker`-related issue
 
