@@ -1,3 +1,8 @@
+## 3.0.3
+
+- Fixed: `file_picker`-related issue
+- Upgraded 3rd-party dependencies.
+
 ## 3.0.2
 
 - Fixed: `file_picker`-related issue
