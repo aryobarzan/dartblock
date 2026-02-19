@@ -1,6 +1,11 @@
+## 3.0.4
+
+- Disabled `flutter_test` dependency to enable WASM support.
+- Upgraded 3rd-party dependencies.
+
 ## 3.0.3
 
-- Fixed: `file_picker`-related issue
+- Fixed `file_picker`-related issue
 - Upgraded 3rd-party dependencies.
 
 ## 3.0.2
