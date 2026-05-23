@@ -431,7 +431,7 @@ class _ConcatenationValueComposerState
             buildDefaultDragHandles: false,
             scrollDirection: Axis.horizontal,
             children: children,
-            onReorder: (oldIndex, newIndex) {
+            onReorderItem: (oldIndex, newIndex) {
               // If the user is trying to reorder the 'cursor' tile, ignore.
               if (_selectedIndex != null &&
                   _isEditingLastDeletedIndex &&
@@ -443,10 +443,6 @@ class _ConcatenationValueComposerState
                       .reorderConcatenationValueComposerValueNode,
                 ).dispatch(context);
                 setState(() {
-                  if (oldIndex < newIndex) {
-                    newIndex -= 1;
-                  }
-
                   // If the 'cursor' tile is visible, adjust the indices accordingly.
                   if (_selectedIndex != null && _isEditingLastDeletedIndex) {
                     final adjustedOldIndex = oldIndex > _selectedIndex!

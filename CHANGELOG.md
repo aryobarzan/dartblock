@@ -1,3 +1,8 @@
+## 3.0.5
+
+- Migrated `onReorder` to `onReorderItem`.
+- Upgraded 3rd-party dependencies.
+
 ## 3.0.4
 
 - Disabled `flutter_test` dependency to enable WASM support.

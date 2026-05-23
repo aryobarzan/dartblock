@@ -141,10 +141,7 @@ class _IfElseStatementEditorState extends ConsumerState<IfElseStatementEditor> {
           shrinkWrap: true,
           itemBuilder: (context, index) => _buildElseIfWidget(index),
           itemCount: elseIfStatementBlocks.length,
-          onReorder: (oldIndex, newIndex) {
-            if (oldIndex < newIndex) {
-              newIndex -= 1;
-            }
+          onReorderItem: (oldIndex, newIndex) {
             DartBlockInteraction.create(
               dartBlockInteractionType: DartBlockInteractionType
                   .reorderElseIfBlockOfIfThenElseStatement,

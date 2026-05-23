@@ -142,10 +142,7 @@ class StatementListView extends ConsumerWidget {
                   DartBlockInteractionType.startedDraggingStatementToReorder,
             ).dispatch(context);
           },
-          onReorder: (oldIndex, newIndex) {
-            if (oldIndex < newIndex) {
-              newIndex -= 1;
-            }
+          onReorderItem: (oldIndex, newIndex) {
             DartBlockInteraction.create(
               dartBlockInteractionType:
                   DartBlockInteractionType.reorderedStatement,

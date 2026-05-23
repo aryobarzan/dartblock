@@ -694,8 +694,7 @@ class _DartBlockEditorState extends State<DartBlockEditor>
 
   void _onDownloadScript() {
     try {
-      FilePicker.platform
-          .saveFile(
+      FilePicker.saveFile(
             fileName: 'DartBlock_script.${language.getFileExtension()}',
             bytes: utf8.encode(widget.program.toScript(language: language)),
           )
