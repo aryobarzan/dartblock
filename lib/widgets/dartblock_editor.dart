@@ -1,12 +1,9 @@
-import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:dartblock_code/widgets/dartblock_colors.dart';
 import 'package:dartblock_code/widgets/helpers/adaptive_display.dart';
 import 'package:dartblock_code/widgets/helpers/dartblock_container_provider.dart';
 import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter_code_editor/flutter_code_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:dartblock_code/widgets/views/toolbox/models/code_view_action.dart';
@@ -93,6 +90,16 @@ class DartBlockEditor extends StatefulWidget {
   /// Callback function to notify about a user interaction with the user interface of DartBlock.
   final Function(DartBlockInteraction dartBlockInteraction)? onInteraction;
 
+  /// Callback function invoked when the user requests to download the current script view (e.g., Java code) of the [DartBlockProgram] as a file.
+  ///
+  /// Receives the script's content as well as a suggested file name (including its extension) to save it under.
+  ///
+  /// This package intentionally does not depend on a file-saving package (e.g., `file_picker`) itself; integrate one of your choosing in this callback.
+  ///
+  /// If null, the associated download button is hidden from the script view's toolbar.
+  final void Function(String scriptContent, String suggestedFileName)?
+  onDownloadScript;
+
   /// The padding to include around the scrollable part of the widget.
   ///
   /// If null, no padding is applied.
@@ -114,6 +121,7 @@ class DartBlockEditor extends StatefulWidget {
     this.scrollController,
     this.onChanged,
     this.onInteraction,
+    this.onDownloadScript,
     this.padding,
     this.isToolboxDockedBottom = true,
   }) : allowedNativeFunctionCategories =
@@ -500,6 +508,7 @@ class _DartBlockEditorState extends State<DartBlockEditor>
             isShowingCode: viewOption == DartBlockViewOption.script,
             isExecuting: _isExecuting,
             showActions: widget.canChange,
+            showSaveCodeAction: widget.onDownloadScript != null,
             onToolboxDragStart: !_isToolboxDocked && isDraggingStatement == null
                 ? (details) {
                     // The user has started dragging the undocked toolbox around (vertically).
@@ -693,35 +702,10 @@ class _DartBlockEditorState extends State<DartBlockEditor>
   }
 
   void _onDownloadScript() {
-    try {
-      FilePicker.saveFile(
-            fileName: 'DartBlock_script.${language.getFileExtension()}',
-            bytes: utf8.encode(widget.program.toScript(language: language)),
-          )
-          .then((result) async {
-            if (mounted && result != null) {
-              /// On iOS and Android, the bytes are directly written to the selected path.
-              ///
-              /// On desktop platforms, this has to be done as a second step.
-              if (Theme.of(context).platform == TargetPlatform.macOS ||
-                  Theme.of(context).platform == TargetPlatform.windows ||
-                  Theme.of(context).platform == TargetPlatform.linux) {
-                try {
-                  await File(
-                    result,
-                  ).writeAsString(widget.program.toScript(language: language));
-                } catch (err) {
-                  // Failed to write contents of file
-                }
-              }
-            }
-          })
-          .catchError((error) {
-            return null;
-          });
-    } catch (err) {
-      // Encoding failed or save failed
-    }
+    widget.onDownloadScript?.call(
+      widget.program.toScript(language: language),
+      'DartBlock_script.${language.getFileExtension()}',
+    );
   }
 
   void _constrainToolboxY(double maxHeight) {

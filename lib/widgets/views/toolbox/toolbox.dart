@@ -29,6 +29,7 @@ class DartBlockToolbox extends StatefulWidget {
   final Function(DartBlockCustomFunction) onCreateFunction;
   final Function(ToolboxExtraAction action) onAction;
   final Function(CodeViewAction action) onCodeViewAction;
+  final bool showSaveCodeAction;
   final BorderRadius borderRadius;
 
   const DartBlockToolbox({
@@ -38,6 +39,7 @@ class DartBlockToolbox extends StatefulWidget {
     this.canUndock = true,
     this.isShowingCode = false,
     this.showActions = true,
+    this.showSaveCodeAction = true,
     this.isExecuting = false,
     required this.existingFunctionNames,
     this.onToolboxItemDragStart,
@@ -147,12 +149,13 @@ class _DartBlockToolboxState extends State<DartBlockToolbox> {
                             icon: Icon(CodeViewAction.copy.getIconData()),
                           ),
 
-                          IconButton(
-                            tooltip: CodeViewAction.save.getTooltip(),
-                            onPressed: () =>
-                                widget.onCodeViewAction(CodeViewAction.save),
-                            icon: Icon(CodeViewAction.save.getIconData()),
-                          ),
+                          if (widget.showSaveCodeAction)
+                            IconButton(
+                              tooltip: CodeViewAction.save.getTooltip(),
+                              onPressed: () =>
+                                  widget.onCodeViewAction(CodeViewAction.save),
+                              icon: Icon(CodeViewAction.save.getIconData()),
+                            ),
                         ],
                       ),
                     )

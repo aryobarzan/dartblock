@@ -1,3 +1,10 @@
+## 3.1.0
+
+- Removed the `file_picker` 3rd-party dependency from the package.
+  - `DartBlockEditor` now exposes an optional `onDownloadScript` callback, which receives the script's content and a suggested file name, allowing consumers to integrate their own file-saving mechanism (e.g., `file_picker`) for downloading the script view of a `DartBlockProgram`.
+  - If `onDownloadScript` is not provided, the download button is hidden from the script view's toolbar.
+- Upgraded 3rd-party dependencies.
+
 ## 3.0.5
 
 - Migrated `onReorder` to `onReorderItem`.

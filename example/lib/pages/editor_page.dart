@@ -1,5 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:dartblock_code/widgets/dartblock_colors.dart';
 import 'package:example/theme.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dartblock_code/core/dartblock_program.dart';
 import 'package:dartblock_code/widgets/dartblock_editor.dart';
@@ -37,6 +42,29 @@ class _EditorViewState extends State<EditorView> {
         onInteraction: (dartBlockInteraction) {
           // Example interaction: user tapped on "Run" button.
           // Can be useful for collecting usage statistics and general logging.
+        },
+        onDownloadScript: (scriptContent, suggestedFileName) async {
+          try {
+            final result = await FilePicker.saveFile(
+              fileName: suggestedFileName,
+              bytes: utf8.encode(scriptContent),
+            );
+            if (result != null) {
+              /// On the web, the bytes are downloaded directly by the browser.
+              ///
+              /// On iOS and Android, the bytes are directly written to the selected path.
+              ///
+              /// On desktop platforms, this has to be done as a second step.
+              if (!kIsWeb &&
+                  (defaultTargetPlatform == TargetPlatform.macOS ||
+                      defaultTargetPlatform == TargetPlatform.windows ||
+                      defaultTargetPlatform == TargetPlatform.linux)) {
+                await File(result).writeAsString(scriptContent);
+              }
+            }
+          } catch (err) {
+            // Encoding failed or save failed
+          }
         },
         colors: DartBlockColors(
           number: MaterialTheme.number,
