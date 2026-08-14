@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Extra actions shown when viewing the "script" or code of a DartBlock program.
 ///

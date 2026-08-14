@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:dartblock_code/models/dartblock_notification.dart';
 part 'dartblock_interaction.g.dart';

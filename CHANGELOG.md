@@ -1,3 +1,12 @@
+## 4.0.0
+
+- Migrated to the standalone `material_ui` and `cupertino_ui` packages, decoupled from the Flutter SDK as of Flutter 3.47.
+  - All `package:flutter/material.dart` and `package:flutter/cupertino.dart` imports have been replaced with `package:material_ui/material_ui.dart` and `package:cupertino_ui/cupertino_ui.dart` respectively.
+  - Consuming apps that also render Material/Cupertino widgets should migrate to `material_ui`/`cupertino_ui` themselves; otherwise, wrap the app in `MaterialUiCompatibilityBridge` to bridge the widget tree with any still-unmigrated dependencies.
+  - This is a breaking change: `material_ui`'s `TextTheme` and other types are distinct from the Flutter SDK's own types, so any code passing SDK types (e.g. from packages that haven't migrated yet, such as `google_fonts`) into `dartblock_code` widgets or theming APIs will need to be converted.
+  - Fixed: the script view's `CodeField` (from the still-unmigrated `flutter_code_editor` package) failed to render with "No material widget found. TextField widgets require a Material widget ancestor." It is now wrapped in a legacy `Material` ancestor and `MaterialUiCompatibilityBridge` so it resolves both a `Material` ancestor and the legacy Material/Cupertino/Widgets localizations it needs.
+  - Updated the example app's Android build to Gradle 9.3.1 and Android Gradle Plugin 9.1.0 (Flutter 3.47's verified versions), needed to build under JDK 25. The Kotlin Gradle Plugin stays on the classic (non-built-in) 2.4.0 setup for now: this Flutter SDK build errors under `android.newDsl=true`, and AGP 9.1.0's built-in Kotlin compiler (2.2.10) is below Flutter's own minimum of 2.2.20.
+
 ## 3.1.0
 
 - Removed the `file_picker` 3rd-party dependency from the package.

@@ -7,7 +7,7 @@ import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:dartblock_code/widgets/views/other/dartblock_exception.dart';
 import 'package:dartblock_code/widgets/views/symbols.dart';
 import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_action.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/toolbox_configuration.dart';

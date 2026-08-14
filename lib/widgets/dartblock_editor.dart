@@ -4,13 +4,14 @@ import 'package:dartblock_code/widgets/dartblock_colors.dart';
 import 'package:dartblock_code/widgets/helpers/adaptive_display.dart';
 import 'package:dartblock_code/widgets/helpers/dartblock_container_provider.dart';
 import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
+import 'package:flutter/material.dart' as legacy_material;
 import 'package:flutter_code_editor/flutter_code_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:dartblock_code/widgets/views/toolbox/models/code_view_action.dart';
 import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_action.dart';
 import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_configuration.dart';
 import 'package:dartblock_code/widgets/views/toolbox/toolbox.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_highlight/themes/monokai-sublime.dart';
 import 'package:flutter_highlight/themes/github-gist.dart';
@@ -31,6 +32,22 @@ import 'package:dartblock_code/widgets/views/other/dartblock_console.dart';
 import 'package:dartblock_code/widgets/views/other/help_center.dart';
 import 'package:dartblock_code/widgets/views/symbols.dart';
 import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
+
+/// `flutter_code_editor`'s [CodeField] hasn't migrated off `package:flutter/material.dart`
+/// yet, so its internal `TextField` can't find a `Material` ancestor or resolve
+/// localizations from this package's `package:material_ui` widget tree. This wraps
+/// [child] with a legacy `Material` ancestor and `MaterialUiCompatibilityBridge`
+/// (which provides the legacy Material/Cupertino/Widgets localization delegates) so
+/// the code editor renders correctly until that package migrates.
+Widget _legacyCodeEditorBridge(Widget child) {
+  // ignore: deprecated_member_use
+  return MaterialUiCompatibilityBridge(
+    child: legacy_material.Material(
+      type: legacy_material.MaterialType.transparency,
+      child: child,
+    ),
+  );
+}
 
 /// The main widget for viewing and editing a [DartBlockProgram].
 ///
@@ -310,30 +327,36 @@ class _DartBlockEditorState extends State<DartBlockEditor>
                                                 ? monokaiSublimeTheme
                                                 : githubGistTheme,
                                           ),
-                                          child: CodeField(
-                                            gutterStyle: GutterStyle(width: 70),
-                                            readOnly: true,
-                                            wrap: false,
-                                            background: Theme.of(
-                                              context,
-                                            ).colorScheme.surface,
-                                            enabled: true,
-                                            controller: CodeController(
-                                              text: widget.program
-                                                  .toScript(language: language)
-                                                  .trim(),
-                                              language:
-                                                  allLanguages[language.name],
+                                          child: _legacyCodeEditorBridge(
+                                            CodeField(
+                                              gutterStyle: GutterStyle(
+                                                width: 70,
+                                              ),
+                                              readOnly: true,
+                                              wrap: false,
+                                              background: Theme.of(
+                                                context,
+                                              ).colorScheme.surface,
+                                              enabled: true,
+                                              controller: CodeController(
+                                                text: widget.program
+                                                    .toScript(
+                                                      language: language,
+                                                    )
+                                                    .trim(),
+                                                language:
+                                                    allLanguages[language.name],
+                                              ),
+                                              textStyle:
+                                                  GoogleFonts.sourceCodePro(
+                                                    fontSize:
+                                                        Theme.of(context)
+                                                            .textTheme
+                                                            .bodyMedium
+                                                            ?.fontSize ??
+                                                        12,
+                                                  ),
                                             ),
-                                            textStyle:
-                                                GoogleFonts.sourceCodePro(
-                                                  fontSize:
-                                                      Theme.of(context)
-                                                          .textTheme
-                                                          .bodyMedium
-                                                          ?.fontSize ??
-                                                      12,
-                                                ),
                                           ),
                                         ),
                                       )
@@ -437,23 +460,25 @@ class _DartBlockEditorState extends State<DartBlockEditor>
                               ? monokaiSublimeTheme
                               : githubGistTheme,
                         ),
-                        child: CodeField(
-                          gutterStyle: GutterStyle(width: 70),
-                          readOnly: true,
-                          wrap: false,
-                          enabled: true,
-                          controller: CodeController(
-                            text: widget.program
-                                .toScript(language: language)
-                                .trim(),
-                            language: allLanguages[language.name],
-                          ),
-                          textStyle: GoogleFonts.sourceCodePro(
-                            fontSize:
-                                Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.fontSize ??
-                                12,
+                        child: _legacyCodeEditorBridge(
+                          CodeField(
+                            gutterStyle: GutterStyle(width: 70),
+                            readOnly: true,
+                            wrap: false,
+                            enabled: true,
+                            controller: CodeController(
+                              text: widget.program
+                                  .toScript(language: language)
+                                  .trim(),
+                              language: allLanguages[language.name],
+                            ),
+                            textStyle: GoogleFonts.sourceCodePro(
+                              fontSize:
+                                  Theme.of(
+                                    context,
+                                  ).textTheme.bodyMedium?.fontSize ??
+                                  12,
+                            ),
                           ),
                         ),
                       ),

@@ -1,5 +1,5 @@
 import 'package:dartblock_code/models/statement.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Configuration constants for the toolbox.
 class ToolboxConfig {

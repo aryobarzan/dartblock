@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_configuration.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:dartblock_code/models/dartblock_interaction.dart';
 import 'package:dartblock_code/models/statement.dart';
 

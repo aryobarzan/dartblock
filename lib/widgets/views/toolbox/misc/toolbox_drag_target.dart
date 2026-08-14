@@ -3,7 +3,7 @@ import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:dartblock_code/widgets/helpers/adaptive_display.dart';
 import 'package:dartblock_code/widgets/views/statement_type_picker.dart';
 import 'package:dartblock_code/widgets/views/toolbox/models/toolbox_configuration.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:dartblock_code/models/dartblock_interaction.dart';
 import 'package:dartblock_code/models/statement.dart';

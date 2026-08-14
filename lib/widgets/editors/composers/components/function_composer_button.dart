@@ -5,7 +5,7 @@ import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:dartblock_code/widgets/editors/function_call.dart';
 import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FunctionComposerButton extends ConsumerWidget {

@@ -5,7 +5,7 @@ import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:dartblock_code/widgets/editors/composers/dartblock_value.dart';
 import 'package:dartblock_code/widgets/helpers/provider_aware_dropdown.dart';
 import 'package:dartblock_code/widgets/helpers/provider_aware_modal.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:dartblock_code/models/function.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';

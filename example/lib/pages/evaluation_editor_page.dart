@@ -1,6 +1,6 @@
 import 'package:dartblock_code/widgets/dartblock_colors.dart';
 import 'package:example/theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:dartblock_code/core/dartblock_program.dart';
 import 'package:dartblock_code/models/evaluator.dart';
 import 'package:dartblock_code/widgets/dartblock_editor.dart';

@@ -2,7 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:dartblock_code/models/statement.dart';
 import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
 import 'package:dartblock_code/widgets/views/dartblock_base_value_widget.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

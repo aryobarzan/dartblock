@@ -2,7 +2,7 @@ import 'package:dartblock_code/widgets/editors/composers/components/button_group
 import 'package:dartblock_code/widgets/editors/composers/components/composer_common_button.dart';
 import 'package:dartblock_code/widgets/editors/composers/components/function_composer_button.dart';
 import 'package:dartblock_code/widgets/editors/composers/components/variable_picker_button.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:dartblock_code/models/function.dart';
 import 'package:dartblock_code/models/dartblock_interaction.dart';

@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:dartblock_code/widgets/dartblock_editor_providers.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:dartblock_code/models/dartblock_value.dart';
 import 'package:dartblock_code/widgets/helper_widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
