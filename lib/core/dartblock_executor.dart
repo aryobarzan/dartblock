@@ -30,7 +30,7 @@ void _isolateEntry(_IsolateArgs args) {
       FunctionCallStatement.init('main', []).run(executor);
       // send execution result as a Map (JSON serialization)
       resultSendPort.send(executor.getExecutionResult().toJson());
-    } catch (ex, _) {
+    } catch (ex) {
       final executionResult = executor.getExecutionResult();
       if (ex is DartBlockException) {
         executionResult.exception = ex.toJson();
