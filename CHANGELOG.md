@@ -1,5 +1,7 @@
 ## 4.0.0
 
+- Fixed: the on-screen keyboard would cover the active textfield in the Custom Function editor when shown as part of a bottom sheet.
+  - The on-screen keyboard now correctly pushes up the entire bottom sheet so as to not cover its contents.
 - Migrated to the standalone `material_ui` and `cupertino_ui` packages, decoupled from the Flutter SDK as of Flutter 3.47.
   - All `package:flutter/material.dart` and `package:flutter/cupertino.dart` imports have been replaced with `package:material_ui/material_ui.dart` and `package:cupertino_ui/cupertino_ui.dart` respectively.
   - Consuming apps that also render Material/Cupertino widgets should migrate to `material_ui`/`cupertino_ui` themselves; otherwise, wrap the app in `MaterialUiCompatibilityBridge` to bridge the widget tree with any still-unmigrated dependencies.
