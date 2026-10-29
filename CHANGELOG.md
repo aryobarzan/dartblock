@@ -1,3 +1,8 @@
+## 4.0.1
+
+- Updated 3rd-party dependencies.
+  - With `google_fonts` updated to `9.0.0`, the old legacy wrapper is no longer needed and has been removed.
+
 ## 4.0.0
 
 - Fixed: the on-screen keyboard would cover the active textfield in the Custom Function editor when shown as part of a bottom sheet.

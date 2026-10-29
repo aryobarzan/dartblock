@@ -1,6 +1,6 @@
 name: dartblock_code
 description: "Block-based programming framework 'DartBlock' primarily designed for mobile devices. Supports automatic evaluation, on-device execution and exception-throwing."
-version: 4.0.0
+version: 4.0.1
 repository: https://github.com/aryobarzan/dartblock
 
 environment:
@@ -13,21 +13,21 @@ dependencies:
   flutter_code_editor: ^0.3.5
   collection: ^1.17.1
   flutter_highlight: ^0.7.0
-  flutter_riverpod: ^3.4.2
-  google_fonts: ^8.2.1
+  flutter_riverpod: ^3.4.3
+  google_fonts: ^9.0.0
   highlight: ^0.7.0
   json_annotation: ^4.12.0
   uuid: ^4.6.0
 
-  material_ui: ^1.0.0
-  cupertino_ui: ^1.0.0
+  material_ui: ^1.9.0
+  cupertino_ui: ^1.1.5
 dev_dependencies:
-  analyzer: ^13.3.0
-  build_runner: ^2.16.0
+  analyzer: ^14.6.0
+  build_runner: ^2.17.1
   flutter_lints: ^6.0.0
   # flutter_test:
   #   sdk: flutter
-  json_serializable: ^6.14.1
+  json_serializable: ^6.15.2
 flutter:
   assets:
     - assets/icons/
