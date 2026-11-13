@@ -1,3 +1,7 @@
+## 4.0.2
+
+- Updated 3rd-party dependencies.
+
 ## 4.0.1
 
 - Updated 3rd-party dependencies.
