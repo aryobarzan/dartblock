@@ -16,7 +16,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_highlight/themes/monokai-sublime.dart';
 import 'package:flutter_highlight/themes/github-gist.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:highlight/languages/all.dart';
 import 'package:dartblock_code/core/dartblock_executor.dart';
 import 'package:dartblock_code/core/dartblock_program.dart';
@@ -123,6 +122,12 @@ class DartBlockEditor extends StatefulWidget {
   final EdgeInsets? padding;
 
   final bool isToolboxDockedBottom;
+
+  /// The [TextStyle] used to display code in the script view.
+  ///
+  /// If null, a default monospace style is used, sized after the theme's `bodyMedium`.
+  /// Provide your own style to use a specific font, e.g., `GoogleFonts.sourceCodePro()` from the `google_fonts` package.
+  final TextStyle? codeTextStyle;
   const DartBlockEditor({
     super.key,
     required this.program,
@@ -141,6 +146,7 @@ class DartBlockEditor extends StatefulWidget {
     this.onDownloadScript,
     this.padding,
     this.isToolboxDockedBottom = true,
+    this.codeTextStyle,
   }) : allowedNativeFunctionCategories =
            allowedNativeFunctionCategories ??
            DartBlockNativeFunctionCategory.values,
@@ -153,6 +159,14 @@ class DartBlockEditor extends StatefulWidget {
 
 class _DartBlockEditorState extends State<DartBlockEditor>
     with TickerProviderStateMixin {
+  TextStyle _codeTextStyle(BuildContext context) =>
+      widget.codeTextStyle ??
+      TextStyle(
+        fontFamily: 'monospace',
+        fontFamilyFallback: const ['Consolas', 'Menlo', 'Courier New'],
+        fontSize: Theme.of(context).textTheme.bodyMedium?.fontSize ?? 12,
+      );
+
   late DartBlockProgram program;
   late DartBlockExecutor executor;
   ProviderContainer? _isolatedContainer;
@@ -347,15 +361,9 @@ class _DartBlockEditorState extends State<DartBlockEditor>
                                                 language:
                                                     allLanguages[language.name],
                                               ),
-                                              textStyle:
-                                                  GoogleFonts.sourceCodePro(
-                                                    fontSize:
-                                                        Theme.of(context)
-                                                            .textTheme
-                                                            .bodyMedium
-                                                            ?.fontSize ??
-                                                        12,
-                                                  ),
+                                              textStyle: _codeTextStyle(
+                                                context,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -472,13 +480,7 @@ class _DartBlockEditorState extends State<DartBlockEditor>
                                   .trim(),
                               language: allLanguages[language.name],
                             ),
-                            textStyle: GoogleFonts.sourceCodePro(
-                              fontSize:
-                                  Theme.of(
-                                    context,
-                                  ).textTheme.bodyMedium?.fontSize ??
-                                  12,
-                            ),
+                            textStyle: _codeTextStyle(context),
                           ),
                         ),
                       ),

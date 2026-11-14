@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dartblock_code/widgets/dartblock_colors.dart';
 import 'package:example/misc/dartblock_sample_program.dart';
 import 'package:example/theme.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:dartblock_code/core/dartblock_program.dart';
@@ -107,6 +108,7 @@ class _QuizPageState extends State<QuizPage> {
                   canDelete: true,
                   canReorder: true,
                   canRun: true,
+                  codeTextStyle: GoogleFonts.sourceCodePro(),
                   onChanged: (changedDartBlockProgram) {
                     setState(() {
                       userSolution = changedDartBlockProgram;

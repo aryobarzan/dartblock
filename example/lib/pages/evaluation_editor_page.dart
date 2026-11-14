@@ -1,5 +1,6 @@
 import 'package:dartblock_code/widgets/dartblock_colors.dart';
 import 'package:example/theme.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:dartblock_code/core/dartblock_program.dart';
 import 'package:dartblock_code/models/evaluator.dart';
@@ -95,6 +96,7 @@ class _EvaluationEditorPageState extends State<EvaluationEditorPage> {
                 canDelete: false,
                 canReorder: false,
                 canRun: true,
+                codeTextStyle: GoogleFonts.sourceCodePro(),
                 onChanged: (updatedProgram) {},
                 colors: DartBlockColors(
                   number: MaterialTheme.number,

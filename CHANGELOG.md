@@ -1,6 +1,8 @@
 ## 4.0.3
 
-- Added some missing documentation.
+- Removed the `google_fonts` dependency.
+  - Added the optional `codeTextStyle` parameter to `DartBlockEditor` to set the font of the script view's code. Without it, a default monospace style is used instead of Source Code Pro, so the script view's font will look different unless you provide your own (e.g., `GoogleFonts.sourceCodePro()`).
+- Fixed unresolved doc references reported by pana.
 
 ## 4.0.2
 

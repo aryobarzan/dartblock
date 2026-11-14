@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dartblock_code/widgets/dartblock_colors.dart';
 import 'package:example/theme.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:dartblock_code/core/dartblock_program.dart';
@@ -38,6 +39,7 @@ class _EditorViewState extends State<EditorView> {
         canDelete: true,
         canReorder: true,
         canRun: true,
+        codeTextStyle: GoogleFonts.sourceCodePro(),
         onChanged: widget.onChanged,
         onInteraction: (dartBlockInteraction) {
           // Example interaction: user tapped on "Run" button.
