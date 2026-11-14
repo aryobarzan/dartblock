@@ -1,12 +1,7 @@
-import 'package:dartblock_code/widgets/dartblock_colors.dart';
+import 'package:dartblock_code/dartblock_code.dart';
 import 'package:example/theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:dartblock_code/core/dartblock_program.dart';
-import 'package:dartblock_code/models/evaluator.dart';
-import 'package:dartblock_code/widgets/dartblock_editor.dart';
-import 'package:dartblock_code/widgets/evaluator_editor.dart';
-import 'package:dartblock_code/widgets/views/evaluation/evaluation_widget.dart';
 
 class EvaluationEditorPage extends StatefulWidget {
   final DartBlockProgram sampleSolution;

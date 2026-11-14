@@ -1,14 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dartblock_code/widgets/dartblock_colors.dart';
+import 'package:dartblock_code/dartblock_code.dart';
 import 'package:example/theme.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:dartblock_code/core/dartblock_program.dart';
-import 'package:dartblock_code/widgets/dartblock_editor.dart';
 
 /// A simple widget integrating the main [DartBlockEditor] widget for viewing and editing a [DartBlockProgram].
 class EditorView extends StatefulWidget {

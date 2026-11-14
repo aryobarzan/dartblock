@@ -5,6 +5,7 @@
 
 - [DartBlock](#dartblock)
   - [Introduction](#introduction)
+  - [Installation](#installation)
   - [Example](#example)
   - [Usage](#usage)
     - [Editor](#editor)
@@ -22,6 +23,7 @@
   - [Supported Platforms](#supported-platforms)
     - [Web](#web)
   - [Documentation](#documentation)
+  - [Integration Guide](#integration-guide)
   - [Assets](#assets)
 
 ## Introduction
@@ -37,12 +39,25 @@ In addition to a drag-and-drop based approach to composing programs, DartBlock a
   - Example use case: to make a programming question based on DartBlock easier, part of the solution could be provided to the user, or the full solution could be provided but in a shuffled state.
 - **Serialization**: with support for JSON encoding and decoding, DartBlock programs can be stored and reloaded.
 
+## Installation
+
+Add `dartblock_code` to your `pubspec.yaml`:
+
+```yaml
+dependencies:
+  dartblock_code: ^4.1.0
+```
+
+Or run `flutter pub add dartblock_code`.
+
+This package requires Flutter 3.47.0 or newer, as it is built on the standalone `material_ui` and `cupertino_ui` packages. For integrating it into an existing app (including apps that use `flutter_riverpod` themselves), see the [Integration Guide](INTEGRATION_GUIDE.md).
+
 ## Example
 
 <?code-excerpt "example/lib/main.dart (basic-example)"?>
 
 ```dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:dartblock_code/dartblock_code.dart';
 
 final program = DartBlockProgram.example();
@@ -327,11 +342,15 @@ However, due to [Dart not supporting Isolates on Web](https://dart.dev/language/
 - A faulty DartBlock program can freeze the containing app. For example, if the executed program contains a recursive function call with no proper ending condition, the program's execution will never end.
   - On non-Web platforms, DartBlock executes programs on a separate isolate, which can easily be killed after a set amount of time if the execution has not finished.
 
-For more info, see the function `_executeWeb()` in `lib/core/dartblock_executor.dart`.
+For more info, see the function `_executeWeb()` in `lib/src/core/dartblock_executor.dart`.
 
 ## Documentation
 
 This package contains some preliminary documentation for its main classes. Additional documentation will be added gradually!
+
+## Integration Guide
+
+See [INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md) for how to integrate DartBlock into your app, including alongside your own `flutter_riverpod` setup.
 
 ## Assets
 

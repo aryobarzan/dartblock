@@ -1,8 +1,14 @@
-## 4.0.3
+## 4.1.0
 
+- **BREAKING:** Moved all implementation files into `lib/src/`. Only `package:dartblock_code/dartblock_code.dart` is now public API.
+  - This is a breaking change: imports such as `package:dartblock_code/widgets/dartblock_editor.dart` must become `package:dartblock_code/dartblock_code.dart`. Models, the executor, evaluator classes, the editor and evaluation widgets and `DartBlockColors` are exported from it.
 - Removed the `google_fonts` dependency.
   - Added the optional `codeTextStyle` parameter to `DartBlockEditor` to set the font of the script view's code. Without it, a default monospace style is used instead of Source Code Pro, so the script view's font will look different unless you provide your own (e.g., `GoogleFonts.sourceCodePro()`).
 - Fixed unresolved doc references reported by pana.
+- Tightened the SDK constraints to match `material_ui` and `cupertino_ui` (Dart `^3.13.0`, Flutter `>=3.47.0`).
+- Added `issue_tracker` to the pubspec, an Installation section and Integration Guide link to the README, and re-enabled the unit tests.
+- Removed the discontinued `dart_code_metrics` analyzer plugin configuration.
+- CI now analyzes, tests and runs `flutter pub publish --dry-run` in a single workflow.
 
 ## 4.0.2
 

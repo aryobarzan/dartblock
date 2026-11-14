@@ -1,15 +1,11 @@
 import 'dart:convert';
 
-import 'package:dartblock_code/widgets/dartblock_colors.dart';
+import 'package:dartblock_code/dartblock_code.dart';
 import 'package:example/misc/dartblock_sample_program.dart';
 import 'package:example/theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:dartblock_code/core/dartblock_program.dart';
-import 'package:dartblock_code/models/evaluator.dart';
-import 'package:dartblock_code/widgets/dartblock_editor.dart';
-import 'package:dartblock_code/widgets/views/evaluation/evaluation_widget.dart';
 
 /// An example quiz page to demonstrate a potential use case for DartBlock, where the user is asked to compose a DartBlock program to solve the given problem.
 ///

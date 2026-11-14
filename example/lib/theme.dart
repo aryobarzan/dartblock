@@ -1,4 +1,4 @@
-import "package:dartblock_code/widgets/dartblock_colors.dart";
+import "package:dartblock_code/dartblock_code.dart";
 import "package:material_ui/material_ui.dart";
 
 class MaterialTheme {

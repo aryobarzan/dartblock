@@ -9,7 +9,7 @@ DartBlock internally uses `flutter_riverpod` for its state management, but it is
 #### Step 1: Set Up Your App's ProviderScope
 
 ```dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dartblock_code/dartblock_code.dart';
 
