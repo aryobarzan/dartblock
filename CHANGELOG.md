@@ -9,6 +9,7 @@
 - Added `issue_tracker` to the pubspec, an Installation section and Integration Guide link to the README, and re-enabled the unit tests.
 - Removed the discontinued `dart_code_metrics` analyzer plugin configuration.
 - CI now analyzes, tests and runs `flutter pub publish --dry-run` in a single workflow.
+- Fixed `DartBlockInteractionType.tapNumberComposerClear` not being serialized correctly.
 
 ## 4.0.2
 

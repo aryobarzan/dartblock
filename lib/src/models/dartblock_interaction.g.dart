@@ -97,6 +97,7 @@ const _$DartBlockInteractionTypeEnumMap = {
   DartBlockInteractionType.tapNumberComposerNegate: 'tapNumberComposerNegate',
   DartBlockInteractionType.tapNumberComposerBackspace:
       'tapNumberComposerBackspace',
+  DartBlockInteractionType.tapNumberComposerClear: 'tapNumberComposerClear',
   DartBlockInteractionType.tapNumberComposerUndo: 'tapNumberComposerUndo',
   DartBlockInteractionType.tapNumberComposerRedo: 'tapNumberComposerRedo',
   DartBlockInteractionType.tapNumberComposerFunctionCall:
