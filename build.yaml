@@ -1,0 +1,9 @@
+# Restrict code generation to the package's own sources. Without this,
+# build_runner also scans example/ (including its ephemeral plugin symlinks).
+targets:
+  $default:
+    sources:
+      include:
+        - lib/**
+        - pubspec.yaml
+        - $package$
