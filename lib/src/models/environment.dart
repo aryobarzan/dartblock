@@ -28,14 +28,9 @@ class DartBlockEnvironment {
 
   final Map<String, DartBlockDataType> _memoryTypes;
 
-  DartBlockEnvironment(
-    this.key, {
-    DartBlockEnvironment? parent,
-    required List<DartBlockEnvironment> children,
-  }) : _parent = parent,
-       _children = children,
-       _memory = {},
-       _memoryTypes = {};
+  DartBlockEnvironment(this.key, {this._parent, required this._children})
+    : _memory = {},
+      _memoryTypes = {};
 
   /// NOTE: The serialized form intentionally omits the upward `parent` link to
   /// avoid infinite recursion (child -> parent -> child ...) during JSON
