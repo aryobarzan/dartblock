@@ -12,7 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Widget on which a [StatementType] can be dropped on to start creating a statement of that type and adding it to that location of the program.
 ///
-/// Specifically, the user drags a [Draggable] from within the [StatementStrip] of the [DartBlockToolbox].
+/// Specifically, the user drags a [Draggable] from within the `StatementStrip` of the `DartBlockToolbox`.
 class ToolboxDragTarget extends ConsumerWidget {
   final int nodeKey;
   final Function(Statement) onSaved;

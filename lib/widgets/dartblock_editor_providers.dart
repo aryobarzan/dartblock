@@ -27,6 +27,7 @@ class ProgramNotifier extends Notifier<DartBlockProgram> {
     'programProvider must be overridden with actual program',
   );
 
+  /// Sets the current program, exposing the otherwise protected setter.
   @override
   set state(DartBlockProgram newState) => super.state = newState;
 
@@ -128,6 +129,7 @@ class IsDraggingStatementTypeFromToolboxNotifier
   @override
   StatementType? build() => null;
 
+  /// Sets the statement type being dragged, exposing the otherwise protected setter.
   @override
   set state(StatementType? newState) => super.state = newState;
 
@@ -160,6 +162,7 @@ class EditorStateNotifier extends Notifier<DartBlockEditorState> {
     isCopiedStatementCut: false,
   );
 
+  /// Sets the editor state, exposing the otherwise protected setter.
   @override
   set state(DartBlockEditorState newState) => super.state = newState;
 
@@ -201,6 +204,7 @@ class InteractionEventNotifier extends Notifier<DartBlockInteraction?> {
   @override
   DartBlockInteraction? build() => null;
 
+  /// Sets the current interaction, exposing the otherwise protected setter.
   @override
   set state(DartBlockInteraction? newState) => super.state = newState;
 

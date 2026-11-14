@@ -1,3 +1,7 @@
+## 4.0.3
+
+- Added some missing documentation.
+
 ## 4.0.2
 
 - Updated 3rd-party dependencies.
